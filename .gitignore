@@ -8,7 +8,11 @@
 # Unignore all dirs
 !*/
 
+# Ignore vscode configuration
 .vscode
+
+# Ignore DS_Store Mac OS X
+.DS_Store
 
 # Prerequisites
 *.d

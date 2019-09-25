@@ -1,0 +1,145 @@
+/****************************************+
+ * Fichero: Geometry.cpp
+ * Autor: David Solanas
+ *****************************************/
+
+#include "Geometry.hpp"
+#include <cmath>
+
+/**
+ * Constructor de la clase Point, recibe como parámetros
+ * las 3 coordenadas xyz
+ */
+Point::Point(float x, float y, float z)
+{
+    this->c[0] = x;
+    this->c[1] = y;
+    this->c[2] = z;
+    this->c[3] = 1;
+}
+
+/**
+ * Suma de un punto con un vector dirección
+ * devuelve como resultado un punto
+ */
+const Point Point::operator+(const Direction &d) const
+{
+    std::array<float, 4> cd = d.getCoord();
+    return Point(this->c[0] + cd[0], this->c[1] + cd[1], this->c[2] + cd[2]);
+}
+
+/**
+ * Resta de un punto con otro punto, devuelve
+ * como resultado un vector dirección
+ */
+const Direction Point::operator-(const Point &p) const
+{
+    std::array<float, 4> cp = p.getCoord();
+    return Direction(this->c[0] - cp[0], this->c[1] - cp[1], this->c[2] - cp[2]);
+}
+
+/**
+ * Devuelve las coordenada  del punto
+ */
+const std::array<float, 4> Point::getCoord() const
+{
+    return this->c;
+}
+
+/**
+ * Constructor de la clase Direction, recibe
+ * como parámetros las tres coordenadas xyz
+ */
+Direction::Direction(float x, float y, float z)
+{
+    this->c[0] = x;
+    this->c[1] = y;
+    this->c[2] = z;
+    this->c[3] = 0;
+}
+
+/**
+ * Producto de un vector por un escalar, devuelve un vector
+ */
+const Direction Direction::operator*(const float s) const
+{
+    return Direction(this->c[0] * s, this->c[1] * s, this->c[2] * s);
+}
+
+/**
+ * Suma de dos vectores, devuelve un vector
+ */
+const Direction Direction::operator+(const Direction &d) const
+{
+    std::array<float, 4> cd = d.getCoord();
+    return Direction(this->c[0] + cd[0], this->c[1] + cd[1], this->c[2] + cd[2]);
+}
+
+/**
+ * Suma de un vector con un punto, devuelve un punto
+ */
+const Point Direction::operator+(const Point &p) const
+{
+    std::array<float, 4> cp = p.getCoord();
+    return Point(cp[0] + this->c[0], cp[1] + this->c[1], cp[2] + this->c[2]);
+}
+
+/**
+ * Resta de dos vectores, devuelve un vector
+ */
+const Direction Direction::operator-(const Direction &d) const
+{
+    std::array<float, 4> cd = d.getCoord();
+    return Direction(this->c[0] - cd[0], this->c[1] - cd[1], this->c[2] - cd[2]);
+}
+
+/**
+ * División de un vector por un escalar, devuelve un vector
+ */
+const Direction Direction::operator/(const float s) const
+{
+    return Direction(this->c[0] / s, this->c[1] / s, this->c[2] / s);
+}
+
+/**
+ * Devuelve las coordenada  del vector
+ */
+const std::array<float, 4> Direction::getCoord() const
+{
+    return this->c;
+}
+
+/**
+ * Devuelve el módulo del vector dirección
+ */
+const float Direction::mod() const
+{
+    return std::sqrt(this->c[0] * this->c[0] +
+                     this->c[1] * this->c[1] +
+                     this->c[2] * this->c[2]);
+}
+
+/**
+ * Producto escalar entre dos vectores dirección,
+ * devuelve como resultado un escalar
+ */
+const float dot(const Direction &d1, const Direction &d2)
+{
+    std::array<float, 4> c1 = d1.getCoord();
+    std::array<float, 4> c2 = d2.getCoord();
+    return c1[0] * c2[0] + c1[1] * c2[1] + c1[2] * c2[2];
+}
+
+/**
+ * Producto vectorial entre dos vectores dirección, devuelve
+ * como resultado un vector dirección perpendicular a los dos
+ * vectores
+ */
+const Direction corss(const Direction &d1, const Direction &d2)
+{
+    std::array<float, 4> c1 = d1.getCoord();
+    std::array<float, 4> c2 = d2.getCoord();
+    return Direction(c1[1] * c2[2] - c1[2] * c2[1],
+                     c1[2] * c2[0] - c1[0] * c2[2],
+                     c1[0] * c2[1] - c1[1] * c2[0]);
+}
