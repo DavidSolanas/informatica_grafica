@@ -25,6 +25,7 @@ private:
     std::array<float, 4> c;
 
 public:
+    Point();
     /**
      * Constructor de la clase Point, recibe como parámetros
      * las 3 coordenadas xyz
@@ -42,6 +43,11 @@ public:
      * como resultado un vector dirección
      */
     const Direction operator-(const Point &p) const;
+
+    /**
+    * Copia el punto p al punto actual
+    */
+    Point &operator=(const Point &p);
 
     /**
      * Devuelve las coordenada  del punto
@@ -63,6 +69,7 @@ private:
     std::array<float, 4> c;
 
 public:
+    Direction();
     /**
      * Constructor de la clase Direction, recibe
      * como parámetros las tres coordenadas xyz
@@ -93,6 +100,11 @@ public:
      * División de un vector por un escalar, devuelve un vector
      */
     const Direction operator/(const float s) const;
+
+    /**
+    * Copia la dirección d al vector dirección actual
+    */
+    Direction &operator=(const Direction &d);
 
     /**
      * Devuelve las coordenada  del vector

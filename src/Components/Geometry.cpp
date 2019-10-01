@@ -6,6 +6,8 @@
 #include "Geometry.hpp"
 #include <cmath>
 
+Point::Point() {}
+
 /**
  * Constructor de la clase Point, recibe como parámetros
  * las 3 coordenadas xyz
@@ -39,12 +41,26 @@ const Direction Point::operator-(const Point &p) const
 }
 
 /**
+ * Copia el punto p al punto actual
+ */
+Point &Point::operator=(const Point &p)
+{
+    this->c[0] = p.c[0];
+    this->c[1] = p.c[1];
+    this->c[2] = p.c[2];
+    this->c[3] = p.c[3];
+    return *this;
+}
+
+/**
  * Devuelve las coordenada  del punto
  */
 const std::array<float, 4> Point::getCoord() const
 {
     return this->c;
 }
+
+Direction::Direction() {}
 
 /**
  * Constructor de la clase Direction, recibe
@@ -99,6 +115,18 @@ const Direction Direction::operator-(const Direction &d) const
 const Direction Direction::operator/(const float s) const
 {
     return Direction(this->c[0] / s, this->c[1] / s, this->c[2] / s);
+}
+
+/**
+* Copia el punto p al punto actual
+*/
+Direction &Direction::operator=(const Direction &d)
+{
+    this->c[0] = d.c[0];
+    this->c[1] = d.c[1];
+    this->c[2] = d.c[2];
+    this->c[3] = d.c[3];
+    return *this;
 }
 
 /**
