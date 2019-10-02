@@ -58,6 +58,8 @@ public:
      * Copia las coordenadas especificadas al punto
      */
     void setCoord(std::array<float, 4> c);
+
+    void view();
 };
 
 /**
@@ -125,6 +127,8 @@ public:
      * Devuelve el módulo del vector dirección
      */
     const float mod() const;
+
+    void view();
 };
 
 /**

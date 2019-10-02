@@ -1,27 +1,56 @@
 #include <iostream>
-#include "Geometry.hpp"
+#include "Transformation.hpp"
+#include <cmath>
 
 int main(int argc, const char **argv)
 {
-    float x, y, z;
-    std::cin >> x >> y >> z;
-    Direction d(x, y, z);
-    Direction rnd(3, 2, 1);
-    Direction e = corss(d, rnd);
-    auto ce = e.getCoord();
-    std::cout << ce[0] << " " << ce[1] << " " << ce[2] << " " << ce[3] << std::endl;
-    e = d + e;
-    ce = e.getCoord();
-    std::cout << ce[0] << " " << ce[1] << " " << ce[2] << " " << ce[3] << std::endl;
-    std::cout << dot(d, e) << std::endl;
-    std::cout << d.mod() << std::endl;
+    Direction d(2, 4, 6);
+    Point p(3, 7, 9);
+
+    d.view();
+    translation(d, 20, 10, 15).view();
+    std::cout << "--------------" << std::endl;
+    p.view();
+    translation(p, 20, 10, 15).view();
+
     std::cout << std::endl;
-    Point p1(1, 2, 3);
-    auto pp = p1.getCoord();
-    std::cout << pp[0] << " " << pp[1] << " " << pp[2] << " " << pp[3] << std::endl;
-    Point p2(5, 6, 7);
-    auto pc = d + p1;
-    pp = pc.getCoord();
-    std::cout << pp[0] << " " << pp[1] << " " << pp[2] << " " << pp[3] << std::endl;
+
+    d.view();
+    scale(d, 5, 10, 100).view();
+    std::cout << "--------------" << std::endl;
+    p.view();
+    scale(p, 5, 10, 100).view();
+
+    std::cout << std::endl;
+
+    d.view();
+    rotate(d, M_PI, 0).view();
+    std::cout << "--------------" << std::endl;
+    rotate(d, M_PI, 1).view();
+    std::cout << "--------------" << std::endl;
+    rotate(d, M_PI, 2).view();
+    std::cout << "--------------" << std::endl;
+
+    std::cout << std::endl;
+
+    p.view();
+    rotate(p, M_PI, 0).view();
+    std::cout << "--------------" << std::endl;
+    rotate(p, M_PI, 1).view();
+    std::cout << "--------------" << std::endl;
+    rotate(p, M_PI, 2).view();
+
+    std::cout << std::endl;
+
+    d.view();
+    Direction u(5, 5, 5);
+    Direction v(1, 8, 10);
+    Direction w(11, 12, 13);
+    Point p1(0, 7, 25);
+    change_base(d, p1, u, v, w).view();
+    std::cout << "--------------" << std::endl;
+    p.view();
+    change_base(p, p1, u, v, w).view();
+
     return 0;
 }

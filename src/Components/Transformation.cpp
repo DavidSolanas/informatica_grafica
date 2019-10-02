@@ -9,6 +9,15 @@
 Matrix_Transformation::Matrix_Transformation(const float x, const float y,
                                              const float z, const int op)
 {
+    //Inicialización de la matriz
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            M[i][j] = 0;
+        }
+    }
+
     switch (op)
     {
     case 0: //Matriz de traslación
@@ -33,6 +42,15 @@ Matrix_Transformation::Matrix_Transformation(const float x, const float y,
 
 Matrix_Transformation::Matrix_Transformation(const float theta, const int axis)
 {
+    //Inicialización de la matriz
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            M[i][j] = 0;
+        }
+    }
+
     switch (axis)
     {
     case 0: //X axis
@@ -88,6 +106,9 @@ Matrix_Transformation::Matrix_Transformation(const Point &p, const Direction &u,
     M[1][3] = cp[1];
     M[2][3] = cp[2];
 
+    M[3][0] = 0;
+    M[3][1] = 0;
+    M[3][2] = 0;
     M[3][3] = 1;
 }
 

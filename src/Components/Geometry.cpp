@@ -5,6 +5,7 @@
 
 #include "Geometry.hpp"
 #include <cmath>
+#include <iostream>
 
 Point::Point() {}
 
@@ -186,4 +187,14 @@ const Direction corss(const Direction &d1, const Direction &d2)
     return Direction(c1[1] * c2[2] - c1[2] * c2[1],
                      c1[2] * c2[0] - c1[0] * c2[2],
                      c1[0] * c2[1] - c1[1] * c2[0]);
+}
+
+void Point::view()
+{
+    std::cout << "<" << c[0] << ", " << c[1] << ", " << c[2] << ", " << c[3] << ">" << std::endl;
+}
+
+void Direction::view()
+{
+    std::cout << "<" << c[0] << ", " << c[1] << ", " << c[2] << ", " << c[3] << ">" << std::endl;
 }
