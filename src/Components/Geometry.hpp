@@ -53,6 +53,11 @@ public:
      * Devuelve las coordenada  del punto
      */
     const std::array<float, 4> getCoord() const;
+
+    /**
+     * Copia las coordenadas especificadas al punto
+     */
+    void setCoord(std::array<float, 4> c);
 };
 
 /**
@@ -110,6 +115,11 @@ public:
      * Devuelve las coordenada  del vector
      */
     const std::array<float, 4> getCoord() const;
+
+    /**
+     * Copia las coordenadas especificadas al vector
+     */
+    void setCoord(std::array<float, 4> c);
 
     /**
      * Devuelve el módulo del vector dirección

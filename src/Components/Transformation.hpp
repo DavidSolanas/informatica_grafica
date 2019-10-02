@@ -14,51 +14,32 @@ private:
     float M[4][4];
 
 public:
+    /**
+     * Constructor para una matriz de traslacion (op = 0) o
+     * de escalado (op = 1)
+     */
     Matrix_Transformation(const float x, const float y, const float z, const int op);
+    /**
+     * Constructor para una matriz de rotación en el eje
+     * X (axis = 0), Y (axis = 1), o Z (axis = 2)
+     */
     Matrix_Transformation(const float theta, const int axis);
+    /**
+     * Constructor para una matriz de cambio de base
+     */
     Matrix_Transformation(const Point &p, const Direction &u,
                           const Direction &v, const Direction &w);
+    /**
+     * Multiplica una matriz 4x4 por un vector dirección,
+     * devuelve un vector dirección
+     */
     const Direction operator*(const Direction &d) const;
-    const Point operator*(const Point &d) const;
+    /**
+     * Multiplica una matriz 4x4 por un punto,
+     * devuelve un punto
+     */
+    const Point operator*(const Point &p) const;
 };
-
-Matrix_Transformation::Matrix_Transformation(const float x, const float y,
-                                             const float z, const int op)
-{
-    switch (op)
-    {
-    case 0: //Matriz de traslación
-        M[0][0] = 1;
-        M[1][1] = 1;
-        M[2][2] = 1;
-        M[3][3] = 1;
-        M[0][3] = x;
-        M[1][3] = y;
-        M[2][3] = z;
-        break;
-    case 1: //Matriz de escalado
-        M[0][0] = x;
-        M[1][1] = y;
-        M[2][2] = z;
-        M[3][3] = 1;
-        break;
-    default:
-        break;
-    }
-}
-Matrix_Transformation::Matrix_Transformation(const float theta, const int axis)
-{
-}
-Matrix_Transformation::Matrix_Transformation(const Point &p, const Direction &u,
-                                             const Direction &v, const Direction &w)
-{
-}
-const Direction Matrix_Transformation::operator*(const Direction &d) const
-{
-}
-const Point Matrix_Transformation::operator*(const Point &d) const
-{
-}
 
 Point translation(const Point &p, const float x,
                   const float y, const float z);
@@ -79,7 +60,7 @@ Direction rotate(const Direction &d, const float theta, const int axis);
 Point change_base(const Point &p, const Point &origin, const Direction &u,
                   const Direction &v, const Direction &w);
 
-Direction change_base(const Direction &p, const Point &origin, const Direction &u,
+Direction change_base(const Direction &d, const Point &origin, const Direction &u,
                       const Direction &v, const Direction &w);
 
 #endif // !TRANSFORM_HPP

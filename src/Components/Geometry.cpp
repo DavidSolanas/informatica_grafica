@@ -60,6 +60,14 @@ const std::array<float, 4> Point::getCoord() const
     return this->c;
 }
 
+/**
+ * Copia las coordenadas especificadas al punto
+ */
+void Point::setCoord(std::array<float, 4> c)
+{
+    this->c = c;
+}
+
 Direction::Direction() {}
 
 /**
@@ -135,6 +143,14 @@ Direction &Direction::operator=(const Direction &d)
 const std::array<float, 4> Direction::getCoord() const
 {
     return this->c;
+}
+
+/**
+ * Copia las coordenadas especificadas al vector
+ */
+void Direction::setCoord(std::array<float, 4> c)
+{
+    this->c = c;
 }
 
 /**
