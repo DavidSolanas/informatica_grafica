@@ -7,8 +7,6 @@
 #Ignore build CMake files
 build/**
 
-!build/Makefile
-
 #Ignore CMakeLists
 CMakeLists.txt
 
