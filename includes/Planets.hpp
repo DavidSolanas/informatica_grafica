@@ -34,6 +34,9 @@ public:
     Planet();
     Planet(const Point &center, const Direction &axis, const Point &city);
     Planet &operator=(const Planet &p);
+    Point getCenter();
+    Direction getAxis();
+    Point getCity();
 };
 
 /**

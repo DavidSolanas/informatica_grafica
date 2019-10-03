@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Transformation.hpp"
+#include "Planets.hpp"
 #include <cmath>
 
 int main(int argc, const char **argv)
@@ -51,6 +52,11 @@ int main(int argc, const char **argv)
     std::cout << "--------------" << std::endl;
     p.view();
     change_base(p, p1, u, v, w).view();
+
+    Point c(0, 0, 0);
+    Direction ax(0, 0, 2);
+    Point city(1, 1, 0);
+    Planet planet(c, ax, city);
 
     return 0;
 }
