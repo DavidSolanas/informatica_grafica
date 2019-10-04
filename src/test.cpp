@@ -54,9 +54,24 @@ int main(int argc, const char **argv)
     change_base(p, p1, u, v, w).view();
 
     Point c(0, 0, 0);
-    Direction ax(0, 0, 2);
-    Point city(1, 1, 0);
+    Direction ax(0, 0, 4);
+    Point city(2, 0, 0);
     Planet planet(c, ax, city);
+    Station s(2.1456, 4.2211245, planet);
+    Direction i = s.getLongitudeTD();
+    Direction j = s.getLatitudeTD();
+    Direction k = s.getNormal();
+    s.getPosition().view();
+    std::cout << std::endl;
+    i.view();
+    j.view();
+    k.view();
+    std::cout << i.mod() << std::endl;
+    std::cout << j.mod() << std::endl;
+    std::cout << k.mod() << std::endl;
+    std::cout << dot(i, j) << std::endl;
+    std::cout << dot(i, k) << std::endl;
+    std::cout << dot(j, k) << std::endl;
 
     return 0;
 }

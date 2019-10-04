@@ -37,6 +37,7 @@ public:
     Point getCenter();
     Direction getAxis();
     Point getCity();
+    float getRadius();
 };
 
 /**
@@ -60,7 +61,37 @@ private:
     Planet planet;
 
 public:
+    /**
+     * Constructor de la clase Station
+     */
     Station(const float &inc, const float &az, const Planet &p);
+    /**
+     * Devuelve la posición en el planeta de la estación
+     */
+    Point getPosition();
+    /**
+     * Devuelve la normal a la superficie de la estación
+     * (módulo 1), coordenada K
+     */
+    Direction getNormal();
+    /**
+     * Devuelve el vector tangente a la superficie del
+     * planeta y perpendicular al eje del planeta (mod 1).
+     * Coordenada I
+     */
+    Direction getLongitudeTD();
+    /**
+     * Devuelve el vector tangente a la superficie del
+     * planeta y perpendicular al otro vector tangente (Longitude),
+     * (mod 1). Coordenada J
+     */
+    Direction getLatitudeTD();
 };
+
+/**
+ * Devuelve un punto en la superficie del planeta
+ * según su azimuth e inclination
+ */
+Point getSurfacePoint(Planet p, const float az, const float inc);
 
 #endif // !PLANETS_HPP

@@ -115,13 +115,13 @@ Matrix_Transformation::Matrix_Transformation(const Point &p, const Direction &u,
 const Direction Matrix_Transformation::operator*(const Direction &d) const
 {
     std::array<float, 4> res = {0, 0, 0, 0};
-    auto cd = d.getCoord();
-    for (int i = 0; i < 4; i++)
-    {
-        // fila i-esima de la matriz
-        float aux[] = {M[i][0], M[i][1], M[i][2], M[i][3]};
-        res[i] = aux[0] * cd[0] + aux[1] * cd[1] + aux[2] * cd[2] + aux[3] * cd[3];
-    }
+    std::array<float, 4> cd = d.getCoord();
+    //Cálculo del resultado
+    res[0] = M[0][0] * cd[0] + M[0][1] * cd[1] + M[0][2] * cd[2] + M[0][3] * cd[3];
+    res[1] = M[1][0] * cd[0] + M[1][1] * cd[1] + M[1][2] * cd[2] + M[1][3] * cd[3];
+    res[2] = M[2][0] * cd[0] + M[2][1] * cd[1] + M[2][2] * cd[2] + M[2][3] * cd[3];
+    res[3] = M[3][0] * cd[0] + M[3][1] * cd[1] + M[3][2] * cd[2] + M[3][3] * cd[3];
+
     Direction dr;
     dr.setCoord(res);
     return dr;
@@ -130,13 +130,14 @@ const Direction Matrix_Transformation::operator*(const Direction &d) const
 const Point Matrix_Transformation::operator*(const Point &p) const
 {
     std::array<float, 4> res = {0, 0, 0, 0};
-    auto cp = p.getCoord();
-    for (int i = 0; i < 4; i++)
-    {
-        // fila i-esima de la matriz
-        float aux[] = {M[i][0], M[i][1], M[i][2], M[i][3]};
-        res[i] = aux[0] * cp[0] + aux[1] * cp[1] + aux[2] * cp[2] + aux[3] * cp[3];
-    }
+    std::array<float, 4> cp = p.getCoord();
+
+    //Cálculo del resultado
+    res[0] = M[0][0] * cp[0] + M[0][1] * cp[1] + M[0][2] * cp[2] + M[0][3] * cp[3];
+    res[1] = M[1][0] * cp[0] + M[1][1] * cp[1] + M[1][2] * cp[2] + M[1][3] * cp[3];
+    res[2] = M[2][0] * cp[0] + M[2][1] * cp[1] + M[2][2] * cp[2] + M[2][3] * cp[3];
+    res[3] = M[3][0] * cp[0] + M[3][1] * cp[1] + M[3][2] * cp[2] + M[3][3] * cp[3];
+
     Point pr;
     pr.setCoord(res);
     return pr;
