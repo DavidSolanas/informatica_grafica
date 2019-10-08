@@ -54,10 +54,10 @@ int main(int argc, const char **argv)
     change_base(p, p1, u, v, w).view();
 
     Point c(0, 0, 0);
-    Direction ax(0, 0, 4);
-    Point city(2, 0, 0);
+    Direction ax(0, 0, 2);
+    Point city(1, 0, 0);
     Planet planet(c, ax, city);
-    Station s(2.1456, 4.2211245, planet);
+    Station s(M_PI_2, 0, planet);
     Direction i = s.getLongitudeTD();
     Direction j = s.getLatitudeTD();
     Direction k = s.getNormal();

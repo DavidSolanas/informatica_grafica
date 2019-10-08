@@ -53,6 +53,14 @@ float Planet::getRadius()
     return this->axis.mod() / 2;
 }
 
+float Planet::getAzimuth()
+{
+    std::array<float, 4> c = city.getCoord();
+    float x = c[0];
+    float y = c[1];
+    return atanf(x / y);
+}
+
 Station::Station(const float &inc, const float &az, const Planet &p)
 {
     this->inclination = inc;
@@ -74,8 +82,8 @@ Point Station::getPosition()
  */
 Direction Station::getNormal()
 {
-    float x = cos(this->azimuth) * sin(this->inclination);
-    float y = sin(this->azimuth) * sin(this->inclination);
+    float x = sin(this->azimuth) * sin(this->inclination);
+    float y = cos(this->azimuth) * sin(this->inclination);
     float z = cos(this->inclination);
     return Direction(x, y, z);
 }
@@ -87,8 +95,8 @@ Direction Station::getNormal()
  */
 Direction Station::getLongitudeTD()
 {
-    float x = -sin(this->azimuth);
-    float y = cos(this->azimuth);
+    float x = cos(this->azimuth);
+    float y = -sin(this->azimuth);
     return Direction(x, y, 0);
 }
 
@@ -99,9 +107,9 @@ Direction Station::getLongitudeTD()
  */
 Direction Station::getLatitudeTD()
 {
-    float x = cos(this->azimuth) * cos(this->inclination);
-    float y = sin(this->azimuth) * cos(this->inclination);
-    float z = -sin(this->inclination);
+    float x = sin(this->azimuth) * cos(this->inclination);
+    float y = cos(this->azimuth) * cos(this->inclination);
+    float z = sin(this->inclination);
     return Direction(x, y, z);
 }
 
@@ -111,9 +119,12 @@ Direction Station::getLatitudeTD()
  */
 Point getSurfacePoint(Planet p, const float az, const float inc)
 {
+    //origin
+    std::array<float, 4> o = p.getCenter().getCoord();
+    //radius
     float r = p.getRadius();
-    float x = r * cos(az) * sin(inc);
-    float y = r * sin(az) * sin(inc);
-    float z = r * cos(inc);
+    float x = o[0] + r * sin(az) * sin(inc);
+    float y = o[1] + r * cos(az) * sin(inc);
+    float z = o[2] + r * cos(inc);
     return Point(x, y, z);
 }
