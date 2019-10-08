@@ -38,7 +38,7 @@ public:
     Direction getAxis();
     Point getCity();
     float getRadius();
-    float getAzimuth();
+    const float getAzimuth() const;
 };
 
 /**

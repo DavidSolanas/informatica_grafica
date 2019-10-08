@@ -53,7 +53,7 @@ float Planet::getRadius()
     return this->axis.mod() / 2;
 }
 
-float Planet::getAzimuth()
+const float Planet::getAzimuth() const
 {
     std::array<float, 4> c = city.getCoord();
     float x = c[0];
@@ -64,7 +64,7 @@ float Planet::getAzimuth()
 Station::Station(const float &inc, const float &az, const Planet &p)
 {
     this->inclination = inc;
-    this->azimuth = az;
+    this->azimuth = az + p.getAzimuth();
     this->planet = p;
 }
 
