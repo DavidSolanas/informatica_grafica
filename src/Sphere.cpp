@@ -1,15 +1,15 @@
 /****************************************+
- * Fichero: Planets.cpp
+ * Fichero: Spheres.cpp
  * Autor: David Solanas
  *****************************************/
 
-#include "Planets.hpp"
+#include "Sphere.hpp"
 #include <iostream>
 #include <cmath>
 
-Planet::Planet() {}
+Sphere::Sphere() {}
 
-Planet::Planet(const Point &center, const Direction &axis, const Point &city)
+Sphere::Sphere(const Point &center, const Direction &axis, const Point &city)
 {
     float radius = axis.mod() / 2;
     bool correct = abs((city - center).mod() - radius) <= 1e-6;
@@ -25,7 +25,7 @@ Planet::Planet(const Point &center, const Direction &axis, const Point &city)
     }
 }
 
-Planet &Planet::operator=(const Planet &p)
+Sphere &Sphere::operator=(const Sphere &p)
 {
     this->center = p.center;
     this->axis = p.axis;
@@ -33,98 +33,98 @@ Planet &Planet::operator=(const Planet &p)
     return *this;
 }
 
-Point Planet::getCenter()
+Point Sphere::getCenter()
 {
     return this->center;
 }
 
-Direction Planet::getAxis()
+Direction Sphere::getAxis()
 {
     return this->axis;
 }
 
-Point Planet::getCity()
+Point Sphere::getCity()
 {
     return this->city;
 }
 
-float Planet::getRadius()
+float Sphere::getRadius()
 {
     return this->axis.mod() / 2;
 }
 
-const float Planet::getAzimuth() const
+const float Sphere::getAzimuth() const
 {
     std::array<float, 4> c = city.getCoord();
     float x = c[0];
-    float y = c[1];
-    return atanf(x / y);
+    float z = c[2];
+    return atanf(x / -z);
 }
 
-Station::Station(const float &inc, const float &az, const Planet &p)
+SphereGeometry::SphereGeometry(const float &inc, const float &az, const Sphere &p)
 {
     this->inclination = inc;
-    this->azimuth = az + p.getAzimuth();
-    this->planet = p;
+    this->azimuth = p.getAzimuth() - az;
+    this->sphere = p;
 }
 
 /**
- * Devuelve la posición en el planeta de la estación
+ * Devuelve la posición en el Spherea de la estación
  */
-Point Station::getPosition()
+Point SphereGeometry::getPosition()
 {
-    return getSurfacePoint(this->planet, this->azimuth, this->inclination);
+    return getSurfacePoint(this->sphere, this->azimuth, this->inclination);
 }
 
 /**
  * Devuelve la normal a la superficie de la estación
  * (módulo 1), coordenada K
  */
-Direction Station::getNormal()
+Direction SphereGeometry::getNormal()
 {
     float x = sin(this->azimuth) * sin(this->inclination);
-    float y = cos(this->azimuth) * sin(this->inclination);
-    float z = cos(this->inclination);
+    float y = cos(this->inclination);
+    float z = -cos(this->azimuth) * sin(this->inclination);
     return Direction(x, y, z);
 }
 
 /**
  * Devuelve el vector tangente a la superficie del
- * planeta y perpendicular al eje del planeta (mod 1).
+ * Spherea y perpendicular al eje del Spherea (mod 1).
  * Coordenada I
  */
-Direction Station::getLongitudeTD()
+Direction SphereGeometry::getLongitudeTD()
 {
     float x = cos(this->azimuth);
-    float y = -sin(this->azimuth);
-    return Direction(x, y, 0);
+    float z = sin(this->azimuth);
+    return Direction(x, 0, z);
 }
 
 /**
  * Devuelve el vector tangente a la superficie del
- * planeta y perpendicular al otro vector tangente (Longitude),
+ * Spherea y perpendicular al otro vector tangente (Longitude),
  * (mod 1). Coordenada J
  */
-Direction Station::getLatitudeTD()
+Direction SphereGeometry::getLatitudeTD()
 {
     float x = sin(this->azimuth) * cos(this->inclination);
-    float y = cos(this->azimuth) * cos(this->inclination);
-    float z = sin(this->inclination);
+    float y = sin(this->inclination);
+    float z = -cos(this->azimuth) * cos(this->inclination);
     return Direction(x, y, z);
 }
 
 /**
- * Devuelve un punto en la superficie del planeta
+ * Devuelve un punto en la superficie del Spherea
  * según su azimuth e inclination
  */
-Point getSurfacePoint(Planet p, const float az, const float inc)
+Point getSurfacePoint(Sphere p, const float az, const float inc)
 {
     //origin
     std::array<float, 4> o = p.getCenter().getCoord();
     //radius
     float r = p.getRadius();
     float x = o[0] + r * sin(az) * sin(inc);
-    float y = o[1] + r * cos(az) * sin(inc);
-    float z = o[2] + r * cos(inc);
+    float y = o[1] + r * cos(inc);
+    float z = o[2] + r * -cos(az) * sin(inc);
     return Point(x, y, z);
 }

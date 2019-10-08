@@ -4,25 +4,25 @@
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 
-#ifndef PLANETS_HPP
-#define PLANETS_HPP
+#ifndef SPHERE_HPP
+#define SPHERE_HPP
 
 #include "Geometry.hpp"
 
 /**
- * Clase que representa un planeta, un planeta
+ * Clase que representa un Spherea, un Spherea
  * tiene un centro (Punto), un eje (Dirección) y
  * una ciudad de referencia (Punto)
  */
-class Planet
+class Sphere
 {
 private:
     /**
-     * Centro del planeta
+     * Centro del Spherea
      */
     Point center;
     /**
-     * Eje del planeta
+     * Eje del Spherea
      */
     Direction axis;
     /**
@@ -31,9 +31,9 @@ private:
     Point city;
 
 public:
-    Planet();
-    Planet(const Point &center, const Direction &axis, const Point &city);
-    Planet &operator=(const Planet &p);
+    Sphere();
+    Sphere(const Point &center, const Direction &axis, const Point &city);
+    Sphere &operator=(const Sphere &p);
     Point getCenter();
     Direction getAxis();
     Point getCity();
@@ -43,9 +43,9 @@ public:
 
 /**
  * Clase que representa una estación, una estación
- * tiene una longitud (rad), una latitud (rad) y un planeta (Planet).
+ * tiene una longitud (rad), una latitud (rad) y un Spherea (Sphere).
  */
-class Station
+class SphereGeometry
 {
 private:
     /**
@@ -57,17 +57,17 @@ private:
      */
     float azimuth;
     /**
-     * Planeta de la estación
+     * Spherea de la estación
      */
-    Planet planet;
+    Sphere sphere;
 
 public:
     /**
-     * Constructor de la clase Station
+     * Constructor de la clase SphereGeometry
      */
-    Station(const float &inc, const float &az, const Planet &p);
+    SphereGeometry(const float &inc, const float &az, const Sphere &p);
     /**
-     * Devuelve la posición en el planeta de la estación
+     * Devuelve la posición en el Spherea de la estación
      */
     Point getPosition();
     /**
@@ -77,22 +77,22 @@ public:
     Direction getNormal();
     /**
      * Devuelve el vector tangente a la superficie del
-     * planeta y perpendicular al eje del planeta (mod 1).
+     * Spherea y perpendicular al eje del Spherea (mod 1).
      * Coordenada I
      */
     Direction getLongitudeTD();
     /**
      * Devuelve el vector tangente a la superficie del
-     * planeta y perpendicular al otro vector tangente (Longitude),
+     * Spherea y perpendicular al otro vector tangente (Longitude),
      * (mod 1). Coordenada J
      */
     Direction getLatitudeTD();
 };
 
 /**
- * Devuelve un punto en la superficie del planeta
+ * Devuelve un punto en la superficie del Spherea
  * según su azimuth e inclination
  */
-Point getSurfacePoint(Planet p, const float az, const float inc);
+Point getSurfacePoint(Sphere p, const float az, const float inc);
 
-#endif // !PLANETS_HPP
+#endif // !SPHERE_HPP
