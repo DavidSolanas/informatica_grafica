@@ -5,59 +5,26 @@
 
 int main(int argc, const char **argv)
 {
-    Direction d(2, 4, 6);
-    Point p(3, 7, 9);
 
-    d.view();
-    translation(d, 20, 10, 15).view();
-    std::cout << "--------------" << std::endl;
-    p.view();
-    translation(p, 20, 10, 15).view();
-
-    std::cout << std::endl;
-
-    d.view();
-    scale(d, 5, 10, 100).view();
-    std::cout << "--------------" << std::endl;
-    p.view();
-    scale(p, 5, 10, 100).view();
-
-    std::cout << std::endl;
-
-    d.view();
-    rotate(d, M_PI, 0).view();
-    std::cout << "--------------" << std::endl;
-    rotate(d, M_PI, 1).view();
-    std::cout << "--------------" << std::endl;
-    rotate(d, M_PI, 2).view();
-    std::cout << "--------------" << std::endl;
-
-    std::cout << std::endl;
-
-    p.view();
-    rotate(p, M_PI, 0).view();
-    std::cout << "--------------" << std::endl;
-    rotate(p, M_PI, 1).view();
-    std::cout << "--------------" << std::endl;
-    rotate(p, M_PI, 2).view();
-
-    std::cout << std::endl;
-
-    d.view();
-    Direction u(5, 5, 5);
-    Direction v(1, 8, 10);
-    Direction w(11, 12, 13);
-    Point p1(0, 7, 25);
-    change_base(d, p1, u, v, w).view();
-    std::cout << "--------------" << std::endl;
-    p.view();
-    change_base(p, p1, u, v, w).view();
-
-    Point c(0, 0, 0);
+    Point c1(-100, 0, 50);
     Direction ax(0, 0, 2);
-    Point city(1, 0, 0);
-    Planet planet(c, ax, city);
-    Station s(M_PI_2, 0, planet);
+    Point city1(-99, 0, 50);
+    Planet planet1(c1, ax, city1);
+    Station s1(2.432436, 1.543534654, planet1);
+
+    Point c2(0, 0, 0);
+    Point city2(-1, 0, 0);
+    Planet planet2(c2, ax, city2);
+    Station s2(0.543234544, -2.4354654, planet2);
+    Direction RAYO_LASER = s1.getPosition() - s2.getPosition();
+    RAYO_LASER.view();
+    rotate(RAYO_LASER, M_PI_2, 1).view();
+    Direction u(0, 0, -1);
+    Direction v(0, 1, 0);
+    Direction w(1, 0, 0);
+    change_base(RAYO_LASER, c2, u, v, w).view();
+    change_base(RAYO_LASER, Point(100, 0, -50), Direction(-1, 0, 0), v, Direction(0, 0, -1)).view();
+    /*
     Direction i = s.getLongitudeTD();
     Direction j = s.getLatitudeTD();
     Direction k = s.getNormal();
@@ -72,6 +39,10 @@ int main(int argc, const char **argv)
     std::cout << dot(i, j) << std::endl;
     std::cout << dot(i, k) << std::endl;
     std::cout << dot(j, k) << std::endl;
+    std::cout << std::endl;
+    rotate(city, M_PI_2, 2).view();
 
+    change_base(city, c, v, Direction(-1, 0, 0), w).view();
+    */
     return 0;
 }
