@@ -11,7 +11,7 @@
 class Matrix_Transformation
 {
 private:
-    float M[4][4];
+    std::array<std::array<float, 4>, 4> M;
 
 public:
     /**
@@ -30,6 +30,10 @@ public:
     Matrix_Transformation(const Point &p, const Direction &u,
                           const Direction &v, const Direction &w);
     /**
+     * Constructor para una matriz dados los valores de la matriz
+     */
+    Matrix_Transformation(std::array<std::array<float, 4>, 4> A);
+    /**
      * Multiplica una matriz 4x4 por un vector dirección,
      * devuelve un vector dirección
      */
@@ -39,6 +43,16 @@ public:
      * devuelve un punto
      */
     const Point operator*(const Point &p) const;
+
+    /**
+     * Devuelve la matriz inversa de la matriz actual
+     */
+    Matrix_Transformation inverse();
+
+    /**
+     * Devuelve la matriz
+     */
+    std::array<std::array<float, 4>, 4> getMatrix();
 };
 
 Point translation(const Point &p, const float x,

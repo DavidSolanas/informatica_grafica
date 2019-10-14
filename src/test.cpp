@@ -46,6 +46,7 @@ int main(int argc, const char **argv)
 
     //change_base(city, c, v, Direction(-1, 0, 0), w).view();
 */
+    /*
     Point c1(0, 0, 0);
     Direction ax(0, 2, 0);
     Point city1(0, 0, -1);
@@ -61,5 +62,48 @@ int main(int argc, const char **argv)
     s2.getPosition().view();
     RAYO_LASER.view();
     std::cout << RAYO_LASER.mod() << std::endl;
+    */
+    std::array<std::array<float, 4>, 4> m;
+    m[0][0] = 3;
+    m[0][1] = 7;
+    m[0][2] = 3;
+    m[0][3] = 2;
+    m[1][0] = 54;
+    m[1][1] = 3;
+    m[1][2] = 56;
+    m[1][3] = 2;
+    m[2][0] = 0.33;
+    m[2][1] = 11;
+    m[2][2] = -56;
+    m[2][3] = 22;
+    m[3][0] = 67;
+    m[3][1] = 1;
+    m[3][2] = 63;
+    m[3][3] = 51;
+
+    Matrix_Transformation M(m);
+    Matrix_Transformation M2 = M.inverse();
+
+    auto m1 = M.getMatrix();
+    auto m2 = M2.getMatrix();
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            std::cout << m1[i][j] << "  ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            std::cout << m2[i][j] << "  ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
     return 0;
 }

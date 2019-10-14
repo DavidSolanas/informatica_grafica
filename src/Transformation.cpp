@@ -5,6 +5,7 @@
 
 #include "Transformation.hpp"
 #include <cmath>
+#include <iostream>
 
 Matrix_Transformation::Matrix_Transformation(const float x, const float y,
                                              const float z, const int op)
@@ -112,6 +113,14 @@ Matrix_Transformation::Matrix_Transformation(const Point &p, const Direction &u,
     M[3][3] = 1;
 }
 
+/**
+ * Constructor para una matriz dados los valores de la matriz
+ */
+Matrix_Transformation::Matrix_Transformation(std::array<std::array<float, 4>, 4> A)
+{
+    this->M = A;
+}
+
 const Direction Matrix_Transformation::operator*(const Direction &d) const
 {
     std::array<float, 4> res = {0, 0, 0, 0};
@@ -141,6 +150,11 @@ const Point Matrix_Transformation::operator*(const Point &p) const
     Point pr;
     pr.setCoord(res);
     return pr;
+}
+
+std::array<std::array<float, 4>, 4> Matrix_Transformation::getMatrix()
+{
+    return this->M;
 }
 
 Point translation(const Point &p, const float x,
@@ -195,4 +209,39 @@ Direction change_base(const Direction &d, const Point &origin, const Direction &
 {
     Matrix_Transformation M(origin, u, v, w);
     return M * d;
+}
+
+float determinant(std::array<std::array<float, 4>, 4> A)
+{
+    return A[0][0] * (A[1][1] * A[2][2] * A[3][3] +
+                      A[1][2] * A[2][3] * A[3][1] +
+                      A[1][3] * A[2][1] * A[3][2] -
+                      A[1][3] * A[2][2] * A[3][1] -
+                      A[1][2] * A[2][1] * A[3][3] -
+                      A[1][1] * A[2][3] * A[3][2]) -
+           A[1][0] * (A[0][1] * A[2][2] * A[3][3] +
+                      A[0][2] * A[2][3] * A[3][1] +
+                      A[0][3] * A[2][1] * A[3][2] -
+                      A[0][3] * A[2][2] * A[3][1] -
+                      A[0][2] * A[2][1] * A[3][3] -
+                      A[0][1] * A[2][3] * A[3][2]) +
+           A[2][0] * (A[0][1] * A[1][2] * A[3][3] +
+                      A[0][2] * A[1][3] * A[3][1] +
+                      A[0][3] * A[1][1] * A[3][2] -
+                      A[0][3] * A[1][2] * A[3][1] -
+                      A[0][2] * A[1][1] * A[3][3] -
+                      A[0][1] * A[1][3] * A[3][2]) -
+           A[3][0] * (A[0][1] * A[1][2] * A[2][3] +
+                      A[0][2] * A[1][3] * A[2][1] +
+                      A[0][3] * A[1][1] * A[2][2] -
+                      A[0][3] * A[1][2] * A[2][1] -
+                      A[0][2] * A[1][1] * A[2][3] -
+                      A[0][1] * A[1][3] * A[2][2]);
+}
+
+Matrix_Transformation Matrix_Transformation::inverse()
+{
+    //return Matrix_Transformation(inv);
+    std::cout << determinant(this->M) << std::endl;
+    return *this;
 }
