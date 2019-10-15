@@ -63,8 +63,9 @@ int main(int argc, const char **argv)
     RAYO_LASER.view();
     std::cout << RAYO_LASER.mod() << std::endl;
     */
+    /*
     std::array<std::array<float, 4>, 4> m;
-    m[0][0] = 3;
+    m[0][0] = 11.1;
     m[0][1] = 7;
     m[0][2] = 3;
     m[0][3] = 2;
@@ -91,7 +92,7 @@ int main(int argc, const char **argv)
     {
         for (int j = 0; j < 4; j++)
         {
-            std::cout << m1[i][j] << "  ";
+            std::cout << m1[i][j] << "\t";
         }
         std::cout << std::endl;
     }
@@ -100,10 +101,11 @@ int main(int argc, const char **argv)
     {
         for (int j = 0; j < 4; j++)
         {
-            std::cout << m2[i][j] << "  ";
+            std::cout << m2[i][j] << "\t";
         }
         std::cout << std::endl;
     }
     std::cout << std::endl;
+    */
     return 0;
 }
