@@ -359,7 +359,6 @@ std::array<std::array<float, 4>, 4> adjugate(std::array<std::array<float, 4>, 4>
 
 Matrix_Transformation Matrix_Transformation::inverse()
 {
-    //return Matrix_Transformation(inv);
     float det = determinant(this->M);
     std::array<std::array<float, 4>, 4> adj = adjugate(this->M);
     std::array<std::array<float, 4>, 4> inv;
