@@ -4,7 +4,7 @@
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 
-#include "Tone_mapper.hpp"
+#include "Tone_mapping.hpp"
 #include <fstream>
 #include <iostream>
 #include <iomanip>

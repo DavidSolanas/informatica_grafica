@@ -4,8 +4,8 @@
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 
-#ifndef TONE_MAPPER_HPP
-#define TONE_MAPPER_HPP
+#ifndef TONE_MAPPING_HPP
+#define TONE_MAPPING_HPP
 
 #include <vector>
 #include <string>
@@ -44,4 +44,4 @@ public:
 
 Image read_img(std::string filename);
 
-#endif // !TONE_MAPPER_HPP
+#endif // !TONE_MAPPING_HPP

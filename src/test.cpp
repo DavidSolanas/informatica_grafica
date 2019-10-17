@@ -3,7 +3,7 @@
 #include <fstream>
 #include "Transformation.hpp"
 #include "Sphere.hpp"
-#include "Tone_mapper.hpp"
+#include "Tone_mapping.hpp"
 
 int main(int argc, const char **argv)
 {
