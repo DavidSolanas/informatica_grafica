@@ -176,6 +176,17 @@ const float dot(const Direction &d1, const Direction &d2)
 }
 
 /**
+ * Producto escalar entre un vector dirección y un punto
+ * devuelve como resultado un escalar
+ */
+const float dot(const Direction &d, const Point &p)
+{
+    std::array<float, 4> c1 = d.getCoord();
+    std::array<float, 4> c2 = p.getCoord();
+    return c1[0] * c2[0] + c1[1] * c2[1] + c1[2] * c2[2];
+}
+
+/**
  * Producto vectorial entre dos vectores dirección, devuelve
  * como resultado un vector dirección perpendicular a los dos
  * vectores

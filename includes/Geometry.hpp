@@ -138,6 +138,12 @@ public:
 const float dot(const Direction &d1, const Direction &d2);
 
 /**
+ * Producto escalar entre un vector dirección y un punto
+ * devuelve como resultado un escalar
+ */
+const float dot(const Direction &d, const Point &p);
+
+/**
  * Producto vectorial entre dos vectores dirección, devuelve
  * como resultado un vector dirección perpendicular a los dos
  * vectores

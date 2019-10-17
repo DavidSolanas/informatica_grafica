@@ -10,8 +10,12 @@ build/**
 #Ignore CMakeLists
 CMakeLists.txt
 
+# Ignore media files
+media/**
+
 # Unignore all dirs
 !*/
+
 
 # Ignore vscode configuration
 .vscode
