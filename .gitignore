@@ -12,7 +12,6 @@ CMakeLists.txt
 
 # Ignore media files
 media/**
-!media/hdr-ppm/mpi_atrium_1.ppm
 
 # Unignore all dirs
 !*/
