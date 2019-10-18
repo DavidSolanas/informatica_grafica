@@ -47,15 +47,46 @@ float RGB::getB()
     return this->b;
 }
 
-Image::Image(std::string fileId, int max, int width, int height,
+Image::Image(std::string fileId, std::vector<std::string> comments, int max, int width, int height,
              int cr, std::vector<std::vector<RGB>> data)
 {
     this->fileId = fileId;
+    this->comments = comments;
     this->MAX = max;
     this->width = width;
     this->height = height;
     this->color_res = cr;
     this->data = data;
+}
+
+std::string Image::getFileId()
+{
+    return this->fileId;
+}
+
+std::vector<std::string> Image::getComments()
+{
+    return this->comments;
+}
+
+int Image::getMax()
+{
+    return this->MAX;
+}
+
+int Image::getWidth()
+{
+    return this->width;
+}
+
+int Image::getHeight()
+{
+    return this->height;
+}
+
+int Image::getColorRes()
+{
+    return this->color_res;
 }
 
 std::vector<std::vector<RGB>> Image::getData()
@@ -69,6 +100,7 @@ Image read_img(std::string filename)
     std::string fileId;
     int max, width, height, cr;
     std::vector<std::vector<RGB>> data;
+    std::vector<std::string> comments;
 
     if (f.is_open())
     {
@@ -77,6 +109,7 @@ Image read_img(std::string filename)
         getline(f, comment);
         while (comment[0] == '#')
         {
+            comments.push_back(comment);
             if (comment[1] == 'M')
             {
                 max = std::stoi(comment.substr(comment.find('=') + 1, comment.length()));
@@ -95,9 +128,9 @@ Image read_img(std::string filename)
             {
                 //Procesar RGB
                 f >> r >> g >> b;
-                data[i][j].setR(r * ((float)max / cr));
-                data[i][j].setG(g * ((float)max / cr));
-                data[i][j].setB(b * ((float)max / cr));
+                data[i][j].setR(((float)r / cr) * max);
+                data[i][j].setG(((float)g / cr) * max);
+                data[i][j].setB(((float)b / cr) * max);
             }
         }
     }
@@ -105,5 +138,32 @@ Image read_img(std::string filename)
     {
         std::cerr << "Couldn't open the image, cancelling..." << std::endl;
     }
-    return Image(fileId, max, width, height, cr, data);
+    return Image(fileId, comments, max, width, height, cr, data);
+}
+
+void save_ppm_image(std::string filename, Image img)
+{
+    std::ofstream f(filename);
+    if (f.is_open())
+    {
+        std::vector<std::vector<RGB>> data = img.getData();
+        f << img.getFileId() << "\n";
+        for (std::string c : img.getComments())
+            f << c << "\n";
+        f << img.getWidth() << " " << img.getHeight() << "\n";
+        f << img.getColorRes() << "\n";
+        for (int i = 0; i < data.size(); i++)
+        {
+            for (int j = 0; j < data[i].size(); j++)
+            {
+                f << data[i][j].getR() << " " << data[i][j].getG() << " " << data[i][j].getB() << "     ";
+            }
+            f << "\n";
+        }
+        f.close();
+    }
+    else
+    {
+        std::cerr << "Couldn't open the file, cancelling..." << std::endl;
+    }
 }

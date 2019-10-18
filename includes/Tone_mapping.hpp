@@ -30,6 +30,7 @@ class Image
 {
 private:
     std::string fileId;
+    std::vector<std::string> comments;
     int MAX;
     int width;
     int height;
@@ -37,11 +38,19 @@ private:
     std::vector<std::vector<RGB>> data;
 
 public:
-    Image(std::string fileId, int max, int width, int height,
+    Image(std::string fileId, std::vector<std::string> comments, int max, int width, int height,
           int cr, std::vector<std::vector<RGB>> data);
+    std::string getFileId();
+    std::vector<std::string> getComments();
+    int getMax();
+    int getWidth();
+    int getHeight();
+    int getColorRes();
     std::vector<std::vector<RGB>> getData();
 };
 
 Image read_img(std::string filename);
+
+void save_ppm_image(std::string filename, Image img);
 
 #endif // !TONE_MAPPING_HPP
