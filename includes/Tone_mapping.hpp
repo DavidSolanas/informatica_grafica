@@ -46,11 +46,15 @@ public:
     int getWidth();
     int getHeight();
     int getColorRes();
-    std::vector<std::vector<RGB>> getData();
+    std::vector<std::vector<RGB>> &getData();
 };
 
-Image read_img(std::string filename);
+Image load_HDR_image(std::string filename);
 
-void save_ppm_image(std::string filename, Image img);
+void save_LDR_image(std::string filename, int c, Image img);
+
+void clamping(Image &img);
+
+void eq_clamp(Image &img, float V);
 
 #endif // !TONE_MAPPING_HPP

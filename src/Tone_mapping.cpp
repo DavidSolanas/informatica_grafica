@@ -7,7 +7,6 @@
 #include "Tone_mapping.hpp"
 #include <fstream>
 #include <iostream>
-#include <iomanip>
 
 RGB::RGB()
 {
@@ -89,12 +88,12 @@ int Image::getColorRes()
     return this->color_res;
 }
 
-std::vector<std::vector<RGB>> Image::getData()
+std::vector<std::vector<RGB>> &Image::getData()
 {
     return this->data;
 }
 
-Image read_img(std::string filename)
+Image load_HDR_image(std::string filename)
 {
     std::ifstream f(filename);
     std::string fileId;
@@ -141,7 +140,7 @@ Image read_img(std::string filename)
     return Image(fileId, comments, max, width, height, cr, data);
 }
 
-void save_ppm_image(std::string filename, Image img)
+void save_LDR_image(std::string filename, int c, Image img)
 {
     std::ofstream f(filename);
     if (f.is_open())
@@ -151,12 +150,14 @@ void save_ppm_image(std::string filename, Image img)
         for (std::string c : img.getComments())
             f << c << "\n";
         f << img.getWidth() << " " << img.getHeight() << "\n";
-        f << img.getColorRes() << "\n";
+        f << c << "\n";
         for (int i = 0; i < data.size(); i++)
         {
             for (int j = 0; j < data[i].size(); j++)
             {
-                f << data[i][j].getR() << " " << data[i][j].getG() << " " << data[i][j].getB() << "     ";
+                f << (data[i][j].getR() * c) / img.getMax() << " "
+                  << (data[i][j].getG() * c) / img.getMax() << " "
+                  << (data[i][j].getB() * c) / img.getMax() << "     ";
             }
             f << "\n";
         }
@@ -165,5 +166,31 @@ void save_ppm_image(std::string filename, Image img)
     else
     {
         std::cerr << "Couldn't open the file, cancelling..." << std::endl;
+    }
+}
+
+void clamping(Image &img)
+{
+    for (auto &&row : img.getData())
+    {
+        for (auto &&rgb : row)
+        {
+            rgb.setR(rgb.getR() < img.getMax() ? rgb.getR() : img.getMax());
+            rgb.setG(rgb.getG() < img.getMax() ? rgb.getG() : img.getMax());
+            rgb.setB(rgb.getB() < img.getMax() ? rgb.getB() : img.getMax());
+        }
+    }
+}
+
+void eq_clamp(Image &img, float V)
+{
+    for (auto &&row : img.getData())
+    {
+        for (auto &&rgb : row)
+        {
+            rgb.setR(rgb.getR() < V ? rgb.getR() : img.getMax());
+            rgb.setG(rgb.getG() < V ? rgb.getG() : img.getMax());
+            rgb.setB(rgb.getB() < V ? rgb.getB() : img.getMax());
+        }
     }
 }
