@@ -7,6 +7,7 @@
 #include "Tone_mapping.hpp"
 #include <fstream>
 #include <iostream>
+#include <cmath>
 
 RGB::RGB()
 {
@@ -155,9 +156,9 @@ void save_LDR_image(std::string filename, int c, Image img)
         {
             for (int j = 0; j < data[i].size(); j++)
             {
-                f << (data[i][j].getR() * c) / img.getMax() << " "
-                  << (data[i][j].getG() * c) / img.getMax() << " "
-                  << (data[i][j].getB() * c) / img.getMax() << "     ";
+                f << round((data[i][j].getR() * c)) << " "
+                  << round((data[i][j].getG() * c)) << " "
+                  << round((data[i][j].getB() * c)) << "     ";
             }
             f << "\n";
         }
@@ -191,6 +192,34 @@ void eq_clamp(Image &img, float V)
             rgb.setR(rgb.getR() < V ? rgb.getR() : img.getMax());
             rgb.setG(rgb.getG() < V ? rgb.getG() : img.getMax());
             rgb.setB(rgb.getB() < V ? rgb.getB() : img.getMax());
+        }
+    }
+}
+
+void normalize(Image &img)
+{
+    for (auto &&row : img.getData())
+    {
+        for (auto &&rgb : row)
+        {
+            rgb.setR(rgb.getR() / img.getMax());
+            rgb.setG(rgb.getG() / img.getMax());
+            rgb.setB(rgb.getB() / img.getMax());
+        }
+    }
+}
+
+void gamma_encoding(Image &img)
+{
+    normalize(img);
+    const float gamma = 2.2;
+    for (auto &&row : img.getData())
+    {
+        for (auto &&rgb : row)
+        {
+            rgb.setR(powf(rgb.getR(), 1 / gamma));
+            rgb.setG(powf(rgb.getG(), 1 / gamma));
+            rgb.setB(powf(rgb.getB(), 1 / gamma));
         }
     }
 }

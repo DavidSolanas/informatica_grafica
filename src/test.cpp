@@ -9,7 +9,10 @@ int main(int argc, const char **argv)
 {
     Image img = load_HDR_image("../media/hdr-ppm/seymour_park.ppm");
     //clamping(img);
-    eq_clamp(img, 45000.0);
+    //eq_clamp(img, 45000.0);
+
+    gamma_encoding(img);
+
     save_LDR_image("./testimage.ppm", 255, img);
     return 0;
 }
