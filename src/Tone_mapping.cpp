@@ -148,8 +148,8 @@ void save_LDR_image(std::string filename, int c, Image img)
     {
         std::vector<std::vector<RGB>> data = img.getData();
         f << img.getFileId() << "\n";
-        for (std::string c : img.getComments())
-            f << c << "\n";
+        //for (std::string c : img.getComments())
+        //    f << c << "\n";
         f << img.getWidth() << " " << img.getHeight() << "\n";
         f << c << "\n";
         for (int i = 0; i < data.size(); i++)
@@ -209,17 +209,36 @@ void normalize(Image &img)
     }
 }
 
-void gamma_encoding(Image &img)
+void gamma_encoding(Image &img, const float gamma)
 {
     normalize(img);
-    const float gamma = 2.2;
+    //float Vin, Vout;
     for (auto &&row : img.getData())
     {
         for (auto &&rgb : row)
         {
+            //Vin = 0.2126 * rgb.getR() + 0.7152 * rgb.getG() + 0.0722 * rgb.getB();
+            //Vout = pow(Vin, 1 / 2.2);
             rgb.setR(powf(rgb.getR(), 1 / gamma));
             rgb.setG(powf(rgb.getG(), 1 / gamma));
             rgb.setB(powf(rgb.getB(), 1 / gamma));
+        }
+    }
+}
+
+void clamp_gamma_encoding(Image &img, const float V, const float gamma)
+{
+    normalize(img);
+    //float Vin, Vout;
+    for (auto &&row : img.getData())
+    {
+        for (auto &&rgb : row)
+        {
+            //Vin = 0.2126 * rgb.getR() + 0.7152 * rgb.getG() + 0.0722 * rgb.getB();
+            //Vout = pow(Vin, 1 / 2.2);
+            rgb.setR(rgb.getR() < V ? powf(rgb.getR(), 1 / gamma) : 1);
+            rgb.setG(rgb.getG() < V ? powf(rgb.getG(), 1 / gamma) : 1);
+            rgb.setB(rgb.getB() < V ? powf(rgb.getB(), 1 / gamma) : 1);
         }
     }
 }

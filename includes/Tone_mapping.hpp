@@ -59,6 +59,8 @@ void eq_clamp(Image &img, float V);
 
 void normalize(Image &img);
 
-void gamma_encoding(Image &img);
+void gamma_encoding(Image &img, const float gamma = 2.2);
+
+void clamp_gamma_encoding(Image &img, const float V, const float gamma = 2.2);
 
 #endif // !TONE_MAPPING_HPP
