@@ -1,6 +1,6 @@
 
 /****************************************+
- * Fichero: Geometry.hpp
+ * Fichero: Sphere.hpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 

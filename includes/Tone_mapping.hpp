@@ -67,4 +67,7 @@ void clamp_gamma_encoding(Image &img, const float V, const float gamma = 1.6f);
 
 void global_reinhard(Image &img, const float key = 0.18f);
 
+void local_reinhard(Image &img, const float lowScale, const float highScale,
+                    const float phi, const float key, const float threshold, const int numScales);
+
 #endif // !TONE_MAPPING_HPP

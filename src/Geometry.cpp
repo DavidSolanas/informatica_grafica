@@ -200,6 +200,16 @@ const Direction corss(const Direction &d1, const Direction &d2)
                      c1[0] * c2[1] - c1[1] * c2[0]);
 }
 
+/**
+ * Normaliza el vector d
+ */
+const Direction normalize(const Direction &d)
+{
+    float mod = d.mod();
+    std::array<float, 4> c = d.getCoord();
+    return Direction(c[0] / mod, c[1] / mod, c[2] / mod);
+}
+
 void Point::view()
 {
     std::cout << "<" << c[0] << ", " << c[1] << ", " << c[2] << ", " << c[3] << ">" << std::endl;

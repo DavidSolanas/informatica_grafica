@@ -150,4 +150,9 @@ const float dot(const Direction &d, const Point &p);
  */
 const Direction corss(const Direction &d1, const Direction &d2);
 
+/**
+ * Normaliza el vector d
+ */
+const Direction normalize(const Direction &d);
+
 #endif // !GEOMETRY_HPP
