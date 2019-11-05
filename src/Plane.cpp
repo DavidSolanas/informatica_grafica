@@ -17,7 +17,25 @@ Plane::Plane(const Direction &n, const Point &o)
     this->d = -dot(n_normalized, o);
 }
 
+float Plane::getD()
+{
+    return this->d;
+}
+
+Direction Plane::getNormal()
+{
+    return Direction(this->a, this->b, this->c);
+}
+
 bool Plane::isInPlane(const Point &p)
 {
     return dot(Direction(this->a, this->b, this->c), p) + this->d == 0;
+}
+
+bool Plane::intersect(const Point &p, const Direction &D, float &t)
+{
+    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
+    if (t == 0)
+        return false;
+    return true;
 }

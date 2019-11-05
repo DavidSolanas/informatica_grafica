@@ -128,3 +128,45 @@ Point getSurfacePoint(Sphere p, const float az, const float inc)
     float z = o[2] + r * -cos(az) * sin(inc);
     return Point(x, y, z);
 }
+
+/**
+ * R(t) = o + td
+	(p-c)·(p-c) - r² = 0 =>
+	(o + td - c) · (o + td - c) - r² = 0 =>
+	t²(D·D) + 2t(d · (o - c)) + (o - c) · (o - c) - r² = 0
+ */
+bool Sphere::intersect(const Point &p, const Direction &D, float &t)
+{
+    Direction L = p - center;
+    float a = dot(D, D);
+    float b = 2 * dot(D, L);
+    float c = dot(L, L) - (this->getRadius() * this->getRadius());
+    float d = (b * b) - (4 * a * c);
+    if (d < 0)
+        return false;
+
+    float x1 = (-b + sqrt(d)) / (2 * a);
+    float x2 = (-b - sqrt(d)) / (2 * a);
+    if (x1 > x2)
+        t = x2;
+    if (t < 0)
+        t = x1;
+    if (t < 0)
+        return false;
+    return true;
+    /*
+    Direction L = center - p;
+    float tca = dot(L, D);
+    float d2 = dot(L, L) - tca * tca;
+    if (d2 > this->getRadius() * this->getRadius())
+        return false;
+    float thc = sqrtf(this->getRadius() * this->getRadius() - d2);
+    t = tca - thc;
+    float t1 = tca + thc;
+    if (t < 0)
+        t = t1;
+    if (t < 0)
+        return false;
+    return true;
+    */
+}

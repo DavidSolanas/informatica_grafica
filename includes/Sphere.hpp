@@ -39,6 +39,7 @@ public:
     Point getCity();
     float getRadius();
     const float getAzimuth() const;
+    bool intersect(const Point &p, const Direction &D, float &t);
 };
 
 /**

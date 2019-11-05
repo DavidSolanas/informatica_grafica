@@ -25,6 +25,9 @@ public:
     Plane();
     Plane(const Direction &n, const Point &o);
     bool isInPlane(const Point &p);
+    bool intersect(const Point &p, const Direction &D, float &t);
+    float getD();
+    Direction getNormal();
 };
 
 #endif // !PLANE_HPP
