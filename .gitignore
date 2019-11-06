@@ -4,12 +4,6 @@
 # Unignore all with extensions
 !*.*
 
-#Ignore build CMake files
-build/**
-
-#Ignore CMakeLists
-CMakeLists.txt
-
 # Ignore media files
 media/**
 
