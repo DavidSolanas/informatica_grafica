@@ -18,3 +18,11 @@ file(GLOB SOURCES src/*.cpp)
 
 # compiles the files defined by SOURCES to generante the executable defined by EXEC
 add_executable(${EXEC} ${SOURCES})
+
+if(MSVC) # MSVC compiler (Win32 only)
+    # Display more warnings
+    set(CMAKE_CXX_FLAGS "/W3")
+elseif(UNIX OR CMAKE_COMPILER_IS_GNUCXX) # Clang OR Gcc (Linux, Mac OS or Win32 with MingW)
+    # Enable C++11 and displays all warnings
+    set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
+endif()
