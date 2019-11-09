@@ -316,7 +316,8 @@ void global_reinhard(Image &img, const float key)
         j = 0;
         for (auto &&rgb : row)
         {
-            float L = 0.27 * rgb.getR() + 0.67 * rgb.getG() + 0.06 * rgb.getB();
+            //Se añade 0.0000001f para evitar singularidades cuando RGB = 000
+            float L = 0.27 * rgb.getR() + 0.67 * rgb.getG() + 0.06 * rgb.getB() + 0.0000001f;
             rgb.setR(rgb.getR() * (vld[i][j] / L));
             rgb.setG(rgb.getG() * (vld[i][j] / L));
             rgb.setB(rgb.getB() * (vld[i][j] / L));

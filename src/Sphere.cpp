@@ -154,19 +154,4 @@ bool Sphere::intersect(const Point &p, const Direction &D, float &t)
     if (t < 0)
         return false;
     return true;
-    /*
-    Direction L = center - p;
-    float tca = dot(L, D);
-    float d2 = dot(L, L) - tca * tca;
-    if (d2 > this->getRadius() * this->getRadius())
-        return false;
-    float thc = sqrtf(this->getRadius() * this->getRadius() - d2);
-    t = tca - thc;
-    float t1 = tca + thc;
-    if (t < 0)
-        t = t1;
-    if (t < 0)
-        return false;
-    return true;
-    */
 }
