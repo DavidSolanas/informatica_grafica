@@ -75,11 +75,11 @@ void ray_tracer(std::string filename, Camera c, const int W, const int H)
                     Direction normal = normalize(X - spheres[i].getCenter());
                     Direction wi = normalize(light - X);
                     Direction wo = normalize(c.getO() - X);
-                    float brdf = Phong_BRDF(0.4f, 0.5f, 0.2f, normal, wi, wo);
+                    float brdf = Phong_BRDF(0.8f, 0.5f, 5.0f, normal, wi, wo);
                     float geometry = abs(dot(normal, wi));
-                    _f << round(Li * brdf * geometry * 50) << " "
-                       << round(Li * brdf * geometry * 205) << " "
-                       << round(Li * brdf * geometry * 50) << "\t";
+                    _f << Li * brdf * geometry * 50 << " "
+                       << Li * brdf * geometry * 205 << " "
+                       << Li * brdf * geometry * 50 << "\t";
                 }
                 else
                 {

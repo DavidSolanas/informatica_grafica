@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
+#include <cstring>
 
 RGB::RGB()
 {
@@ -318,11 +319,77 @@ void global_reinhard(Image &img, const float key)
         {
             //Se añade 0.0000001f para evitar singularidades cuando RGB = 000
             float L = 0.27 * rgb.getR() + 0.67 * rgb.getG() + 0.06 * rgb.getB() + 0.0000001f;
-            rgb.setR(rgb.getR() * (vld[i][j] / L));
-            rgb.setG(rgb.getG() * (vld[i][j] / L));
-            rgb.setB(rgb.getB() * (vld[i][j] / L));
+            rgb.setR(rgb.getR() * (vld[i][j] / (1.0f + L)));
+            rgb.setG(rgb.getG() * (vld[i][j] / (1.0f + L)));
+            rgb.setB(rgb.getB() * (vld[i][j] / (1.0f + L)));
             j++;
         }
         i++;
     }
+}
+
+int main(int argc, const char **argv)
+{
+    std::string usage = "Usage: Tone_mapping -i hdr_img -o ldr_img [-key k]";
+    if (argc < 5)
+    {
+        std::cerr << "Incorrect number of parameters" << std::endl;
+        std::cerr << usage << std::endl;
+    }
+    else
+    {
+        std::string input, output, f;
+        float key = 0.18f;
+        for (int i = 0; i < argc; i++)
+        {
+            switch (i)
+            {
+            case 1:
+                if (strcmp("-i", argv[i]) != 0)
+                {
+                    std::cerr << "Incorrect parameter, found \"" << argv[i] << "\" but expected \"-i\"" << std::endl;
+                    std::cerr << usage << std::endl;
+                    exit(1);
+                }
+                break;
+            case 2:
+                input = argv[i];
+                break;
+            case 3:
+                if (strcmp("-o", argv[i]) != 0)
+                {
+                    std::cerr << "Incorrect parameter, found \"" << argv[i] << "\" but expected \"-o\"" << std::endl;
+                    std::cerr << usage << std::endl;
+                    exit(1);
+                }
+                break;
+            case 4:
+                output = argv[i];
+                break;
+            case 5:
+                if (strcmp("-k", argv[i]) != 0)
+                {
+                    std::cerr << "Incorrect parameter, found \"" << argv[i] << "\" but expected \"-k\"" << std::endl;
+                    std::cerr << usage << std::endl;
+                    exit(1);
+                }
+                break;
+            case 6:
+                f = argv[i];
+                key = std::stof(f);
+                if (key < 0.0f)
+                {
+                    std::cerr << "Key value must be positive, setting to 0.18" << std::endl;
+                    key = 0.18f;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+        Image img = load_HDR_image(input);
+        global_reinhard(img, key);
+        save_LDR_image(output, 65535, img);
+    }
+    return 0;
 }

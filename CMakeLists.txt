@@ -5,7 +5,8 @@ cmake_minimum_required(VERSION 3.5.1)
 project(informatica_grafica)
 
 # creates the variable EXEC and sets it to test
-set(EXEC test)
+set(RAY_TRACER Ray_tracer)
+set(TONE_MAPPING Tone_mapping)
 
 # set the C++17 standard
 set(CMAKE_CXX_STANDARD 17)
@@ -15,6 +16,10 @@ include_directories(includes)
 
 # puts all .cpp files inside src to the SOURCES variable
 file(GLOB SOURCES src/*.cpp)
+get_filename_component(TM_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/Tone_mapping.cpp ABSOLUTE)
+list(REMOVE_ITEM SOURCES ${TM_SRC})
+
 
 # compiles the files defined by SOURCES to generante the executable defined by EXEC
-add_executable(${EXEC} ${SOURCES})
+add_executable(${RAY_TRACER} ${SOURCES})
+add_executable(${TONE_MAPPING} ${TM_SRC})
