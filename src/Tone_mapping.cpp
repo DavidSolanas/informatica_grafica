@@ -10,44 +10,6 @@
 #include <cmath>
 #include <cstring>
 
-RGB::RGB()
-{
-}
-
-RGB::RGB(float rv, float gv, float bv) : r(rv), g(gv), b(bv)
-{
-}
-
-void RGB::setR(float r)
-{
-    this->r = r;
-}
-
-void RGB::setG(float g)
-{
-    this->g = g;
-}
-
-void RGB::setB(float b)
-{
-    this->b = b;
-}
-
-float RGB::getR()
-{
-    return this->r;
-}
-
-float RGB::getG()
-{
-    return this->g;
-}
-
-float RGB::getB()
-{
-    return this->b;
-}
-
 Image::Image(std::string fileId, std::vector<std::string> comments, int max, int width, int height,
              int cr, float maxPixelValue, std::vector<std::vector<RGB>> data)
 {
@@ -340,7 +302,7 @@ int main(int argc, const char **argv)
     {
         std::string input, output, f;
         float key = 0.18f;
-        for (int i = 0; i < argc; i++)
+        for (int i = 1; i < argc; i++)
         {
             switch (i)
             {
@@ -388,7 +350,8 @@ int main(int argc, const char **argv)
             }
         }
         Image img = load_HDR_image(input);
-        global_reinhard(img, key);
+        //global_reinhard(img, key);
+        clamping(img);
         save_LDR_image(output, 65535, img);
     }
     return 0;

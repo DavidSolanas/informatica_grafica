@@ -9,22 +9,7 @@
 
 #include <vector>
 #include <string>
-
-class RGB
-{
-private:
-    float r, g, b;
-
-public:
-    RGB();
-    RGB(float r, float g, float b);
-    void setR(float r);
-    void setG(float g);
-    void setB(float b);
-    float getR();
-    float getG();
-    float getB();
-};
+#include "RGB.hpp"
 
 class Image
 {

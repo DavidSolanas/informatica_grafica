@@ -18,8 +18,9 @@ include_directories(includes)
 file(GLOB SOURCES src/*.cpp)
 get_filename_component(TM_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/Tone_mapping.cpp ABSOLUTE)
 list(REMOVE_ITEM SOURCES ${TM_SRC})
+set(TMAPPING ${TM_SRC} src/RGB.cpp)
 
 
 # compiles the files defined by SOURCES to generante the executable defined by EXEC
 add_executable(${RAY_TRACER} ${SOURCES})
-add_executable(${TONE_MAPPING} ${TM_SRC})
+add_executable(${TONE_MAPPING} ${TMAPPING})
