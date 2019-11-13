@@ -31,21 +31,21 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-    std::array<std::unique_ptr<Geometry>, 10> spheres;
+    std::array<std::unique_ptr<Geometry>, 10> geometry;
     float split = W / 5;
     for (int i = 0; i < 5; i++)
     {
-        spheres[i] = std::unique_ptr<Geometry>(new Sphere(Point((i + 1) * split - (split / 2), H / 2, c.getF().mod()), Direction(0, 200, 0),
-                                                          Point((i + 1) * split - (split / 2) + 100, H / 2, c.getF().mod())));
+        geometry[i] = std::unique_ptr<Geometry>(new Sphere(Point((i + 1) * split - (split / 2), (H / 2 - 200) + i * 75, c.getF().mod() + i * 100), Direction(0, 200, 0),
+                                                           Point((i + 1) * split - (split / 2) + 100, (H / 2 - 200) + i * 75, c.getF().mod() + i * 100)));
     }
-    spheres[5] = std::unique_ptr<Geometry>(new Plane(Direction(0, 1, 0), Point(W / 2, c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
-    spheres[8] = std::unique_ptr<Geometry>(new Plane(Direction(0, -1, 0), Point(W / 2, c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod())));
-    spheres[6] = std::unique_ptr<Geometry>(new Plane(Direction(1, 0, 0), Point(c.getO().getCoord()[0] - c.getL().mod(), H / 2, c.getF().mod())));
-    spheres[7] = std::unique_ptr<Geometry>(new Plane(Direction(-1, 0, 0), Point(c.getO().getCoord()[0] + c.getL().mod(), H / 2, c.getF().mod())));
-    spheres[9] = std::unique_ptr<Geometry>(new Plane(Direction(0, 0, -1), Point(W / 2, H / 2, c.getF().mod() + 500)));
+    geometry[5] = std::unique_ptr<Geometry>(new Plane(Direction(0, 1, 0), Point(W / 2, c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+    geometry[8] = std::unique_ptr<Geometry>(new Plane(Direction(0, -1, 0), Point(W / 2, c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod())));
+    geometry[6] = std::unique_ptr<Geometry>(new Plane(Direction(1, 0, 0), Point(c.getO().getCoord()[0] - c.getL().mod(), H / 2, c.getF().mod())));
+    geometry[7] = std::unique_ptr<Geometry>(new Plane(Direction(-1, 0, 0), Point(c.getO().getCoord()[0] + c.getL().mod(), H / 2, c.getF().mod())));
+    geometry[9] = std::unique_ptr<Geometry>(new Plane(Direction(0, 0, -1), Point(W / 2, H / 2, c.getF().mod() + 750)));
 
     Point light(W / 2, H - 100, c.getF().mod() + 250);
-    float power = 1000000;
+    float power = 1200000;
 
     std::ofstream _f(filename);
     if (_f.is_open())
@@ -70,9 +70,9 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     Point pixel(x + xrand, y + yrand, c.getF().mod());
                     Direction d_ray = normalize(pixel - c.getO());
                     float t, tmin = INFINITY;
-                    for (int j = 0; j < spheres.size(); j++)
+                    for (int j = 0; j < geometry.size(); j++)
                     {
-                        if (spheres[j]->intersect(c.getO(), d_ray, t))
+                        if (geometry[j]->intersect(c.getO(), d_ray, t))
                         {
                             if (t > 0 && t < tmin)
                             {
@@ -86,7 +86,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         // Calcular luz
                         Point X = c.getO() + (d_ray * tmin);
                         float Li = power / ((light - X).mod() * (light - X).mod());
-                        Direction normal = spheres[i]->getNormal(X);
+                        Direction normal = geometry[i]->getNormal(X);
                         Direction wi = normalize(light - X);
                         Direction wo = normalize(c.getO() - X);
                         float kd = i == 5 ? 0.9f : 0.6f;
@@ -131,8 +131,8 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     case 7:
                     case 8:
                     case 9:
-                        color.setR(236);
-                        color.setG(255);
+                        color.setR(255);
+                        color.setG(0);
                         color.setB(0);
                         break;
 
