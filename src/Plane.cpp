@@ -4,7 +4,7 @@
  *****************************************/
 
 #include "Plane.hpp"
-#include <iostream>
+#include <cmath>
 
 Plane::Plane() {}
 
@@ -71,9 +71,9 @@ BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
 bool BoundedPlane::isInsidePlane(const Point &p)
 {
     char dim = 'x';
-    if (this->b > this->a && this->b > this->c)
+    if (abs(this->b) > abs(this->a) && abs(this->b) > abs(this->c))
         dim = 'y';
-    else if (this->c > this->a && this->c > this->b)
+    else if (abs(this->c) > abs(this->a) && abs(this->c) > abs(this->b))
         dim = 'z';
     int m[2][3];
     switch (dim)
@@ -137,15 +137,10 @@ bool BoundedPlane::isInsidePlane(const Point &p)
                    m[1][0] * dc[0] + m[1][1] * dc[1] + m[1][2] * dc[2]};
     float _P[2] = {m[0][0] * pc[0] + m[0][1] * pc[1] + m[0][2] * pc[2],
                    m[1][0] * pc[0] + m[1][1] * pc[1] + m[1][2] * pc[2]};
-    //float s1 = (_A[1] - _B[1]) * _P[0] + (_B[0] - _A[0]) * _P[1] + _B[1] * _A[0] - _B[0] * _A[1];
-    //float s2 = (_B[1] - _C[1]) * _P[0] + (_C[0] - _B[0]) * _P[1] + _C[1] * _B[0] - _C[0] * _B[1];
-    //float s3 = (_C[1] - _D[1]) * _P[0] + (_D[0] - _C[0]) * _P[1] + _D[1] * _C[0] - _D[0] * _C[1];
-    //float s4 = (_D[1] - _A[1]) * _P[0] + (_A[0] - _D[0]) * _P[1] + _A[1] * _D[0] - _A[0] * _D[1];
-
-    float s1 = (_B[0] - _A[0]) * (_P[1] - _A[1]) - (_P[0] - _A[0]) * (_B[1] - _A[1]);
-    float s2 = (_C[0] - _B[0]) * (_P[1] - _B[1]) - (_P[0] - _B[0]) * (_C[1] - _B[1]);
-    float s3 = (_D[0] - _C[0]) * (_P[1] - _C[1]) - (_P[0] - _C[0]) * (_D[1] - _C[1]);
-    float s4 = (_A[0] - _D[0]) * (_P[1] - _D[1]) - (_P[0] - _D[0]) * (_A[1] - _D[1]);
+    float s1 = (_A[1] - _B[1]) * _P[0] + (_B[0] - _A[0]) * _P[1] + _B[1] * _A[0] - _B[0] * _A[1];
+    float s2 = (_B[1] - _C[1]) * _P[0] + (_C[0] - _B[0]) * _P[1] + _C[1] * _B[0] - _C[0] * _B[1];
+    float s3 = (_C[1] - _D[1]) * _P[0] + (_D[0] - _C[0]) * _P[1] + _D[1] * _C[0] - _D[0] * _C[1];
+    float s4 = (_D[1] - _A[1]) * _P[0] + (_A[0] - _D[0]) * _P[1] + _A[1] * _D[0] - _A[0] * _D[1];
 
     if ((s1 <= 0 && s2 <= 0 && s3 <= 0 && s4 <= 0) ||
         (s1 >= 0 && s2 >= 0 && s3 >= 0 && s4 >= 0))
