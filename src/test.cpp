@@ -19,7 +19,7 @@ int main(int argc, const char **argv)
     //Point c(200, 300, 0);
     Plane p(Direction(-1, -1, -1), Point(200, 200, 20));
 
-    std::ofstream f("/Users/david/Desktop/prueba.ppm");
+    std::ofstream f("/Users/santi/Desktop/prueba.ppm");
     if (f.is_open())
     {
         f << "P3" << std::endl;
