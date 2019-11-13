@@ -27,6 +27,11 @@ Direction Plane::getNormal()
     return Direction(this->a, this->b, this->c);
 }
 
+Direction Plane::getNormal(Point X)
+{
+    return this->getNormal();
+}
+
 bool Plane::isInPlane(const Point &p)
 {
     return dot(Direction(this->a, this->b, this->c), p) + this->d == 0;

@@ -4,6 +4,9 @@
 # Unignore all with extensions
 !*.*
 
+# Ignore build files
+build/**
+
 # Ignore media files
 media/**
 

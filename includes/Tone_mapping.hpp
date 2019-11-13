@@ -9,22 +9,7 @@
 
 #include <vector>
 #include <string>
-
-class RGB
-{
-private:
-    float r, g, b;
-
-public:
-    RGB();
-    RGB(float r, float g, float b);
-    void setR(float r);
-    void setG(float g);
-    void setB(float b);
-    float getR();
-    float getG();
-    float getB();
-};
+#include "RGB.hpp"
 
 class Image
 {
@@ -66,8 +51,5 @@ void gamma_encoding(Image &img, const float gamma = 1.6f);
 void clamp_gamma_encoding(Image &img, const float V, const float gamma = 1.6f);
 
 void global_reinhard(Image &img, const float key = 0.18f);
-
-void local_reinhard(Image &img, const float lowScale, const float highScale,
-                    const float phi, const float key, const float threshold, const int numScales);
 
 #endif // !TONE_MAPPING_HPP

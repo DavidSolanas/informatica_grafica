@@ -11,6 +11,15 @@
 class Point;
 class Direction;
 
+class Geometry
+{
+public:
+    Geometry(){};
+    virtual ~Geometry(){};
+    virtual Direction getNormal(Point X) = 0;
+    virtual bool intersect(const Point &p, const Direction &D, float &t) = 0;
+};
+
 /**
  * Clase punto representado por 4 coordenadas en el espacio
  * tridimensional, la cuarta coordenada indica que es un punto
