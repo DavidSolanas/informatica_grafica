@@ -292,7 +292,7 @@ void global_reinhard(Image &img, const float key)
 
 int main(int argc, const char **argv)
 {
-    std::string usage = "Usage: Tone_mapping -i hdr_img -o ldr_img [-key k]";
+    std::string usage = "Usage: Tone_mapping -i hdr_img -o ldr_img [-k key]";
     if (argc < 5)
     {
         std::cerr << "Incorrect number of parameters" << std::endl;
@@ -350,7 +350,7 @@ int main(int argc, const char **argv)
             }
         }
         Image img = load_HDR_image(input);
-        //global_reinhard(img, key);
+        global_reinhard(img, key);
         clamping(img);
         save_LDR_image(output, 65535, img);
     }
