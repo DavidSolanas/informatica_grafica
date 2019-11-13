@@ -9,7 +9,7 @@
 #ifndef PLANE_HPP
 #define PLANE_HPP
 
-class Plane
+class Plane : public Geometry
 {
 private:
     /**
@@ -25,9 +25,10 @@ public:
     Plane();
     Plane(const Direction &n, const Point &o);
     bool isInPlane(const Point &p);
-    bool intersect(const Point &p, const Direction &D, float &t);
+    bool intersect(const Point &p, const Direction &D, float &t) override;
     float getD();
     Direction getNormal();
+    Direction getNormal(Point X) override;
 };
 
 #endif // !PLANE_HPP

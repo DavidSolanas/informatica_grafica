@@ -129,6 +129,11 @@ Point getSurfacePoint(Sphere p, const float az, const float inc)
     return Point(x, y, z);
 }
 
+Direction Sphere::getNormal(Point X)
+{
+    return normalize(X - this->center);
+}
+
 /**
  * R(t) = o + td
 	(p-c)·(p-c) - r² = 0 =>

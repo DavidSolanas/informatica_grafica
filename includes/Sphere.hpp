@@ -14,7 +14,7 @@
  * tiene un centro (Punto), un eje (Dirección) y
  * una ciudad de referencia (Punto)
  */
-class Sphere
+class Sphere : public Geometry
 {
 private:
     /**
@@ -39,7 +39,8 @@ public:
     Point getCity();
     float getRadius();
     const float getAzimuth() const;
-    bool intersect(const Point &p, const Direction &D, float &t);
+    Direction getNormal(Point X) override;
+    bool intersect(const Point &p, const Direction &D, float &t) override;
 };
 
 /**
