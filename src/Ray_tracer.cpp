@@ -31,7 +31,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-    std::array<std::unique_ptr<Geometry>, 10> geometry;
+    std::array<std::unique_ptr<Geometry>, 11> geometry;
     float split = W / 5;
     for (int i = 0; i < 5; i++)
     {
@@ -43,6 +43,10 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     geometry[6] = std::unique_ptr<Geometry>(new Plane(Direction(1, 0, 0), Point(c.getO().getCoord()[0] - c.getL().mod(), H / 2, c.getF().mod())));
     geometry[7] = std::unique_ptr<Geometry>(new Plane(Direction(-1, 0, 0), Point(c.getO().getCoord()[0] + c.getL().mod(), H / 2, c.getF().mod())));
     geometry[9] = std::unique_ptr<Geometry>(new Plane(Direction(0, 0, -1), Point(W / 2, H / 2, c.getF().mod() + 750)));
+    geometry[10] = std::unique_ptr<Geometry>(new BoundedPlane(Point(200, H - 100, c.getF().mod() + 300),
+                                                              Point(500, H - 150, c.getF().mod() + 500),
+                                                              Point(500, H - 300, c.getF().mod() + 500),
+                                                              Point(300, H - 300, c.getF().mod() + 300)));
 
     Point light(W / 2, H - 100, c.getF().mod() + 250);
     float power = 1200000;
@@ -133,6 +137,11 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     case 9:
                         color.setR(255);
                         color.setG(0);
+                        color.setB(0);
+                        break;
+                    case 10:
+                        color.setR(255);
+                        color.setG(255);
                         color.setB(0);
                         break;
 
