@@ -12,7 +12,7 @@
 #include <random>
 #include <memory>
 
-std::array<std::unique_ptr<Geometry>, 17> escene1(Camera c, const int W, const int H)
+std::array<std::unique_ptr<Geometry>, 17> scene1(Camera c, const int W, const int H)
 {
     std::array<std::unique_ptr<Geometry>, 17> geometry;
     float split = W / 5;
@@ -83,7 +83,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-    std::array<std::unique_ptr<Geometry>, 17> geometry = escene1(c, W, H);
+    std::array<std::unique_ptr<Geometry>, 17> geometry = scene1(c, W, H);
 
     Point light(W / 2, H - 100, c.getF().mod() + 250);
     float power = 1200000;
