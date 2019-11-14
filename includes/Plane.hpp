@@ -46,4 +46,17 @@ public:
     bool intersect(const Point &p, const Direction &D, float &t) override;
 };
 
+class Triangle : public Plane
+{
+private:
+    Point A;
+    Point B;
+    Point C;
+
+public:
+    Triangle(const Point &_A, const Point &_B, const Point &_C);
+    bool isInsideTriangle(const Point &p);
+    bool intersect(const Point &p, const Direction &D, float &t) override;
+};
+
 #endif // !PLANE_HPP

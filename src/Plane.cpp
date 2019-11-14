@@ -20,7 +20,7 @@ Plane::Plane(const Direction &n, const Point &o)
 
 Plane::Plane(const Point &a, const Point &b, const Point &c)
 {
-    Direction n = normalize(cross(b - a, c - b));
+    Direction n = normalize(cross(b - a, c - a));
     std::array<float, 4> cn = n.getCoord();
     this->a = cn[0];
     this->b = cn[1];
@@ -70,84 +70,16 @@ BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
  */
 bool BoundedPlane::isInsidePlane(const Point &p)
 {
-    char dim = 'x';
-    if (abs(this->b) > abs(this->a) && abs(this->b) > abs(this->c))
-        dim = 'y';
-    else if (abs(this->c) > abs(this->a) && abs(this->c) > abs(this->b))
-        dim = 'z';
-    int m[2][3];
-    switch (dim)
-    {
-        /*  
-        Reducir dimensión X
-            | 0  1  0 |
-            | 0  0  1 |
-        */
-    case 'x':
-        m[0][0] = 0;
-        m[0][1] = 1;
-        m[0][2] = 0;
-        m[1][0] = 0;
-        m[1][1] = 0;
-        m[1][2] = 1;
-        break;
-        /*  
-        Reducir dimensión Y
-            | 1  0  0 |
-            | 0  0  1 |
-        */
-    case 'y':
-        m[0][0] = 1;
-        m[0][1] = 0;
-        m[0][2] = 0;
-        m[1][0] = 0;
-        m[1][1] = 0;
-        m[1][2] = 1;
-        break;
-        /*  
-        Reducir dimensión Z
-            | 1  0  0 |
-            | 0  1  0 |
-        */
-    case 'z':
-        m[0][0] = 1;
-        m[0][1] = 0;
-        m[0][2] = 0;
-        m[1][0] = 0;
-        m[1][1] = 1;
-        m[1][2] = 0;
-        break;
+    float s1 = dot(cross(B - A, p - A), this->getNormal());
+    float s2 = dot(cross(C - B, p - B), this->getNormal());
+    float s3 = dot(cross(D - C, p - C), this->getNormal());
+    float s4 = dot(cross(A - D, p - D), this->getNormal());
 
-    default:
-        break;
-    }
-    // Project the points to the plane (to the one with the largerst magnitude in the normal)
-    std::array<float, 4> ac = A.getCoord();
-    std::array<float, 4> bc = B.getCoord();
-    std::array<float, 4> cc = C.getCoord();
-    std::array<float, 4> dc = D.getCoord();
-    std::array<float, 4> pc = p.getCoord();
-    float _A[2] = {m[0][0] * ac[0] + m[0][1] * ac[1] + m[0][2] * ac[2],
-                   m[1][0] * ac[0] + m[1][1] * ac[1] + m[1][2] * ac[2]};
-    float _B[2] = {m[0][0] * bc[0] + m[0][1] * bc[1] + m[0][2] * bc[2],
-                   m[1][0] * bc[0] + m[1][1] * bc[1] + m[1][2] * bc[2]};
-    float _C[2] = {m[0][0] * cc[0] + m[0][1] * cc[1] + m[0][2] * cc[2],
-                   m[1][0] * cc[0] + m[1][1] * cc[1] + m[1][2] * cc[2]};
-    float _D[2] = {m[0][0] * dc[0] + m[0][1] * dc[1] + m[0][2] * dc[2],
-                   m[1][0] * dc[0] + m[1][1] * dc[1] + m[1][2] * dc[2]};
-    float _P[2] = {m[0][0] * pc[0] + m[0][1] * pc[1] + m[0][2] * pc[2],
-                   m[1][0] * pc[0] + m[1][1] * pc[1] + m[1][2] * pc[2]};
-    float s1 = (_A[1] - _B[1]) * _P[0] + (_B[0] - _A[0]) * _P[1] + _B[1] * _A[0] - _B[0] * _A[1];
-    float s2 = (_B[1] - _C[1]) * _P[0] + (_C[0] - _B[0]) * _P[1] + _C[1] * _B[0] - _C[0] * _B[1];
-    float s3 = (_C[1] - _D[1]) * _P[0] + (_D[0] - _C[0]) * _P[1] + _D[1] * _C[0] - _D[0] * _C[1];
-    float s4 = (_D[1] - _A[1]) * _P[0] + (_A[0] - _D[0]) * _P[1] + _A[1] * _D[0] - _A[0] * _D[1];
-
-    if ((s1 <= 0 && s2 <= 0 && s3 <= 0 && s4 <= 0) ||
-        (s1 >= 0 && s2 >= 0 && s3 >= 0 && s4 >= 0))
+    if (s1 < 0 || s2 < 0 || s3 < 0 || s4 < 0)
     {
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 
 bool BoundedPlane::intersect(const Point &p, const Direction &D, float &t)
@@ -156,4 +88,32 @@ bool BoundedPlane::intersect(const Point &p, const Direction &D, float &t)
     if (t <= 0)
         return false;
     return isInsidePlane(p + (D * t));
+}
+
+Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C) : Plane(_A, _B, _C)
+{
+    this->A = _A;
+    this->B = _B;
+    this->C = _C;
+}
+
+bool Triangle::isInsideTriangle(const Point &p)
+{
+    float s1 = dot(cross(B - A, p - A), this->getNormal());
+    float s2 = dot(cross(C - B, p - B), this->getNormal());
+    float s3 = dot(cross(A - C, p - C), this->getNormal());
+
+    if (s1 < 0 || s2 < 0 || s3 < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Triangle::intersect(const Point &p, const Direction &D, float &t)
+{
+    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
+    if (t <= 0)
+        return false;
+    return isInsideTriangle(p + (D * t));
 }

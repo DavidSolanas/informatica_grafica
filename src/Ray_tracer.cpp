@@ -31,7 +31,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-    std::array<std::unique_ptr<Geometry>, 16> geometry;
+    std::array<std::unique_ptr<Geometry>, 17> geometry;
     float split = W / 5;
     for (int i = 0; i < 5; i++)
     {
@@ -74,6 +74,10 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                                                               Point(600, H - 300, c.getF().mod() + 400),
                                                               Point(900, H - 300, c.getF().mod() + 400),
                                                               Point(800, H - 300, c.getF().mod() + 300)));
+
+    geometry[16] = std::unique_ptr<Geometry>(new Triangle(Point(500, H - 100, c.getF().mod() + 299),
+                                                          Point(800, H - 300, c.getF().mod() + 299),
+                                                          Point(500, H - 300, c.getF().mod() + 299)));
     Point light(W / 2, H - 100, c.getF().mod() + 250);
     float power = 1200000;
 
