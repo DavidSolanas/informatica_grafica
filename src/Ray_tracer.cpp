@@ -12,25 +12,8 @@
 #include <random>
 #include <memory>
 
-float phong_BRDF(const float kd, const float ks, const float alpha, Direction n,
-                 Direction wi, Direction wo)
+std::array<std::unique_ptr<Geometry>, 17> escene1(Camera c, const int W, const int H)
 {
-    Direction wr = wi - (wi - (n * dot(wi, n))) * 2;
-    return (kd / M_PI) + ((ks * (alpha + 2) / (2 * M_PI)) * pow(abs(dot(wr, wo)), alpha));
-}
-
-float lambertian_BRDF(const float kd)
-{
-    return (kd / M_PI);
-}
-
-void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, const int H)
-{
-    //Random number generator
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
     std::array<std::unique_ptr<Geometry>, 17> geometry;
     float split = W / 5;
     for (int i = 0; i < 5; i++)
@@ -78,6 +61,30 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     geometry[16] = std::unique_ptr<Geometry>(new Triangle(Point(500, H - 100, c.getF().mod() + 299),
                                                           Point(800, H - 300, c.getF().mod() + 299),
                                                           Point(500, H - 300, c.getF().mod() + 299)));
+    return geometry;
+}
+
+float phong_BRDF(const float kd, const float ks, const float alpha, Direction n,
+                 Direction wi, Direction wo)
+{
+    Direction wr = wi - (wi - (n * dot(wi, n))) * 2;
+    return (kd / M_PI) + ((ks * (alpha + 2) / (2 * M_PI)) * pow(abs(dot(wr, wo)), alpha));
+}
+
+float lambertian_BRDF(const float kd)
+{
+    return (kd / M_PI);
+}
+
+void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, const int H)
+{
+    //Random number generator
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
+    std::array<std::unique_ptr<Geometry>, 17> geometry = escene1(c, W, H);
+
     Point light(W / 2, H - 100, c.getF().mod() + 250);
     float power = 1200000;
 
