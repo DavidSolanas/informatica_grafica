@@ -11,57 +11,46 @@
 #include <iostream>
 #include <random>
 #include <memory>
+#include <cstring>
 
-std::array<std::unique_ptr<Geometry>, 17> scene1(Camera c, const int W, const int H)
+std::vector<std::vector<RGB>> load_texture(std::string filename)
 {
-    std::array<std::unique_ptr<Geometry>, 17> geometry;
-    float split = W / 5;
-    for (int i = 0; i < 5; i++)
+    std::ifstream f(filename);
+    std::string str;
+    int max, width, height, cr;
+    std::vector<std::vector<RGB>> data;
+
+    if (f.is_open())
     {
-        geometry[i] = std::unique_ptr<Geometry>(new Sphere(Point((i + 1) * split - (split / 2), (H / 2 - 200) + i * 75, c.getF().mod() + i * 100), Direction(0, 200, 0),
-                                                           Point((i + 1) * split - (split / 2) + 100, (H / 2 - 200) + i * 75, c.getF().mod() + i * 100)));
+        getline(f, str);
+        getline(f, str);
+        while (str[0] == '#')
+        {
+            getline(f, str);
+        }
+        //comment contendrá width y height
+        width = std::stoi(str.substr(0, str.find(' ')));
+        height = std::stoi(str.substr(str.find(' ') + 1, str.length()));
+        f >> cr;
+        int r, g, b;
+        data.resize(height, std::vector<RGB>(width));
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                //Procesar RGB
+                f >> r >> g >> b;
+                data[i][j].setR(r);
+                data[i][j].setG(g);
+                data[i][j].setB(b);
+            }
+        }
     }
-    geometry[5] = std::unique_ptr<Geometry>(new Plane(Direction(0, 1, 0), Point(W / 2, c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
-    geometry[8] = std::unique_ptr<Geometry>(new Plane(Direction(0, -1, 0), Point(W / 2, c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod())));
-    geometry[6] = std::unique_ptr<Geometry>(new Plane(Direction(1, 0, 0), Point(c.getO().getCoord()[0] - c.getL().mod(), H / 2, c.getF().mod())));
-    geometry[7] = std::unique_ptr<Geometry>(new Plane(Direction(-1, 0, 0), Point(c.getO().getCoord()[0] + c.getL().mod(), H / 2, c.getF().mod())));
-    geometry[9] = std::unique_ptr<Geometry>(new Plane(Direction(0, 0, -1), Point(W / 2, H / 2, c.getF().mod() + 750)));
-    // CARA FRONTAL
-    geometry[10] = std::unique_ptr<Geometry>(new BoundedPlane(Point(500, H - 100, c.getF().mod() + 300),
-                                                              Point(800, H - 100, c.getF().mod() + 300),
-                                                              Point(800, H - 300, c.getF().mod() + 300),
-                                                              Point(500, H - 300, c.getF().mod() + 300)));
-
-    // CARA DERECHA
-    geometry[11] = std::unique_ptr<Geometry>(new BoundedPlane(Point(800, H - 100, c.getF().mod() + 300),
-                                                              Point(900, H - 100, c.getF().mod() + 400),
-                                                              Point(900, H - 300, c.getF().mod() + 400),
-                                                              Point(800, H - 300, c.getF().mod() + 300)));
-    //CARA IZQUIERDA
-    geometry[12] = std::unique_ptr<Geometry>(new BoundedPlane(Point(500, H - 100, c.getF().mod() + 300),
-                                                              Point(600, H - 100, c.getF().mod() + 400),
-                                                              Point(600, H - 300, c.getF().mod() + 400),
-                                                              Point(500, H - 300, c.getF().mod() + 300)));
-    //CARA TRASERA
-    geometry[13] = std::unique_ptr<Geometry>(new BoundedPlane(Point(600, H - 100, c.getF().mod() + 400),
-                                                              Point(900, H - 100, c.getF().mod() + 400),
-                                                              Point(900, H - 300, c.getF().mod() + 400),
-                                                              Point(600, H - 300, c.getF().mod() + 400)));
-    // CARA SUPERIOR
-    geometry[14] = std::unique_ptr<Geometry>(new BoundedPlane(Point(500, H - 100, c.getF().mod() + 300),
-                                                              Point(600, H - 100, c.getF().mod() + 400),
-                                                              Point(900, H - 100, c.getF().mod() + 400),
-                                                              Point(800, H - 100, c.getF().mod() + 300)));
-    //CARA INFERIOR
-    geometry[15] = std::unique_ptr<Geometry>(new BoundedPlane(Point(500, H - 300, c.getF().mod() + 300),
-                                                              Point(600, H - 300, c.getF().mod() + 400),
-                                                              Point(900, H - 300, c.getF().mod() + 400),
-                                                              Point(800, H - 300, c.getF().mod() + 300)));
-
-    geometry[16] = std::unique_ptr<Geometry>(new Triangle(Point(500, H - 100, c.getF().mod() + 299),
-                                                          Point(800, H - 300, c.getF().mod() + 299),
-                                                          Point(500, H - 300, c.getF().mod() + 299)));
-    return geometry;
+    else
+    {
+        std::cerr << "Couldn't open the image, cancelling..." << std::endl;
+    }
+    return data;
 }
 
 float phong_BRDF(const float kd, const float ks, const float alpha, Direction n,
@@ -83,10 +72,10 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-    std::array<std::unique_ptr<Geometry>, 17> geometry = scene1(c, W, H);
+    std::array<std::unique_ptr<Geometry>, 7> geometry = scene3(c, W, H);
 
-    Point light(W / 2, H - 100, c.getF().mod() + 250);
-    float power = 1200000;
+    Point light(W / 2, H - 200, c.getF().mod() - 200);
+    float power = 3600000;
 
     std::ofstream _f(filename);
     if (_f.is_open())
@@ -143,48 +132,49 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     switch (i)
                     {
                     case 0:
-                        color.setR(50);
-                        color.setG(205);
-                        color.setB(50);
+                        color.setR(240);
+                        color.setG(240);
+                        color.setB(240);
                         break;
                     case 1:
-                        color.setR(0);
-                        color.setG(255);
-                        color.setB(255);
+                        color.setR(240);
+                        color.setG(240);
+                        color.setB(240);
                         break;
                     case 2:
                         color.setR(255);
                         color.setG(0);
-                        color.setB(255);
+                        color.setB(0);
                         break;
                     case 3:
-                        color.setR(208);
-                        color.setG(208);
-                        color.setB(208);
+                        color.setR(240);
+                        color.setG(240);
+                        color.setB(240);
                         break;
                     case 4:
-                        color.setR(255);
-                        color.setG(137);
-                        color.setB(11);
+                        color.setR(240);
+                        color.setG(240);
+                        color.setB(240);
                         break;
                     case 5:
+                        color.setR(100);
+                        color.setG(255);
+                        color.setB(0);
+                        break;
                     case 6:
                     case 7:
                     case 8:
                     case 9:
-                        color.setR(255);
-                        color.setG(0);
-                        color.setB(0);
-                        break;
                     case 10:
-                        color.setR(255);
-                        color.setG(255);
-                        color.setB(0);
+                        color.setR(93);
+                        color.setG(173);
+                        color.setB(164);
                         break;
+
                     case 11:
-                        color.setR(0);
-                        color.setG(0);
-                        color.setB(255);
+                        color.setR(255);
+                        color.setG(143);
+                        color.setB(0);
                         break;
                     case 14:
                         color.setR(0);
@@ -255,6 +245,8 @@ int main(int argc, const char **argv)
         Point c0((int)W / 2, (int)H / 2, 0);
         Camera c(f, u, l, c0);
         ray_tracer("/Users/david/Desktop/prueba.ppm", n_ray, c, W, H);
+        //auto data = load_texture("/Users/david/Desktop/paint_4532.ppm");
+        //std::cout << data.size() << "  " << data[0].size() << std::endl;
     }
     return 0;
 }
