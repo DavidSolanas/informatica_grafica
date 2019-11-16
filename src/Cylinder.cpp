@@ -8,6 +8,10 @@
 #include <cmath>
 #include <iostream>
 
+Cylinder::Cylinder()
+{
+}
+
 Cylinder::Cylinder(Point c1, Point c2, float r, float h)
 {
     this->c1 = c1;
@@ -23,6 +27,11 @@ Cylinder::~Cylinder()
 float Cylinder::getRadius()
 {
     return this->r;
+}
+
+float Cylinder::get_base_Y_coord()
+{
+    return c1.getCoord()[1];
 }
 
 Direction Cylinder::getNormal(Point X)
@@ -118,4 +127,10 @@ bool Cylinder::isInCylinder(const Point &p, const Direction &D, const Point &cen
         return false;
 
     return true;
+}
+
+void Cylinder::get_uv(const Direction &n, const float h, float &u, float &v)
+{
+    u = atan2(n.getCoord()[0], n.getCoord()[2]) / (2 * M_PI) + 0.5;
+    v = h / this->h;
 }

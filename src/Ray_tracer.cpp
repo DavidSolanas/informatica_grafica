@@ -7,7 +7,9 @@
 #include <cmath>
 #include "Sphere.hpp"
 #include "Plane.hpp"
+#include "Cylinder.hpp"
 #include "RGB.hpp"
+#include "Transformation.hpp"
 #include <iostream>
 #include <random>
 #include <memory>
@@ -56,7 +58,7 @@ std::vector<std::vector<RGB>> load_texture(std::string filename)
 float phong_BRDF(const float kd, const float ks, const float alpha, Direction n,
                  Direction wi, Direction wo)
 {
-    Direction wr = wi - (wi - (n * dot(wi, n))) * 2;
+    Direction wr = wi - (n * dot(wi, n)) * 2;
     return (kd / M_PI) + ((ks * (alpha + 2) / (2 * M_PI)) * pow(abs(dot(wr, wo)), alpha));
 }
 
@@ -65,16 +67,35 @@ float lambertian_BRDF(const float kd)
     return (kd / M_PI);
 }
 
+RGB get_pixel(std::vector<std::vector<RGB>> &data, const float u, const float v)
+{
+    int j = u * data[0].size();
+    int i = (1 - v) * data.size();
+
+    if (j < 0)
+        j = 0;
+    if (i < 0)
+        i = 0;
+
+    if (j > data[0].size() - 1)
+        j = data[0].size() - 1;
+    if (i > data.size() - 1)
+        i = data.size() - 1;
+
+    return data[i][j];
+}
+
 void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, const int H)
 {
     //Random number generator
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+    std::vector<std::vector<RGB>> data = load_texture("/Users/david/Desktop/earthmap1k.ppm");
 
     std::array<std::unique_ptr<Geometry>, 7> geometry = scene3(c, W, H);
 
-    Point light(W / 2, H - 200, c.getF().mod() - 200);
+    Point light(W / 2, H - 200, c.getF().mod() - 700);
     float power = 3600000;
 
     std::ofstream _f(filename);
@@ -93,6 +114,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
             {
                 float Lo = 0;
                 int i;
+                Point X;
                 for (int k = 0; k < n_ray; k++)
                 {
                     i = -1;
@@ -114,7 +136,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     if (i != -1)
                     {
                         // Calcular luz
-                        Point X = c.getO() + (d_ray * tmin);
+                        X = c.getO() + (d_ray * tmin);
                         float Li = power / ((light - X).mod() * (light - X).mod());
                         Direction normal = geometry[i]->getNormal(X);
                         Direction wi = normalize(light - X);
@@ -122,13 +144,18 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         float kd = i == 5 ? 0.9f : 0.6f;
                         float ks = i == 5 ? 0.05f : 0.25f;
                         float brdf = phong_BRDF(kd, ks, 10, normal, wi, wo);
-                        float geometry = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
-                        Lo += Li * brdf * geometry;
+                        float g = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
+                        Lo += Li * brdf * g;
                     }
                 }
                 if (i != -1)
                 {
                     RGB color;
+                    Sphere s;
+                    Cylinder cy;
+                    BoundedPlane bp;
+                    Direction normal;
+                    float u, v;
                     switch (i)
                     {
                     case 0:
@@ -142,9 +169,9 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         color.setB(240);
                         break;
                     case 2:
-                        color.setR(255);
-                        color.setG(0);
-                        color.setB(0);
+                        bp = *reinterpret_cast<BoundedPlane *>((geometry[i].get()));
+                        bp.get_uv(X, u, v);
+                        color = get_pixel(data, u, v);
                         break;
                     case 3:
                         color.setR(240);
@@ -157,11 +184,17 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         color.setB(240);
                         break;
                     case 5:
-                        color.setR(100);
-                        color.setG(255);
-                        color.setB(0);
+                        normal = geometry[i]->getNormal(X);
+                        cy = *reinterpret_cast<Cylinder *>((geometry[i].get()));
+                        cy.get_uv(normal, X.getCoord()[1] - cy.get_base_Y_coord(), u, v);
+                        color = get_pixel(data, u, v);
                         break;
                     case 6:
+                        s = *reinterpret_cast<Sphere *>((geometry[i].get()));
+                        normal = normalize(s.getCenter() - X);
+                        s.get_uv(normal, u, v);
+                        color = get_pixel(data, u, v);
+                        break;
                     case 7:
                     case 8:
                     case 9:
@@ -245,8 +278,6 @@ int main(int argc, const char **argv)
         Point c0((int)W / 2, (int)H / 2, 0);
         Camera c(f, u, l, c0);
         ray_tracer("/Users/david/Desktop/prueba.ppm", n_ray, c, W, H);
-        //auto data = load_texture("/Users/david/Desktop/paint_4532.ppm");
-        //std::cout << data.size() << "  " << data[0].size() << std::endl;
     }
     return 0;
 }

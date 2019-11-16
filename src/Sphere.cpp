@@ -6,6 +6,7 @@
 #include "Sphere.hpp"
 #include <iostream>
 #include <cmath>
+#include "Transformation.hpp"
 
 Sphere::Sphere() {}
 
@@ -59,6 +60,12 @@ const float Sphere::getAzimuth() const
     float x = c[0];
     float z = c[2];
     return atanf(x / -z);
+}
+
+void Sphere::get_uv(const Direction &n, float &u, float &v)
+{
+    u = atan2(n.getCoord()[0], n.getCoord()[2]) / (2 * M_PI) + 0.5;
+    v = 0.5 - asin(n.getCoord()[1]) / M_PI;
 }
 
 SphereGeometry::SphereGeometry(const float &inc, const float &az, const Sphere &p)

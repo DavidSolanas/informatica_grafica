@@ -41,6 +41,7 @@ public:
     const float getAzimuth() const;
     Direction getNormal(Point X) override;
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    void get_uv(const Direction &n, float &u, float &v);
 };
 
 /**

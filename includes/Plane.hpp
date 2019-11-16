@@ -41,9 +41,11 @@ private:
     Point D;
 
 public:
+    BoundedPlane();
     BoundedPlane(const Point &_A, const Point &_B, const Point &_C, const Point &_D);
     bool isInsidePlane(const Point &p);
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    void get_uv(const Point &p, float &u, float &v);
 };
 
 class Triangle : public Plane

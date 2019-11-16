@@ -56,6 +56,10 @@ bool Plane::intersect(const Point &p, const Direction &D, float &t)
     return true;
 }
 
+BoundedPlane::BoundedPlane()
+{
+}
+
 BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
                            const Point &_C, const Point &_D) : Plane(_A, _B, _C)
 {
@@ -88,6 +92,14 @@ bool BoundedPlane::intersect(const Point &p, const Direction &D, float &t)
     if (t <= 0)
         return false;
     return isInsidePlane(p + (D * t));
+}
+
+void BoundedPlane::get_uv(const Point &p, float &u, float &v)
+{
+    float w = (B - A).mod(),
+          h = (D - A).mod();
+    u = (p.getCoord()[0] - A.getCoord()[0]) / w;
+    v = (p.getCoord()[1] - D.getCoord()[1]) / h;
 }
 
 Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C) : Plane(_A, _B, _C)

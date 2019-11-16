@@ -228,6 +228,7 @@ std::array<std::unique_ptr<Geometry>, 7> scene3(Camera c, const int W, const int
         Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
         Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
 
+    //Cilindro
     geometry[5] = std::unique_ptr<Geometry>(new Cylinder(
         Point(W / 2, 0, c.getF().mod() + 50),
         Point(W / 2, H / 2 - 50, c.getF().mod() + 50),
@@ -238,5 +239,16 @@ std::array<std::unique_ptr<Geometry>, 7> scene3(Camera c, const int W, const int
         Point(W / 2, H / 2, c.getF().mod() + 50), Direction(0, 100, 0),
         Point(W / 2 - 50, H / 2, c.getF().mod() + 50)));
 
-        return geometry;
+    return geometry;
+}
+
+std::array<std::unique_ptr<Geometry>, 1> scene4(Camera c, const int W, const int H)
+{
+    std::array<std::unique_ptr<Geometry>, 1> geometry;
+    // Esfera
+    geometry[0] = std::unique_ptr<Geometry>(new Sphere(
+        Point(W / 2, H / 2, c.getF().mod()), Direction(0, 200, 0),
+        Point(W / 2 - 100, H / 2, c.getF().mod())));
+
+    return geometry;
 }

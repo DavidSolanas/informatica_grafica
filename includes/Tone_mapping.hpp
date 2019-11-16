@@ -38,7 +38,7 @@ public:
 
 Image load_HDR_image(std::string filename);
 
-void save_LDR_image(std::string filename, int c, Image img);
+void save_LDR_image(std::string filename, int c, Image &img);
 
 void clamping(Image &img);
 
