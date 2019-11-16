@@ -7,6 +7,7 @@
 #include "Plane.hpp"
 #include "Sphere.hpp"
 #include "Cylinder.hpp"
+#include "Cone.hpp"
 
 Camera::Camera(const Direction &_f, const Direction &_u, const Direction &_l, const Point &_o)
 {
@@ -237,5 +238,5 @@ std::array<std::unique_ptr<Geometry>, 7> scene3(Camera c, const int W, const int
         Point(W / 2, H / 2, c.getF().mod() + 50), Direction(0, 100, 0),
         Point(W / 2 - 50, H / 2, c.getF().mod() + 50)));
 
-    return geometry;
+        return geometry;
 }
