@@ -160,3 +160,54 @@ void Triangle::get_uv(const Point &p, float &u, float &v)
     u = ba * (ca[0] / xmax) + bb * (cb[0] / xmax) + bc * (cc[0] / xmax);
     v = ba * (ca[1] / ymax) + bb * (cb[1] / ymax) + bc * (cc[1] / ymax);
 }
+
+Disk::Disk()
+{
+}
+
+Disk::Disk(const Direction &n, const Point &p, const float r) : Plane(n, p)
+{
+    this->r = r;
+    this->c = p;
+}
+
+bool Disk::isInsideDisk(const Point &p)
+{
+    Direction d = p - this->c;
+    return dot(d, d) <= r * r;
+}
+
+bool Disk::intersect(const Point &p, const Direction &D, float &t)
+{
+    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
+    if (t <= 0)
+        return false;
+    return isInsideDisk(p + (D * t));
+}
+
+void Disk::get_uv(const Point &p, float &u, float &v)
+{
+    Direction n = this->getNormal(p);
+    float x = p.getCoord()[0] - c.getCoord()[0],
+          y = p.getCoord()[1] - c.getCoord()[1],
+          z = p.getCoord()[2] - c.getCoord()[2];
+    float nx = abs(n.getCoord()[0]),
+          ny = abs(n.getCoord()[1]),
+          nz = abs(n.getCoord()[2]);
+    float cmax = max(nx, ny, nz);
+    if (cmax == nx)
+    {
+        u = (y / r + 1) * 0.5;
+        v = (z / r + 1) * 0.5;
+    }
+    if (cmax == ny)
+    {
+        u = (x / r + 1) * 0.5;
+        v = (z / r + 1) * 0.5;
+    }
+    if (cmax == nz)
+    {
+        u = (x / r + 1) * 0.5;
+        v = (y / r + 1) * 0.5;
+    }
+}

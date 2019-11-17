@@ -63,4 +63,18 @@ public:
     void get_uv(const Point &p, float &u, float &v);
 };
 
+class Disk : public Plane
+{
+private:
+    float r;
+    Point c;
+
+public:
+    Disk();
+    Disk(const Direction &n, const Point &p, const float r);
+    bool isInsideDisk(const Point &p);
+    bool intersect(const Point &p, const Direction &D, float &t) override;
+    void get_uv(const Point &p, float &u, float &v);
+};
+
 #endif // !PLANE_HPP

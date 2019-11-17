@@ -33,6 +33,6 @@ std::array<std::unique_ptr<Geometry>, 7> scene3(Camera c, const int W, const int
 
 std::array<std::unique_ptr<Geometry>, 1> scene4(Camera c, const int W, const int H);
 
-std::array<std::unique_ptr<Geometry>, 8> scene5(Camera c, const int W, const int H);
+std::array<std::unique_ptr<Geometry>, 9> scene5(Camera c, const int W, const int H);
 
 #endif // !SCENE_HPP

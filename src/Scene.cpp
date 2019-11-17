@@ -253,9 +253,9 @@ std::array<std::unique_ptr<Geometry>, 1> scene4(Camera c, const int W, const int
     return geometry;
 }
 
-std::array<std::unique_ptr<Geometry>, 8> scene5(Camera c, const int W, const int H)
+std::array<std::unique_ptr<Geometry>, 9> scene5(Camera c, const int W, const int H)
 {
-    std::array<std::unique_ptr<Geometry>, 8> geometry;
+    std::array<std::unique_ptr<Geometry>, 9> geometry;
 
     //Pared IZQ
     geometry[0] = std::unique_ptr<Geometry>(new BoundedPlane(
@@ -307,6 +307,11 @@ std::array<std::unique_ptr<Geometry>, 8> scene5(Camera c, const int W, const int
     geometry[7] = std::unique_ptr<Geometry>(new Cone(
         Point(W / 2 - 500, H / 2 - 200, c.getF().mod() + 400),
         300, 150));
+
+    geometry[8] = std::unique_ptr<Geometry>(new Disk(
+        Direction(0, 0, -1),
+        Point(W / 2 + 500, H / 2 - 200, c.getF().mod() + 400),
+        55.5f));
 
     return geometry;
 }
