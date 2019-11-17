@@ -96,7 +96,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
 
     std::array<std::unique_ptr<Geometry>, 7> geometry = scene3(c, W, H);
 
-    Point light(W / 2, H - 200, c.getF().mod() - 700);
+    Point light(W / 2, H - 200, c.getF().mod() - 500);
     float power = 3600000;
 
     std::ofstream _f(filename);
