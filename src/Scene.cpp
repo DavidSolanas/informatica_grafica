@@ -252,3 +252,61 @@ std::array<std::unique_ptr<Geometry>, 1> scene4(Camera c, const int W, const int
 
     return geometry;
 }
+
+std::array<std::unique_ptr<Geometry>, 8> scene5(Camera c, const int W, const int H)
+{
+    std::array<std::unique_ptr<Geometry>, 8> geometry;
+
+    //Pared IZQ
+    geometry[0] = std::unique_ptr<Geometry>(new BoundedPlane(
+        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod()),
+        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+
+    //Pared DCH
+    geometry[1] = std::unique_ptr<Geometry>(new BoundedPlane(
+        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod()),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod()),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750)));
+
+    //Pared Fondo
+    geometry[2] = std::unique_ptr<Geometry>(new BoundedPlane(
+        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750)));
+
+    //Pared Superior
+    geometry[3] = std::unique_ptr<Geometry>(new BoundedPlane(
+        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod()),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod()),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod() + 750)));
+
+    //Pared Inferior
+    geometry[4] = std::unique_ptr<Geometry>(new BoundedPlane(
+        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod()),
+        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
+        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+
+    //Cilindro
+    geometry[5] = std::unique_ptr<Geometry>(new Cylinder(
+        Point(W / 2, 0, c.getF().mod() + 50),
+        Point(W / 2, H / 2 - 50, c.getF().mod() + 50),
+        50, H / 2 - 50));
+
+    // Esfera
+    geometry[6] = std::unique_ptr<Geometry>(new Sphere(
+        Point(W / 2, H / 2, c.getF().mod() + 50), Direction(0, 100, 0),
+        Point(W / 2 - 50, H / 2, c.getF().mod() + 50)));
+
+    // Cono
+    geometry[7] = std::unique_ptr<Geometry>(new Cone(
+        Point(W / 2 - 500, H / 2 - 200, c.getF().mod() + 400),
+        300, 150));
+
+    return geometry;
+}

@@ -5,10 +5,15 @@
 
 #include "Cone.hpp"
 #include <cmath>
+#include <iostream>
+
+Cone::Cone()
+{
+}
 
 Cone::Cone(const Point &p, float h, float r)
 {
-    this->center = p;
+    this->vertex = p;
     this->h = h;
     this->r = r;
     //Calcular el angulo de la parte superior del cono,
@@ -39,19 +44,24 @@ float Cone::getRadius()
     return r;
 }
 
-Point Cone::getCenter()
+Point Cone::getVertex()
 {
-    return center;
+    return vertex;
+}
+
+float Cone::get_vertex_Y_coord()
+{
+    return vertex.getCoord()[1];
 }
 
 Direction Cone::getNormal(Point X)
 {
     //Punto central a altura Xy
-    Point p1(center.getCoord()[0], X.getCoord()[1], center.getCoord()[2]);
+    Point p1(vertex.getCoord()[0], X.getCoord()[1], vertex.getCoord()[2]);
     //Punto superior
-    Point p2(center.getCoord()[0], center.getCoord()[1] + h, center.getCoord()[2]);
+    Point p2(vertex.getCoord()[0], vertex.getCoord()[1] + h, vertex.getCoord()[2]);
 
-    Direction w = X - center;
+    Direction w = X - vertex;
     std::array<float, 4> wcord = w.getCoord();
     wcord[1] = 0.0f;
     w.setCoord(wcord);
@@ -64,9 +74,9 @@ bool Cone::intersect(const Point &p, const Direction &D, float &t)
 {
     // Trasladamos el rayo para que el centro de la base del cono
     // esté en el origen del rayo punto p)
-    Point p0(p.getCoord()[0] - center.getCoord()[0],
-             p.getCoord()[1] - center.getCoord()[1],
-             p.getCoord()[2] - center.getCoord()[2]);
+    Point p0(p.getCoord()[0] - vertex.getCoord()[0],
+             p.getCoord()[1] - vertex.getCoord()[1],
+             p.getCoord()[2] - vertex.getCoord()[2]);
 
     float a = cos(theta) * D.getCoord()[0] * D.getCoord()[0] +
               cos(theta) * D.getCoord()[2] * D.getCoord()[2] -
@@ -100,4 +110,10 @@ bool Cone::intersect(const Point &p, const Direction &D, float &t)
     if (y < -h || y > 0)
         return false;
     return true;
+}
+
+void Cone::get_uv(const Direction &n, const float h, float &u, float &v)
+{
+    u = atan2(n.getCoord()[0], n.getCoord()[2]) / (2 * M_PI) + 0.5;
+    v = h / this->h;
 }

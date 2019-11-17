@@ -8,6 +8,7 @@
 #include "Sphere.hpp"
 #include "Plane.hpp"
 #include "Cylinder.hpp"
+#include "Cone.hpp"
 #include "RGB.hpp"
 #include "Transformation.hpp"
 #include <iostream>
@@ -153,7 +154,9 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     RGB color;
                     Sphere s;
                     Cylinder cy;
+                    Triangle t;
                     BoundedPlane bp;
+                    Cone cone;
                     Direction normal;
                     float u, v;
                     switch (i)
@@ -196,6 +199,11 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         color = get_pixel(data, u, v);
                         break;
                     case 7:
+                        normal = geometry[i]->getNormal(X);
+                        cone = *reinterpret_cast<Cone *>((geometry[i].get()));
+                        cone.get_uv(normal, cone.get_vertex_Y_coord() - X.getCoord()[1], u, v);
+                        color = get_pixel(data, u, v);
+                        break;
                     case 8:
                     case 9:
                     case 10:

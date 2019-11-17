@@ -12,20 +12,22 @@ class Cone : public Geometry
 {
 private:
     float theta;
-    Point center;
+    Point vertex;
     float h;
     float r;
 
 public:
+    Cone();
     Cone(const Point &p, float h, float r);
-    Cone(const Point &p, const Point &v, float r);
     ~Cone();
     float getAngle();
     float getHeight();
     float getRadius();
-    Point getCenter();
+    Point getVertex();
+    float get_vertex_Y_coord();
     Direction getNormal(Point X) override;
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    void get_uv(const Direction &n, const float h, float &u, float &v);
 };
 
 #endif // !CONE_HPP

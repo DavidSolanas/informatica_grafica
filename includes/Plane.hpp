@@ -56,9 +56,11 @@ private:
     Point C;
 
 public:
+    Triangle();
     Triangle(const Point &_A, const Point &_B, const Point &_C);
     bool isInsideTriangle(const Point &p);
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    void get_uv(const Point &p, float &u, float &v);
 };
 
 #endif // !PLANE_HPP

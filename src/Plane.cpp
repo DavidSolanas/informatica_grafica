@@ -5,6 +5,16 @@
 
 #include "Plane.hpp"
 #include <cmath>
+#include <iostream>
+
+float max(float a, float b, float c)
+{
+    if (a > b && a > c)
+        return a;
+    else if (b > a && b > c)
+        return b;
+    return c;
+}
 
 Plane::Plane() {}
 
@@ -102,6 +112,10 @@ void BoundedPlane::get_uv(const Point &p, float &u, float &v)
     v = (p.getCoord()[1] - D.getCoord()[1]) / h;
 }
 
+Triangle::Triangle()
+{
+}
+
 Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C) : Plane(_A, _B, _C)
 {
     this->A = _A;
@@ -128,4 +142,21 @@ bool Triangle::intersect(const Point &p, const Direction &D, float &t)
     if (t <= 0)
         return false;
     return isInsideTriangle(p + (D * t));
+}
+
+void Triangle::get_uv(const Point &p, float &u, float &v)
+{
+    float ba, bb, bc;
+    std::array<float, 4> ca = A.getCoord(),
+                         cb = B.getCoord(),
+                         cc = C.getCoord();
+    float xmax = max(ca[0], cb[0], cc[0]);
+    float ymax = max(ca[1], cb[1], cc[1]);
+    float abc_area = cross(B - A, C - A).mod();
+
+    ba = cross(A - C, p - C).mod() / abc_area;
+    bb = cross(B - A, p - A).mod() / abc_area;
+    bc = 1 - ba - bb;
+    u = ba * (ca[0] / xmax) + bb * (cb[0] / xmax) + bc * (cc[0] / xmax);
+    v = ba * (ca[1] / ymax) + bb * (cb[1] / ymax) + bc * (cc[1] / ymax);
 }
