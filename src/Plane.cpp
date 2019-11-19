@@ -171,6 +171,11 @@ Disk::Disk(const Direction &n, const Point &p, const float r) : Plane(n, p)
     this->c = p;
 }
 
+Point Disk::getCenter()
+{
+    return this->c;
+}
+
 bool Disk::isInsideDisk(const Point &p)
 {
     Direction d = p - this->c;

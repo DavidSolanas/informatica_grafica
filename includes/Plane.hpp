@@ -73,6 +73,7 @@ public:
     Disk();
     Disk(const Direction &n, const Point &p, const float r);
     bool isInsideDisk(const Point &p);
+    Point getCenter();
     bool intersect(const Point &p, const Direction &D, float &t) override;
     void get_uv(const Point &p, float &u, float &v);
 };

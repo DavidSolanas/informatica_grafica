@@ -230,8 +230,8 @@ std::array<std::unique_ptr<Geometry>, 7> scene3(Camera c, const int W, const int
 
     //Cilindro
     geometry[5] = std::unique_ptr<Geometry>(new Cylinder(
-        Point(W / 2, 0, c.getF().mod() + 50),
-        Point(W / 2, H / 2 - 50, c.getF().mod() + 50),
+        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.getF().mod() + 50), 50),
+        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.getF().mod() + 50), 50),
         50, H / 2 - 50));
 
     // Esfera
@@ -294,8 +294,8 @@ std::array<std::unique_ptr<Geometry>, 9> scene5(Camera c, const int W, const int
 
     //Cilindro
     geometry[5] = std::unique_ptr<Geometry>(new Cylinder(
-        Point(W / 2, 0, c.getF().mod() + 50),
-        Point(W / 2, H / 2 - 50, c.getF().mod() + 50),
+        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.getF().mod() + 50), 50),
+        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.getF().mod() + 50), 50),
         50, H / 2 - 50));
 
     // Esfera
