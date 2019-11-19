@@ -120,7 +120,7 @@ Image load_HDR_image(std::string filename)
     return Image(fileId, comments, max, width, height, cr, maxPixelValue, data);
 }
 
-void save_LDR_image(std::string filename, int c, Image img)
+void save_LDR_image(std::string filename, int c, Image &img)
 {
     std::ofstream f(filename);
     if (f.is_open())
@@ -217,7 +217,7 @@ void clamp_gamma_encoding(Image &img, const float V, const float gamma)
     }
 }
 
-float equation_1_reinhard(Image img, const float delta)
+float equation_1_reinhard(Image &img, const float delta)
 {
     float sum = 0.0;
     const int N = img.getHeight() * img.getWidth();
@@ -233,7 +233,7 @@ float equation_1_reinhard(Image img, const float delta)
     return exp((1.0f / N) * sum);
 }
 
-float equation_2_reinhard(Image img, std::vector<std::vector<float>> &vl, const float key)
+float equation_2_reinhard(Image &img, std::vector<std::vector<float>> &vl, const float key)
 {
     float worldAVG_L = equation_1_reinhard(img, 0.0001f);
     float L, Lmax = -1.0f;
@@ -254,7 +254,7 @@ float equation_2_reinhard(Image img, std::vector<std::vector<float>> &vl, const 
     return Lmax;
 }
 
-std::vector<std::vector<float>> equation_4_reinhard(std::vector<std::vector<float>> vl, const float l_white)
+std::vector<std::vector<float>> equation_4_reinhard(std::vector<std::vector<float>> &vl, const float l_white)
 {
     std::vector<std::vector<float>> vld(vl.size(), std::vector<float>(vl[0].size(), 0.0f));
     for (int i = 0; i < vl.size(); i++)

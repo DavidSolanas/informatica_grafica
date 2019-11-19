@@ -4,6 +4,17 @@
  *****************************************/
 
 #include "Plane.hpp"
+#include <cmath>
+#include <iostream>
+
+float max(float a, float b, float c)
+{
+    if (a > b && a > c)
+        return a;
+    else if (b > a && b > c)
+        return b;
+    return c;
+}
 
 Plane::Plane() {}
 
@@ -15,6 +26,16 @@ Plane::Plane(const Direction &n, const Point &o)
     this->b = cn[1];
     this->c = cn[2];
     this->d = -dot(n_normalized, o);
+}
+
+Plane::Plane(const Point &a, const Point &b, const Point &c)
+{
+    Direction n = normalize(cross(b - a, c - a));
+    std::array<float, 4> cn = n.getCoord();
+    this->a = cn[0];
+    this->b = cn[1];
+    this->c = cn[2];
+    this->d = -dot(n, a);
 }
 
 float Plane::getD()
@@ -34,13 +55,159 @@ Direction Plane::getNormal(Point X)
 
 bool Plane::isInPlane(const Point &p)
 {
-    return dot(Direction(this->a, this->b, this->c), p) + this->d == 0;
+    return dot(this->getNormal(), p) + this->d == 0;
 }
 
 bool Plane::intersect(const Point &p, const Direction &D, float &t)
 {
     t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
-    if (t == 0)
+    if (t <= 0)
         return false;
     return true;
+}
+
+BoundedPlane::BoundedPlane()
+{
+}
+
+BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
+                           const Point &_C, const Point &_D) : Plane(_A, _B, _C)
+{
+    this->A = _A;
+    this->B = _B;
+    this->C = _C;
+    this->D = _D;
+}
+
+/**
+ * D = (x2 - x1) * (yp - y1) - (xp - x1) * (y2 - y1)
+ */
+bool BoundedPlane::isInsidePlane(const Point &p)
+{
+    float s1 = dot(cross(B - A, p - A), this->getNormal());
+    float s2 = dot(cross(C - B, p - B), this->getNormal());
+    float s3 = dot(cross(D - C, p - C), this->getNormal());
+    float s4 = dot(cross(A - D, p - D), this->getNormal());
+
+    if (s1 < 0 || s2 < 0 || s3 < 0 || s4 < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool BoundedPlane::intersect(const Point &p, const Direction &D, float &t)
+{
+    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
+    if (t <= 0)
+        return false;
+    return isInsidePlane(p + (D * t));
+}
+
+void BoundedPlane::get_uv(const Point &p, float &u, float &v)
+{
+    float w = (B - A).mod(),
+          h = (D - A).mod();
+    u = (p.getCoord()[0] - A.getCoord()[0]) / w;
+    v = (p.getCoord()[1] - D.getCoord()[1]) / h;
+}
+
+Triangle::Triangle()
+{
+}
+
+Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C) : Plane(_A, _B, _C)
+{
+    this->A = _A;
+    this->B = _B;
+    this->C = _C;
+}
+
+bool Triangle::isInsideTriangle(const Point &p)
+{
+    float s1 = dot(cross(B - A, p - A), this->getNormal());
+    float s2 = dot(cross(C - B, p - B), this->getNormal());
+    float s3 = dot(cross(A - C, p - C), this->getNormal());
+
+    if (s1 < 0 || s2 < 0 || s3 < 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Triangle::intersect(const Point &p, const Direction &D, float &t)
+{
+    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
+    if (t <= 0)
+        return false;
+    return isInsideTriangle(p + (D * t));
+}
+
+void Triangle::get_uv(const Point &p, float &u, float &v)
+{
+    float ba, bb, bc;
+    std::array<float, 4> ca = A.getCoord(),
+                         cb = B.getCoord(),
+                         cc = C.getCoord();
+    float xmax = max(ca[0], cb[0], cc[0]);
+    float ymax = max(ca[1], cb[1], cc[1]);
+    float abc_area = cross(B - A, C - A).mod();
+
+    ba = cross(A - C, p - C).mod() / abc_area;
+    bb = cross(B - A, p - A).mod() / abc_area;
+    bc = 1 - ba - bb;
+    u = ba * (ca[0] / xmax) + bb * (cb[0] / xmax) + bc * (cc[0] / xmax);
+    v = ba * (ca[1] / ymax) + bb * (cb[1] / ymax) + bc * (cc[1] / ymax);
+}
+
+Disk::Disk()
+{
+}
+
+Disk::Disk(const Direction &n, const Point &p, const float r) : Plane(n, p)
+{
+    this->r = r;
+    this->c = p;
+}
+
+bool Disk::isInsideDisk(const Point &p)
+{
+    Direction d = p - this->c;
+    return dot(d, d) <= r * r;
+}
+
+bool Disk::intersect(const Point &p, const Direction &D, float &t)
+{
+    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
+    if (t <= 0)
+        return false;
+    return isInsideDisk(p + (D * t));
+}
+
+void Disk::get_uv(const Point &p, float &u, float &v)
+{
+    Direction n = this->getNormal(p);
+    float x = p.getCoord()[0] - c.getCoord()[0],
+          y = p.getCoord()[1] - c.getCoord()[1],
+          z = p.getCoord()[2] - c.getCoord()[2];
+    float nx = abs(n.getCoord()[0]),
+          ny = abs(n.getCoord()[1]),
+          nz = abs(n.getCoord()[2]);
+    float cmax = max(nx, ny, nz);
+    if (cmax == nx)
+    {
+        u = (y / r + 1) * 0.5;
+        v = (z / r + 1) * 0.5;
+    }
+    if (cmax == ny)
+    {
+        u = (x / r + 1) * 0.5;
+        v = (z / r + 1) * 0.5;
+    }
+    if (cmax == nz)
+    {
+        u = (x / r + 1) * 0.5;
+        v = (y / r + 1) * 0.5;
+    }
 }

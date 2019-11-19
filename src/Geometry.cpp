@@ -191,7 +191,7 @@ const float dot(const Direction &d, const Point &p)
  * como resultado un vector dirección perpendicular a los dos
  * vectores
  */
-const Direction corss(const Direction &d1, const Direction &d2)
+const Direction cross(const Direction &d1, const Direction &d2)
 {
     std::array<float, 4> c1 = d1.getCoord();
     std::array<float, 4> c2 = d2.getCoord();
