@@ -6,6 +6,7 @@
 #include "Geometry.hpp"
 #include <cmath>
 #include <iostream>
+#include <random>
 
 Point::Point() {}
 
@@ -218,4 +219,26 @@ void Point::view()
 void Direction::view()
 {
     std::cout << "<" << c[0] << ", " << c[1] << ", " << c[2] << ", " << c[3] << ">" << std::endl;
+}
+
+Point get_random_point()
+{
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<float> dist;
+    float x = dist(mt),
+          y = dist(mt),
+          z = dist(mt);
+    return Point(x, y, z);
+}
+
+Direction get_random_vect()
+{
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<float> dist;
+    float x = dist(mt),
+          y = dist(mt),
+          z = dist(mt);
+    return Direction(x, y, z);
 }

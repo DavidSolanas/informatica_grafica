@@ -11,6 +11,7 @@
 #include "Cone.hpp"
 #include "RGB.hpp"
 #include "Transformation.hpp"
+#include "Light.hpp"
 #include <iostream>
 #include <random>
 #include <memory>
@@ -96,8 +97,8 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
 
     std::array<std::unique_ptr<Geometry>, 7> geometry = scene3(c, W, H);
 
-    Point light(W / 2, H - 200, c.getF().mod() - 500);
     float power = 3600000;
+    PointLight light(Point(W / 2, H - 200, c.getF().mod() - 500), power, RGB(255, 255, 255));
 
     std::ofstream _f(filename);
     if (_f.is_open())
@@ -136,11 +137,11 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     }
                     if (i != -1)
                     {
-                        // Calcular luz
+                        // Calcular luz puntual
                         X = c.getO() + (d_ray * tmin);
-                        float Li = power / ((light - X).mod() * (light - X).mod());
+                        float Li = power / ((light.p - X).mod() * (light.p - X).mod());
                         Direction normal = geometry[i]->getNormal(X);
-                        Direction wi = normalize(light - X);
+                        Direction wi = normalize(light.p - X);
                         Direction wo = normalize(c.getO() - X);
                         float kd = i == 5 ? 0.9f : 0.6f;
                         float ks = i == 5 ? 0.05f : 0.25f;

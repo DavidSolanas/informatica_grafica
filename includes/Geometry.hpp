@@ -164,4 +164,8 @@ const Direction cross(const Direction &d1, const Direction &d2);
  */
 const Direction normalize(const Direction &d);
 
+Point get_random_point();
+
+Direction get_random_vect();
+
 #endif // !GEOMETRY_HPP
