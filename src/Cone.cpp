@@ -115,5 +115,5 @@ bool Cone::intersect(const Point &p, const Direction &D, float &t)
 void Cone::get_uv(const Direction &n, const float h, float &u, float &v)
 {
     u = atan2(n.getCoord()[0], n.getCoord()[2]) / (2 * M_PI) + 0.5;
-    v = h / this->h;
+    v = 1 - (h / this->h);
 }

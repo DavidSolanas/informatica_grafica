@@ -7,19 +7,19 @@
 #ifndef CYLINDER_HPP
 #define CYLINDER_HPP
 
-#include "Geometry.hpp"
+#include "Plane.hpp"
 
 class Cylinder : public Geometry
 {
 private:
-    Point c1;
-    Point c2;
+    Disk b1;
+    Disk b2;
     float r;
     float h;
 
 public:
     Cylinder();
-    Cylinder(Point c1, Point c2, float r, float h);
+    Cylinder(Disk b1, Disk b2, float r, float h);
     ~Cylinder();
     float getRadius();
     Direction getNormal(Point X) override;
