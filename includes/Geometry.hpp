@@ -147,6 +147,11 @@ public:
 const float dot(const Direction &d1, const Direction &d2);
 
 /**
+ * Devuelve el ángulo entre dos vectores en radianes
+ */
+const float get_angle(const Direction &d1, const Direction &d2);
+
+/**
  * Producto escalar entre un vector dirección y un punto
  * devuelve como resultado un escalar
  */

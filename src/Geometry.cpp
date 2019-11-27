@@ -177,6 +177,14 @@ const float dot(const Direction &d1, const Direction &d2)
 }
 
 /**
+ * Devuelve el ángulo entre dos vectores en radianes
+ */
+const float get_angle(const Direction &d1, const Direction &d2)
+{
+    return acos(dot(d1, d2) / (d1.mod() * d2.mod()));
+}
+
+/**
  * Producto escalar entre un vector dirección y un punto
  * devuelve como resultado un escalar
  */

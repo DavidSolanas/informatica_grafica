@@ -4,88 +4,18 @@
  *****************************************/
 
 #include "Ray_tracer.hpp"
-#include <cmath>
+#include "BRDF.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"
 #include "Cylinder.hpp"
 #include "Cone.hpp"
-#include "RGB.hpp"
+#include "Textures.hpp"
 #include "Transformation.hpp"
 #include "Light.hpp"
 #include <iostream>
 #include <random>
 #include <memory>
 #include <cstring>
-
-std::vector<std::vector<RGB>> load_texture(std::string filename)
-{
-    std::ifstream f(filename);
-    std::string str;
-    int max, width, height, cr;
-    std::vector<std::vector<RGB>> data;
-
-    if (f.is_open())
-    {
-        getline(f, str);
-        getline(f, str);
-        while (str[0] == '#')
-        {
-            getline(f, str);
-        }
-        //comment contendrá width y height
-        width = std::stoi(str.substr(0, str.find(' ')));
-        height = std::stoi(str.substr(str.find(' ') + 1, str.length()));
-        f >> cr;
-        int r, g, b;
-        data.resize(height, std::vector<RGB>(width));
-        for (int i = 0; i < height; i++)
-        {
-            for (int j = 0; j < width; j++)
-            {
-                //Procesar RGB
-                f >> r >> g >> b;
-                data[i][j].setR(r);
-                data[i][j].setG(g);
-                data[i][j].setB(b);
-            }
-        }
-    }
-    else
-    {
-        std::cerr << "Couldn't open the image, cancelling..." << std::endl;
-    }
-    return data;
-}
-
-float phong_BRDF(const float kd, const float ks, const float alpha, Direction n,
-                 Direction wi, Direction wo)
-{
-    Direction wr = wi - (n * dot(wi, n)) * 2;
-    return (kd / M_PI) + ((ks * (alpha + 2) / (2 * M_PI)) * pow(abs(dot(wr, wo)), alpha));
-}
-
-float lambertian_BRDF(const float kd)
-{
-    return (kd / M_PI);
-}
-
-RGB get_pixel(std::vector<std::vector<RGB>> &data, const float u, const float v)
-{
-    int j = u * data[0].size();
-    int i = (1 - v) * data.size();
-
-    if (j < 0)
-        j = 0;
-    if (i < 0)
-        i = 0;
-
-    if (j > data[0].size() - 1)
-        j = data[0].size() - 1;
-    if (i > data.size() - 1)
-        i = data.size() - 1;
-
-    return data[i][j];
-}
 
 void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, const int H)
 {

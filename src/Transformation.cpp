@@ -5,7 +5,6 @@
 
 #include "Transformation.hpp"
 #include <cmath>
-#include <iostream>
 
 Matrix_Transformation::Matrix_Transformation(const float x, const float y,
                                              const float z, const int op)
@@ -111,6 +110,19 @@ Matrix_Transformation::Matrix_Transformation(const Point &p, const Direction &u,
     M[3][1] = 0;
     M[3][2] = 0;
     M[3][3] = 1;
+}
+
+Matrix_Transformation::Matrix_Transformation(const Direction &n)
+{
+    Direction dr = get_random_vect();
+    while (dot(dr, n) == n.mod() * dr.mod())
+    {
+        dr = get_random_vect();
+    }
+    Direction x = cross(n, dr);
+    Direction y = cross(n, x);
+    Point p(0, 0, 0);
+    Matrix_Transformation(p, x, y, n);
 }
 
 /**

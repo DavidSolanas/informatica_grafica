@@ -30,6 +30,10 @@ public:
     Matrix_Transformation(const Point &p, const Direction &u,
                           const Direction &v, const Direction &w);
     /**
+     * Constructor para una matriz de cambio de base
+     */
+    Matrix_Transformation(const Direction &n);
+    /**
      * Constructor para una matriz dados los valores de la matriz
      */
     Matrix_Transformation(std::array<std::array<float, 4>, 4> A);
