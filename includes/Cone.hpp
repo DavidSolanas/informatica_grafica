@@ -10,13 +10,12 @@
 
 class Cone : public Geometry
 {
-private:
+public:
     float theta;
     Point vertex;
     float h;
     float r;
 
-public:
     Cone();
     Cone(const Point &p, float h, float r);
     ~Cone();
@@ -27,6 +26,7 @@ public:
     float get_vertex_Y_coord();
     Direction getNormal(Point X) override;
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    float get_area() override;
     void get_uv(const Direction &n, const float h, float &u, float &v);
 };
 

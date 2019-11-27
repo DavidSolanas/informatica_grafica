@@ -11,7 +11,7 @@ std::vector<std::vector<RGB>> load_texture(std::string filename)
 {
     std::ifstream f(filename);
     std::string str;
-    int max, width, height, cr;
+    int width, height, cr;
     std::vector<std::vector<RGB>> data;
 
     if (f.is_open())
@@ -26,17 +26,17 @@ std::vector<std::vector<RGB>> load_texture(std::string filename)
         width = std::stoi(str.substr(0, str.find(' ')));
         height = std::stoi(str.substr(str.find(' ') + 1, str.length()));
         f >> cr;
-        int r, g, b;
+        int _r, _g, _b;
         data.resize(height, std::vector<RGB>(width));
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)
             {
                 //Procesar RGB
-                f >> r >> g >> b;
-                data[i][j].setR(r);
-                data[i][j].setG(g);
-                data[i][j].setB(b);
+                f >> _r >> _g >> _b;
+                data[i][j].r = _r;
+                data[i][j].g = _g;
+                data[i][j].b = _b;
             }
         }
     }

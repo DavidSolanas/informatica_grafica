@@ -21,20 +21,18 @@ Plane::Plane() {}
 Plane::Plane(const Direction &n, const Point &o)
 {
     Direction n_normalized = normalize(n);
-    std::array<float, 4> cn = n_normalized.getCoord();
-    this->a = cn[0];
-    this->b = cn[1];
-    this->c = cn[2];
+    this->a = n_normalized.x;
+    this->b = n_normalized.y;
+    this->c = n_normalized.z;
     this->d = -dot(n_normalized, o);
 }
 
 Plane::Plane(const Point &a, const Point &b, const Point &c)
 {
     Direction n = normalize(cross(b - a, c - a));
-    std::array<float, 4> cn = n.getCoord();
-    this->a = cn[0];
-    this->b = cn[1];
-    this->c = cn[2];
+    this->a = n.x;
+    this->b = n.y;
+    this->c = n.z;
     this->d = -dot(n, a);
 }
 
@@ -64,6 +62,11 @@ bool Plane::intersect(const Point &p, const Direction &D, float &t)
     if (t <= 0)
         return false;
     return true;
+}
+
+float Plane::get_area()
+{
+    return INFINITY;
 }
 
 BoundedPlane::BoundedPlane()
@@ -104,12 +107,17 @@ bool BoundedPlane::intersect(const Point &p, const Direction &D, float &t)
     return isInsidePlane(p + (D * t));
 }
 
+float BoundedPlane::get_area()
+{
+    return (A - B).mod() * (C - B).mod();
+}
+
 void BoundedPlane::get_uv(const Point &p, float &u, float &v)
 {
     float w = (B - A).mod(),
           h = (D - A).mod();
-    u = (p.getCoord()[0] - A.getCoord()[0]) / w;
-    v = (p.getCoord()[1] - D.getCoord()[1]) / h;
+    u = (p.x - A.x) / w;
+    v = (p.y - D.y) / h;
 }
 
 Triangle::Triangle()
@@ -144,21 +152,27 @@ bool Triangle::intersect(const Point &p, const Direction &D, float &t)
     return isInsideTriangle(p + (D * t));
 }
 
+float Triangle::get_area()
+{
+    float a = (B - A).mod();
+    float b = (B - C).mod();
+    float c = (C - A).mod();
+    float s = (a + b + c) / 2; //semi-perimetro del triangulo
+    return sqrt(s * (s - a) * (s - b) * (s - c));
+}
+
 void Triangle::get_uv(const Point &p, float &u, float &v)
 {
     float ba, bb, bc;
-    std::array<float, 4> ca = A.getCoord(),
-                         cb = B.getCoord(),
-                         cc = C.getCoord();
-    float xmax = max(ca[0], cb[0], cc[0]);
-    float ymax = max(ca[1], cb[1], cc[1]);
+    float xmax = max(A.x, B.x, C.x);
+    float ymax = max(A.y, B.y, C.y);
     float abc_area = cross(B - A, C - A).mod();
 
     ba = cross(A - C, p - C).mod() / abc_area;
     bb = cross(B - A, p - A).mod() / abc_area;
     bc = 1 - ba - bb;
-    u = ba * (ca[0] / xmax) + bb * (cb[0] / xmax) + bc * (cc[0] / xmax);
-    v = ba * (ca[1] / ymax) + bb * (cb[1] / ymax) + bc * (cc[1] / ymax);
+    u = ba * (A.x / xmax) + bb * (B.x / xmax) + bc * (C.x / xmax);
+    v = ba * (A.y / ymax) + bb * (B.y / ymax) + bc * (C.y / ymax);
 }
 
 Disk::Disk()
@@ -190,15 +204,20 @@ bool Disk::intersect(const Point &p, const Direction &D, float &t)
     return isInsideDisk(p + (D * t));
 }
 
+float Disk::get_area()
+{
+    return M_PI * r * r;
+}
+
 void Disk::get_uv(const Point &p, float &u, float &v)
 {
     Direction n = this->getNormal(p);
-    float x = p.getCoord()[0] - c.getCoord()[0],
-          y = p.getCoord()[1] - c.getCoord()[1],
-          z = p.getCoord()[2] - c.getCoord()[2];
-    float nx = abs(n.getCoord()[0]),
-          ny = abs(n.getCoord()[1]),
-          nz = abs(n.getCoord()[2]);
+    float x = p.x - c.x,
+          y = p.y - c.y,
+          z = p.z - c.z;
+    float nx = abs(n.x),
+          ny = abs(n.y),
+          nz = abs(n.z);
     float cmax = max(nx, ny, nz);
     if (cmax == nx)
     {

@@ -18,6 +18,7 @@ public:
     virtual ~Geometry(){};
     virtual Direction getNormal(Point X) = 0;
     virtual bool intersect(const Point &p, const Direction &D, float &t) = 0;
+    virtual float get_area() = 0;
 };
 
 /**
@@ -27,13 +28,13 @@ public:
  */
 class Point
 {
-private:
+public:
     /**
      * Vector de coordenadas del punto
      */
-    std::array<float, 4> c;
+    float x, y, z;
+    float d;
 
-public:
     Point();
     /**
      * Constructor de la clase Point, recibe como parámetros
@@ -59,14 +60,9 @@ public:
     Point &operator=(const Point &p);
 
     /**
-     * Devuelve las coordenada  del punto
-     */
-    const std::array<float, 4> getCoord() const;
-
-    /**
      * Copia las coordenadas especificadas al punto
      */
-    void setCoord(std::array<float, 4> c);
+    void setCoord(float _x, float _y, float _z, float _d);
 
     void view();
 };
@@ -78,13 +74,13 @@ public:
  */
 class Direction
 {
-private:
+public:
     /**
      * Vector de coordenadas del vector dirección
      */
-    std::array<float, 4> c;
+    float x, y, z;
+    float d;
 
-public:
     Direction();
     /**
      * Constructor de la clase Direction, recibe
@@ -123,14 +119,9 @@ public:
     Direction &operator=(const Direction &d);
 
     /**
-     * Devuelve las coordenada  del vector
-     */
-    const std::array<float, 4> getCoord() const;
-
-    /**
      * Copia las coordenadas especificadas al vector
      */
-    void setCoord(std::array<float, 4> c);
+    void setCoord(float _x, float _y, float _z, float _d);
 
     /**
      * Devuelve el módulo del vector dirección

@@ -85,26 +85,21 @@ Matrix_Transformation::Matrix_Transformation(const float theta, const int axis)
 Matrix_Transformation::Matrix_Transformation(const Point &p, const Direction &u,
                                              const Direction &v, const Direction &w)
 {
-    std::array<float, 4> cp = p.getCoord();
-    std::array<float, 4> cu = u.getCoord();
-    std::array<float, 4> cv = v.getCoord();
-    std::array<float, 4> cw = w.getCoord();
+    M[0][0] = u.x;
+    M[1][0] = u.y;
+    M[2][0] = u.z;
 
-    M[0][0] = cu[0];
-    M[1][0] = cu[1];
-    M[2][0] = cu[2];
+    M[0][1] = v.x;
+    M[1][1] = v.y;
+    M[2][1] = v.z;
 
-    M[0][1] = cv[0];
-    M[1][1] = cv[1];
-    M[2][1] = cv[2];
+    M[0][2] = w.x;
+    M[1][2] = w.y;
+    M[2][2] = w.z;
 
-    M[0][2] = cw[0];
-    M[1][2] = cw[1];
-    M[2][2] = cw[2];
-
-    M[0][3] = cp[0];
-    M[1][3] = cp[1];
-    M[2][3] = cp[2];
+    M[0][3] = p.x;
+    M[1][3] = p.y;
+    M[2][3] = p.z;
 
     M[3][0] = 0;
     M[3][1] = 0;
@@ -135,32 +130,27 @@ Matrix_Transformation::Matrix_Transformation(std::array<std::array<float, 4>, 4>
 
 const Direction Matrix_Transformation::operator*(const Direction &d) const
 {
-    std::array<float, 4> res = {0, 0, 0, 0};
-    std::array<float, 4> cd = d.getCoord();
     //Cálculo del resultado
-    res[0] = M[0][0] * cd[0] + M[0][1] * cd[1] + M[0][2] * cd[2] + M[0][3] * cd[3];
-    res[1] = M[1][0] * cd[0] + M[1][1] * cd[1] + M[1][2] * cd[2] + M[1][3] * cd[3];
-    res[2] = M[2][0] * cd[0] + M[2][1] * cd[1] + M[2][2] * cd[2] + M[2][3] * cd[3];
-    res[3] = M[3][0] * cd[0] + M[3][1] * cd[1] + M[3][2] * cd[2] + M[3][3] * cd[3];
+    float c1 = M[0][0] * d.x + M[0][1] * d.y + M[0][2] * d.z + M[0][3] * d.d;
+    float c2 = M[1][0] * d.x + M[1][1] * d.y + M[1][2] * d.z + M[1][3] * d.d;
+    float c3 = M[2][0] * d.x + M[2][1] * d.y + M[2][2] * d.z + M[2][3] * d.d;
+    float c4 = M[3][0] * d.x + M[3][1] * d.y + M[3][2] * d.z + M[3][3] * d.d;
 
     Direction dr;
-    dr.setCoord(res);
+    dr.setCoord(c1, c2, c3, c4);
     return dr;
 }
 
 const Point Matrix_Transformation::operator*(const Point &p) const
 {
-    std::array<float, 4> res = {0, 0, 0, 0};
-    std::array<float, 4> cp = p.getCoord();
-
     //Cálculo del resultado
-    res[0] = M[0][0] * cp[0] + M[0][1] * cp[1] + M[0][2] * cp[2] + M[0][3] * cp[3];
-    res[1] = M[1][0] * cp[0] + M[1][1] * cp[1] + M[1][2] * cp[2] + M[1][3] * cp[3];
-    res[2] = M[2][0] * cp[0] + M[2][1] * cp[1] + M[2][2] * cp[2] + M[2][3] * cp[3];
-    res[3] = M[3][0] * cp[0] + M[3][1] * cp[1] + M[3][2] * cp[2] + M[3][3] * cp[3];
+    float c1 = M[0][0] * p.x + M[0][1] * p.y + M[0][2] * p.z + M[0][3] * p.d;
+    float c2 = M[1][0] * p.x + M[1][1] * p.y + M[1][2] * p.z + M[1][3] * p.d;
+    float c3 = M[2][0] * p.x + M[2][1] * p.y + M[2][2] * p.z + M[2][3] * p.d;
+    float c4 = M[3][0] * p.x + M[3][1] * p.y + M[3][2] * p.z + M[3][3] * p.d;
 
     Point pr;
-    pr.setCoord(res);
+    pr.setCoord(c1, c2, c3, c4);
     return pr;
 }
 

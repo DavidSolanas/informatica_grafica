@@ -27,6 +27,7 @@ public:
     Plane(const Point &a, const Point &b, const Point &c);
     bool isInPlane(const Point &p);
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    float get_area() override;
     float getD();
     Direction getNormal();
     Direction getNormal(Point X) override;
@@ -34,47 +35,55 @@ public:
 
 class BoundedPlane : public Plane
 {
-private:
+public:
+    /**
+     * A               B
+     * #################
+     * #               #
+     * #               #
+     * #################
+     * D               C
+     */
     Point A;
     Point B;
     Point C;
     Point D;
 
-public:
     BoundedPlane();
     BoundedPlane(const Point &_A, const Point &_B, const Point &_C, const Point &_D);
     bool isInsidePlane(const Point &p);
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    float get_area() override;
     void get_uv(const Point &p, float &u, float &v);
 };
 
 class Triangle : public Plane
 {
-private:
+public:
     Point A;
     Point B;
     Point C;
 
-public:
     Triangle();
     Triangle(const Point &_A, const Point &_B, const Point &_C);
     bool isInsideTriangle(const Point &p);
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    float get_area() override;
     void get_uv(const Point &p, float &u, float &v);
 };
 
 class Disk : public Plane
 {
-private:
+public:
     float r;
     Point c;
 
-public:
     Disk();
     Disk(const Direction &n, const Point &p, const float r);
     bool isInsideDisk(const Point &p);
     Point getCenter();
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    float get_area() override;
     void get_uv(const Point &p, float &u, float &v);
 };
 

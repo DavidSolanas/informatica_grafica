@@ -31,13 +31,13 @@ float Cylinder::getRadius()
 
 float Cylinder::get_base_Y_coord()
 {
-    return b1.getCenter().getCoord()[1];
+    return b1.getCenter().y;
 }
 
 Direction Cylinder::getNormal(Point X)
 {
     //Comprobar si el punto está en una de las bases
-    float px = X.getCoord()[0], py = X.getCoord()[1], pz = X.getCoord()[2];
+    float py = X.y;
     if (b1.isInsideDisk(X))
     {
         return b1.getNormal();
@@ -50,9 +50,9 @@ Direction Cylinder::getNormal(Point X)
     //El punto está en el lateral
     // C será el punto central a la misma altura que el punto X
     Direction d = b2.getCenter() - b1.getCenter();
-    float x = d.getCoord()[0] == 0 ? b1.getCenter().getCoord()[0] : d.getCoord()[0],
+    float x = d.x == 0 ? b1.getCenter().x : d.x,
           y = py,
-          z = d.getCoord()[2] == 0 ? b1.getCenter().getCoord()[2] : d.getCoord()[2];
+          z = d.z == 0 ? b1.getCenter().z : d.z;
     Point C(x, y, z);
     return normalize(X - C);
 }
@@ -61,14 +61,14 @@ bool Cylinder::intersect(const Point &p, const Direction &D, float &t)
 {
     // Trasladamos el rayo para que el centro de la base del cilindro
     // esté en el origen del rayo punto p)
-    Point p0(p.getCoord()[0] - b1.getCenter().getCoord()[0],
-             p.getCoord()[1] - b1.getCenter().getCoord()[1],
-             p.getCoord()[2] - b1.getCenter().getCoord()[2]);
+    Point p0(p.x - b1.getCenter().x,
+             p.y - b1.getCenter().y,
+             p.z - b1.getCenter().z);
 
     // Comprobar si intersecta con el cilindro infinito
-    float a = D.getCoord()[0] * D.getCoord()[0] + D.getCoord()[2] * D.getCoord()[2];
-    float b = D.getCoord()[0] * p0.getCoord()[0] + D.getCoord()[2] * p0.getCoord()[2];
-    float c = p0.getCoord()[0] * p0.getCoord()[0] + p0.getCoord()[2] * p0.getCoord()[2] - this->r * this->r;
+    float a = D.x * D.x + D.z * D.z;
+    float b = D.x * p0.x + D.z * p0.z;
+    float c = p0.x * p0.x + p0.z * p0.z - this->r * this->r;
 
     float d = b * b - a * c;
 
@@ -87,7 +87,7 @@ bool Cylinder::intersect(const Point &p, const Direction &D, float &t)
         return false;
 
     // Comprobar si la intersección está en el rango del cilindro
-    float y = p0.getCoord()[1] + t * D.getCoord()[1];
+    float y = p0.y + t * D.y;
 
     //Comprobar si intersecta con alguna de las bases
     if (y > h || y < 0)
@@ -105,8 +105,13 @@ bool Cylinder::intersect(const Point &p, const Direction &D, float &t)
     return true;
 }
 
+float Cylinder::get_area()
+{
+    return (2 * M_PI * r * r) + (2 * M_PI * r * h);
+}
+
 void Cylinder::get_uv(const Direction &n, const float h, float &u, float &v)
 {
-    u = atan2(n.getCoord()[0], n.getCoord()[2]) / (2 * M_PI) + 0.5;
+    u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
     v = h / this->h;
 }

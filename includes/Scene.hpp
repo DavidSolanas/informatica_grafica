@@ -10,13 +10,12 @@
 
 class Camera
 {
-private:
+public:
     Direction f;
     Direction u;
     Direction l;
     Point o;
 
-public:
     Camera(const Direction &_f, const Direction &_u, const Direction &_l, const Point &_o);
     Camera(const Point &_o, const Direction &_f);
     Direction getF();

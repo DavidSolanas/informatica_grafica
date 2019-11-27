@@ -56,16 +56,15 @@ float Sphere::getRadius()
 
 const float Sphere::getAzimuth() const
 {
-    std::array<float, 4> c = city.getCoord();
-    float x = c[0];
-    float z = c[2];
+    float x = city.x;
+    float z = city.z;
     return atanf(x / -z);
 }
 
 void Sphere::get_uv(const Direction &n, float &u, float &v)
 {
-    u = atan2(n.getCoord()[0], n.getCoord()[2]) / (2 * M_PI) + 0.5;
-    v = 0.5 - asin(n.getCoord()[1]) / M_PI;
+    u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
+    v = 0.5 - asin(n.y) / M_PI;
 }
 
 SphereGeometry::SphereGeometry(const float &inc, const float &az, const Sphere &p)
@@ -126,13 +125,11 @@ Direction SphereGeometry::getLatitudeTD()
  */
 Point getSurfacePoint(Sphere p, const float az, const float inc)
 {
-    //origin
-    std::array<float, 4> o = p.getCenter().getCoord();
     //radius
     float r = p.getRadius();
-    float x = o[0] + r * sin(az) * sin(inc);
-    float y = o[1] + r * cos(inc);
-    float z = o[2] + r * -cos(az) * sin(inc);
+    float x = p.center.x + r * sin(az) * sin(inc);
+    float y = p.center.y + r * cos(inc);
+    float z = p.center.z + r * -cos(az) * sin(inc);
     return Point(x, y, z);
 }
 
@@ -166,4 +163,9 @@ bool Sphere::intersect(const Point &p, const Direction &D, float &t)
     if (t < 0)
         return false;
     return true;
+}
+
+float Sphere::get_area()
+{
+    return 4 * M_PI * getRadius() * getRadius();
 }

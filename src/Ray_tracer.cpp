@@ -36,10 +36,10 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
         _f << "P3" << std::endl;
         _f << W << " " << H << std::endl;
         _f << "255" << std::endl;
-        int inicioX = c.getO().getCoord()[0] - c.getL().mod();
-        int finX = c.getO().getCoord()[0] + c.getL().mod();
-        int inicioY = c.getO().getCoord()[1] - c.getU().mod();
-        int finY = c.getO().getCoord()[1] + c.getU().mod();
+        int inicioX = c.getO().x - c.getL().mod();
+        int finX = c.getO().x + c.getL().mod();
+        int inicioY = c.getO().y - c.getU().mod();
+        int finY = c.getO().y + c.getU().mod();
         for (int y = finY; y > inicioY; y--)
         {
             for (int x = inicioX; x < finX; x++)
@@ -93,14 +93,14 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     switch (i)
                     {
                     case 0:
-                        color.setR(240);
-                        color.setG(240);
-                        color.setB(240);
+                        color.r = 240;
+                        color.g = 240;
+                        color.b = 240;
                         break;
                     case 1:
-                        color.setR(240);
-                        color.setG(240);
-                        color.setB(240);
+                        color.r = 240;
+                        color.g = 240;
+                        color.b = 240;
                         break;
                     case 2:
                         bp = *reinterpret_cast<BoundedPlane *>((geometry[i].get()));
@@ -108,19 +108,19 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         color = get_pixel(data, u, v);
                         break;
                     case 3:
-                        color.setR(240);
-                        color.setG(240);
-                        color.setB(240);
+                        color.r = 240;
+                        color.g = 240;
+                        color.b = 240;
                         break;
                     case 4:
-                        color.setR(240);
-                        color.setG(240);
-                        color.setB(240);
+                        color.r = 240;
+                        color.g = 240;
+                        color.b = 240;
                         break;
                     case 5:
                         normal = geometry[i]->getNormal(X);
                         cy = *reinterpret_cast<Cylinder *>((geometry[i].get()));
-                        cy.get_uv(normal, X.getCoord()[1] - cy.get_base_Y_coord(), u, v);
+                        cy.get_uv(normal, X.y - cy.get_base_Y_coord(), u, v);
                         color = get_pixel(data, u, v);
                         break;
                     case 6:
@@ -132,38 +132,38 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     case 7:
                         normal = geometry[i]->getNormal(X);
                         cone = *reinterpret_cast<Cone *>((geometry[i].get()));
-                        cone.get_uv(normal, cone.get_vertex_Y_coord() - X.getCoord()[1], u, v);
+                        cone.get_uv(normal, cone.get_vertex_Y_coord() - X.y, u, v);
                         color = get_pixel(data, u, v);
                         break;
                     case 8:
                     case 9:
                     case 10:
-                        color.setR(93);
-                        color.setG(173);
-                        color.setB(164);
+                        color.r = 93;
+                        color.g = 173;
+                        color.b = 164;
                         break;
 
                     case 11:
-                        color.setR(255);
-                        color.setG(143);
-                        color.setB(0);
+                        color.r = 255;
+                        color.g = 143;
+                        color.b = 0;
                         break;
                     case 14:
-                        color.setR(0);
-                        color.setG(255);
-                        color.setB(0);
+                        color.r = 0;
+                        color.g = 255;
+                        color.b = 0;
                         break;
 
                     default:
-                        color.setR(141);
-                        color.setG(141);
-                        color.setB(141);
+                        color.r = 141;
+                        color.g = 141;
+                        color.b = 141;
                         break;
                     }
                     Lo /= n_ray;
-                    _f << Lo * color.getR() << " "
-                       << Lo * color.getG() << " "
-                       << Lo * color.getB() << "\t";
+                    _f << Lo * color.r << " "
+                       << Lo * color.g << " "
+                       << Lo * color.b << "\t";
                 }
                 else
                 {

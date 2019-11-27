@@ -19,8 +19,8 @@ Cone::Cone(const Point &p, float h, float r)
     //Calcular el angulo de la parte superior del cono,
     //definir el punto superior y un punto en un extremo de
     //la base del cono y calcular el arccos(altura/lado)
-    Point p1(p.getCoord()[0] + r, p.getCoord()[1], p.getCoord()[2]);
-    Point p2(p.getCoord()[0], p.getCoord()[1] + h, p.getCoord()[2]);
+    Point p1(p.x + r, p.y, p.z);
+    Point p2(p.x, p.y - h, p.z);
     float lado = (p2 - p1).mod();
     this->theta = acos(h / lado);
 }
@@ -51,44 +51,42 @@ Point Cone::getVertex()
 
 float Cone::get_vertex_Y_coord()
 {
-    return vertex.getCoord()[1];
+    return vertex.y;
 }
 
 Direction Cone::getNormal(Point X)
 {
     //Punto central a altura Xy
-    Point p1(vertex.getCoord()[0], X.getCoord()[1], vertex.getCoord()[2]);
+    Point p1(vertex.x, X.y, vertex.z);
     //Punto superior
-    Point p2(vertex.getCoord()[0], vertex.getCoord()[1] + h, vertex.getCoord()[2]);
+    Point p2(vertex.x, vertex.y + h, vertex.z);
 
     Direction w = X - vertex;
-    std::array<float, 4> wcord = w.getCoord();
-    wcord[1] = 0.0f;
-    w.setCoord(wcord);
+    w.y = 0.0f;
     w = normalize(w);
 
-    return Direction(w.getCoord()[0] * h / r, r / h, w.getCoord()[2] * h / r);
+    return Direction(w.x * h / r, r / h, w.z * h / r);
 }
 
 bool Cone::intersect(const Point &p, const Direction &D, float &t)
 {
     // Trasladamos el rayo para que el centro de la base del cono
     // esté en el origen del rayo punto p)
-    Point p0(p.getCoord()[0] - vertex.getCoord()[0],
-             p.getCoord()[1] - vertex.getCoord()[1],
-             p.getCoord()[2] - vertex.getCoord()[2]);
+    Point p0(p.x - vertex.x,
+             p.y - vertex.y,
+             p.z - vertex.z);
 
-    float a = cos(theta) * D.getCoord()[0] * D.getCoord()[0] +
-              cos(theta) * D.getCoord()[2] * D.getCoord()[2] -
-              sin(theta) * D.getCoord()[1] * D.getCoord()[1];
+    float a = cos(theta) * D.x * D.x +
+              cos(theta) * D.z * D.z -
+              sin(theta) * D.y * D.y;
 
-    float b = cos(theta) * D.getCoord()[0] * p0.getCoord()[0] +
-              cos(theta) * D.getCoord()[2] * p0.getCoord()[2] -
-              sin(theta) * D.getCoord()[1] * p0.getCoord()[1];
+    float b = cos(theta) * D.x * p0.x +
+              cos(theta) * D.z * p0.z -
+              sin(theta) * D.y * p0.y;
 
-    float c = cos(theta) * p0.getCoord()[0] * p0.getCoord()[0] +
-              cos(theta) * p0.getCoord()[2] * p0.getCoord()[2] -
-              sin(theta) * p0.getCoord()[1] * p0.getCoord()[1];
+    float c = cos(theta) * p0.x * p0.x +
+              cos(theta) * p0.z * p0.z -
+              sin(theta) * p0.y * p0.y;
 
     //No existen soluciones si el discriminante es negativo
     float d = b * b - a * c;
@@ -105,15 +103,23 @@ bool Cone::intersect(const Point &p, const Direction &D, float &t)
     if (t < 0)
         return false;
 
-    float y = p0.getCoord()[1] + t * D.getCoord()[1];
+    float y = p0.y + t * D.y;
 
     if (y < -h || y > 0)
         return false;
     return true;
 }
 
+float Cone::get_area()
+{
+    Point p1(vertex.x + r, vertex.y, vertex.z);
+    Point p2(vertex.x, vertex.y - h, vertex.z);
+    float l = (p2 - p1).mod();
+    return (M_PI * r * r) + (M_PI * r * l);
+}
+
 void Cone::get_uv(const Direction &n, const float h, float &u, float &v)
 {
-    u = atan2(n.getCoord()[0], n.getCoord()[2]) / (2 * M_PI) + 0.5;
+    u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
     v = 1 - (h / this->h);
 }

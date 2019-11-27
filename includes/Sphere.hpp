@@ -16,7 +16,7 @@
  */
 class Sphere : public Geometry
 {
-private:
+public:
     /**
      * Centro del Spherea
      */
@@ -30,7 +30,6 @@ private:
      */
     Point city;
 
-public:
     Sphere();
     Sphere(const Point &center, const Direction &axis, const Point &city);
     Sphere &operator=(const Sphere &p);
@@ -41,6 +40,7 @@ public:
     const float getAzimuth() const;
     Direction getNormal(Point X) override;
     bool intersect(const Point &p, const Direction &D, float &t) override;
+    float get_area() override;
     void get_uv(const Direction &n, float &u, float &v);
 };
 

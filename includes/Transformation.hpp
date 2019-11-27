@@ -10,10 +10,9 @@
 
 class Matrix_Transformation
 {
-private:
+public:
     std::array<std::array<float, 4>, 4> M;
 
-public:
     /**
      * Constructor para una matriz de traslacion (op = 0) o
      * de escalado (op = 1)

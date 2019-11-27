@@ -14,32 +14,32 @@ RGB::RGB(float rv, float gv, float bv) : r(rv), g(gv), b(bv)
 {
 }
 
-void RGB::setR(float r)
+void RGB::set_r(float r)
 {
     this->r = r;
 }
 
-void RGB::setG(float g)
+void RGB::set_g(float g)
 {
     this->g = g;
 }
 
-void RGB::setB(float b)
+void RGB::set_b(float b)
 {
     this->b = b;
 }
 
-float RGB::getR()
+float RGB::get_r()
 {
     return this->r;
 }
 
-float RGB::getG()
+float RGB::get_g()
 {
     return this->g;
 }
 
-float RGB::getB()
+float RGB::get_b()
 {
     return this->b;
 }
