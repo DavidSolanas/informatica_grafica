@@ -18,10 +18,10 @@ public:
 
     Camera(const Direction &_f, const Direction &_u, const Direction &_l, const Point &_o);
     Camera(const Point &_o, const Direction &_f);
-    Direction getF();
-    Direction getU();
-    Direction getL();
-    Point getO();
+    Direction get_f();
+    Direction get_u();
+    Direction get_l();
+    Point get_o();
 };
 
 std::array<std::unique_ptr<Geometry>, 17> scene1(Camera c, const int W, const int H);

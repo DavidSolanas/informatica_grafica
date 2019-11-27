@@ -28,7 +28,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::array<std::unique_ptr<Geometry>, 7> geometry = scene3(c, W, H);
 
     float power = 3600000;
-    PointLight light(Point(W / 2, H - 200, c.getF().mod() - 500), power, RGB(255, 255, 255));
+    PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), power, RGB(255, 255, 255));
 
     std::ofstream _f(filename);
     if (_f.is_open())
@@ -36,10 +36,10 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
         _f << "P3" << std::endl;
         _f << W << " " << H << std::endl;
         _f << "255" << std::endl;
-        int inicioX = c.getO().x - c.getL().mod();
-        int finX = c.getO().x + c.getL().mod();
-        int inicioY = c.getO().y - c.getU().mod();
-        int finY = c.getO().y + c.getU().mod();
+        int inicioX = c.o.x - c.l.mod();
+        int finX = c.o.x + c.l.mod();
+        int inicioY = c.o.y - c.u.mod();
+        int finY = c.o.y + c.u.mod();
         for (int y = finY; y > inicioY; y--)
         {
             for (int x = inicioX; x < finX; x++)
@@ -51,12 +51,12 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                 {
                     i = -1;
                     float xrand = dist(mt), yrand = dist(mt);
-                    Point pixel(x + xrand, y + yrand, c.getF().mod());
-                    Direction d_ray = normalize(pixel - c.getO());
+                    Point pixel(x + xrand, y + yrand, c.f.mod());
+                    Direction d_ray = normalize(pixel - c.o);
                     float t, tmin = INFINITY;
                     for (int j = 0; j < geometry.size(); j++)
                     {
-                        if (geometry[j]->intersect(c.getO(), d_ray, t))
+                        if (geometry[j]->intersect(c.o, d_ray, t))
                         {
                             if (t > 0 && t < tmin)
                             {
@@ -68,11 +68,11 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     if (i != -1)
                     {
                         // Calcular luz puntual
-                        X = c.getO() + (d_ray * tmin);
+                        X = c.o + (d_ray * tmin);
                         float Li = power / ((light.p - X).mod() * (light.p - X).mod());
                         Direction normal = geometry[i]->getNormal(X);
                         Direction wi = normalize(light.p - X);
-                        Direction wo = normalize(c.getO() - X);
+                        Direction wo = normalize(c.o - X);
                         float kd = i == 5 ? 0.9f : 0.6f;
                         float ks = i == 5 ? 0.05f : 0.25f;
                         float brdf = phong_BRDF(kd, ks, 10, normal, wi, wo);
