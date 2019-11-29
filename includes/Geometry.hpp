@@ -10,14 +10,18 @@
 
 class Point;
 class Direction;
+class Ray;
 
+/** This is a constant used to dismiss intersections very close to previous
+		intersections. */
+const float SMALLEST_DIST = 1e-6;
 class Geometry
 {
 public:
     Geometry(){};
     virtual ~Geometry(){};
     virtual Direction getNormal(Point X) = 0;
-    virtual bool intersect(const Point &p, const Direction &D, float &t) = 0;
+    virtual bool intersect(Ray &ray) = 0;
     virtual float get_area() = 0;
 };
 
@@ -53,6 +57,11 @@ public:
      * como resultado un vector dirección
      */
     const Direction operator-(const Point &p) const;
+
+    /**
+     * Devuelve verdad si un punto es igual a otro
+     */
+    const bool operator==(const Point &p) const;
 
     /**
     * Copia el punto p al punto actual
@@ -114,6 +123,11 @@ public:
     const Direction operator/(const float s) const;
 
     /**
+     * Devuelve verdad si una dirección es igual a otra
+     */
+    const bool operator==(const Direction &d) const;
+
+    /**
     * Copia la dirección d al vector dirección actual
     */
     Direction &operator=(const Direction &d);
@@ -129,6 +143,45 @@ public:
     const float mod() const;
 
     void view();
+};
+
+/** The Ray class is used to find intersections between a ray and the scene,
+		but it also stores information. For instance the Ray remembers intersection
+		points, and the refraction index of material it is passing through. */
+class Ray
+{
+    /// Origin of the ray
+    Point origin;
+
+    /// The normalized direction of the ray
+    Direction direction;
+
+    /// The parameter -i.e. the distance we have traversed along the ray
+    float t;
+
+public:
+    // Construct a ray. First argument is position. Second argument
+    // is the direction of the ray. The magnitude of the second argument
+    // is construed as the step length.
+    Ray(const Point &p, const Direction &d);
+    Ray();
+
+    // Get ray position.
+    const Point get_position() const;
+
+    // Get ray origin.
+    const Point &get_origin() const;
+
+    // Get ray parameter.
+    float get_parameter() const;
+
+    // Set parameter of ray
+    void set_parameter(const float _t);
+
+    // Get direction of ray.
+    const Direction &get_direction() const;
+
+    const Ray &operator=(const Ray &r);
 };
 
 /**

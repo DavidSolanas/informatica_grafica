@@ -40,6 +40,11 @@ const Direction Point::operator-(const Point &p) const
     return Direction(this->x - p.x, this->y - p.y, this->z - p.z);
 }
 
+const bool Point::operator==(const Point &p) const
+{
+    return p.x == this->x && p.y == this->y && p.z == this->z && p.d == this->d;
+}
+
 /**
  * Copia el punto p al punto actual
  */
@@ -117,6 +122,11 @@ const Direction Direction::operator/(const float s) const
     return Direction(x / s, y / s, z / s);
 }
 
+const bool Direction::operator==(const Direction &d) const
+{
+    return d.x == this->x && d.y == this->y && d.z == this->z && d.d == this->d;
+}
+
 /**
 * Copia el punto p al punto actual
 */
@@ -146,6 +156,53 @@ void Direction::setCoord(float _x, float _y, float _z, float _d)
 const float Direction::mod() const
 {
     return std::sqrt(x * x + y * y + z * z);
+}
+
+Ray::Ray(const Point &p, const Direction &d)
+{
+    origin = p;
+    direction = normalize(d);
+    t = 0;
+}
+
+Ray::Ray() {}
+
+// Get ray position.
+const Point Ray::get_position() const
+{
+    return origin + direction * t;
+}
+
+// Get ray origin.
+const Point &Ray::get_origin() const
+{
+    return origin;
+}
+
+// Get ray parameter.
+float Ray::get_parameter() const
+{
+    return t;
+}
+
+// Set parameter of ray
+void Ray::set_parameter(const float _t)
+{
+    t = _t;
+}
+
+// Get direction of ray.
+const Direction &Ray::get_direction() const
+{
+    return direction;
+}
+
+const Ray &Ray::operator=(const Ray &r)
+{
+    origin = r.get_origin();
+    direction = r.get_direction();
+    t = r.get_parameter();
+    return *this;
 }
 
 /**

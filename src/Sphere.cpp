@@ -144,11 +144,11 @@ Direction Sphere::getNormal(Point X)
 	(o + td - c) · (o + td - c) - r² = 0 =>
 	t²(D·D) + 2t(d · (o - c)) + (o - c) · (o - c) - r² = 0
  */
-bool Sphere::intersect(const Point &p, const Direction &D, float &t)
+bool Sphere::intersect(Ray &ray)
 {
-    Direction L = p - center;
-    float a = dot(D, D);
-    float b = 2 * dot(D, L);
+    Direction L = ray.get_origin() - center;
+    float a = dot(ray.get_direction(), ray.get_direction());
+    float b = 2 * dot(ray.get_direction(), L);
     float c = dot(L, L) - (this->getRadius() * this->getRadius());
     float d = (b * b) - (4 * a * c);
     if (d < 0)
@@ -156,12 +156,14 @@ bool Sphere::intersect(const Point &p, const Direction &D, float &t)
 
     float x1 = (-b + sqrt(d)) / (2 * a);
     float x2 = (-b - sqrt(d)) / (2 * a);
+    float t = 0;
     if (x1 > x2)
         t = x2;
     if (t < 0)
         t = x1;
     if (t < 0)
         return false;
+    ray.set_parameter(t);
     return true;
 }
 

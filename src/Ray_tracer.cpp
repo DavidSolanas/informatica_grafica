@@ -25,7 +25,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
     std::vector<std::vector<RGB>> data = load_texture("/Users/david/Desktop/earthmap1k.ppm");
 
-    std::array<std::unique_ptr<Geometry>, 7> geometry = scene3(c, W, H);
+    std::vector<Geometry *> geometry = scene3(c, W, H);
 
     float power = 3600000;
     PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), power, RGB(255, 255, 255));
@@ -53,22 +53,24 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                     float xrand = dist(mt), yrand = dist(mt);
                     Point pixel(x + xrand, y + yrand, c.f.mod());
                     Direction d_ray = normalize(pixel - c.o);
-                    float t, tmin = INFINITY;
+                    Ray ray(c.o, d_ray);
+                    float tmin = INFINITY;
                     for (int j = 0; j < geometry.size(); j++)
                     {
-                        if (geometry[j]->intersect(c.o, d_ray, t))
+                        if (geometry[j]->intersect(ray))
                         {
-                            if (t > 0 && t < tmin)
+                            if (ray.get_parameter() > 0 && ray.get_parameter() < tmin)
                             {
-                                tmin = t;
+                                tmin = ray.get_parameter();
                                 i = j;
                             }
                         }
                     }
                     if (i != -1)
                     {
+                        ray.set_parameter(tmin);
                         // Calcular luz puntual
-                        X = c.o + (d_ray * tmin);
+                        X = ray.get_position();
                         float Li = power / ((light.p - X).mod() * (light.p - X).mod());
                         Direction normal = geometry[i]->getNormal(X);
                         Direction wi = normalize(light.p - X);
@@ -103,7 +105,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         color.b = 240;
                         break;
                     case 2:
-                        bp = *reinterpret_cast<BoundedPlane *>((geometry[i].get()));
+                        bp = *reinterpret_cast<BoundedPlane *>(geometry[i]);
                         bp.get_uv(X, u, v);
                         color = get_pixel(data, u, v);
                         break;
@@ -119,19 +121,19 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         break;
                     case 5:
                         normal = geometry[i]->getNormal(X);
-                        cy = *reinterpret_cast<Cylinder *>((geometry[i].get()));
+                        cy = *reinterpret_cast<Cylinder *>(geometry[i]);
                         cy.get_uv(normal, X.y - cy.get_base_Y_coord(), u, v);
                         color = get_pixel(data, u, v);
                         break;
                     case 6:
-                        s = *reinterpret_cast<Sphere *>((geometry[i].get()));
+                        s = *reinterpret_cast<Sphere *>(geometry[i]);
                         normal = normalize(s.getCenter() - X);
                         s.get_uv(normal, u, v);
                         color = get_pixel(data, u, v);
                         break;
                     case 7:
                         normal = geometry[i]->getNormal(X);
-                        cone = *reinterpret_cast<Cone *>((geometry[i].get()));
+                        cone = *reinterpret_cast<Cone *>(geometry[i]);
                         cone.get_uv(normal, cone.get_vertex_Y_coord() - X.y, u, v);
                         color = get_pixel(data, u, v);
                         break;

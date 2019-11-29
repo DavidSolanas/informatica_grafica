@@ -39,7 +39,7 @@ public:
     float getRadius();
     const float getAzimuth() const;
     Direction getNormal(Point X) override;
-    bool intersect(const Point &p, const Direction &D, float &t) override;
+    bool intersect(Ray &ray) override;
     float get_area() override;
     void get_uv(const Direction &n, float &u, float &v);
 };

@@ -23,7 +23,7 @@ public:
     float getRadius();
     Direction getNormal(Point X) override;
     float get_base_Y_coord();
-    bool intersect(const Point &p, const Direction &D, float &t) override;
+    bool intersect(Ray &ray) override;
     bool isInCylinder(const Point &p, const Direction &D, const Point &center, float &t);
     float get_area() override;
     void get_uv(const Direction &n, const float h, float &u, float &v);

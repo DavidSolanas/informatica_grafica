@@ -57,17 +57,17 @@ Direction Cylinder::getNormal(Point X)
     return normalize(X - C);
 }
 
-bool Cylinder::intersect(const Point &p, const Direction &D, float &t)
+bool Cylinder::intersect(Ray &ray)
 {
     // Trasladamos el rayo para que el centro de la base del cilindro
     // esté en el origen del rayo punto p)
-    Point p0(p.x - b1.getCenter().x,
-             p.y - b1.getCenter().y,
-             p.z - b1.getCenter().z);
+    Point p0(ray.get_origin().x - b1.getCenter().x,
+             ray.get_origin().y - b1.getCenter().y,
+             ray.get_origin().z - b1.getCenter().z);
 
     // Comprobar si intersecta con el cilindro infinito
-    float a = D.x * D.x + D.z * D.z;
-    float b = D.x * p0.x + D.z * p0.z;
+    float a = ray.get_direction().x * ray.get_direction().x + ray.get_direction().z * ray.get_direction().z;
+    float b = ray.get_direction().x * p0.x + ray.get_direction().z * p0.z;
     float c = p0.x * p0.x + p0.z * p0.z - this->r * this->r;
 
     float d = b * b - a * c;
@@ -78,30 +78,30 @@ bool Cylinder::intersect(const Point &p, const Direction &D, float &t)
 
     float x1 = (-b + sqrt(d)) / a;
     float x2 = (-b - sqrt(d)) / a;
-
+    float t = 0;
     if (x1 > x2)
         t = x2;
     if (t < 0)
         t = x1;
     if (t < 0)
         return false;
-
+    ray.set_parameter(t);
     // Comprobar si la intersección está en el rango del cilindro
-    float y = p0.y + t * D.y;
+    float y = p0.y + t * ray.get_direction().y;
 
     //Comprobar si intersecta con alguna de las bases
     if (y > h || y < 0)
     {
-        float t1;
-        bool base1 = b2.intersect(p, D, t1);
+        Ray ray1 = ray;
+        bool base1 = b2.intersect(ray1);
         if (base1)
-            t = t1;
-        bool base2 = b1.intersect(p, D, t1);
-        if (base2 && t1 > 0 && t >= t1)
-            t = t1;
+            ray = ray1;
+        bool base2 = b1.intersect(ray1);
+        if (base2 && ray1.get_parameter() > 0 &&
+            ray.get_parameter() >= ray1.get_parameter())
+            ray = ray1;
         return base1 || base2;
     }
-
     return true;
 }
 

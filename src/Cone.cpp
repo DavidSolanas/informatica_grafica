@@ -68,21 +68,21 @@ Direction Cone::getNormal(Point X)
     return Direction(w.x * h / r, r / h, w.z * h / r);
 }
 
-bool Cone::intersect(const Point &p, const Direction &D, float &t)
+bool Cone::intersect(Ray &ray)
 {
     // Trasladamos el rayo para que el centro de la base del cono
     // esté en el origen del rayo punto p)
-    Point p0(p.x - vertex.x,
-             p.y - vertex.y,
-             p.z - vertex.z);
+    Point p0(ray.get_origin().x - vertex.x,
+             ray.get_origin().y - vertex.y,
+             ray.get_origin().z - vertex.z);
 
-    float a = cos(theta) * D.x * D.x +
-              cos(theta) * D.z * D.z -
-              sin(theta) * D.y * D.y;
+    float a = cos(theta) * ray.get_direction().x * ray.get_direction().x +
+              cos(theta) * ray.get_direction().z * ray.get_direction().z -
+              sin(theta) * ray.get_direction().y * ray.get_direction().y;
 
-    float b = cos(theta) * D.x * p0.x +
-              cos(theta) * D.z * p0.z -
-              sin(theta) * D.y * p0.y;
+    float b = cos(theta) * ray.get_direction().x * p0.x +
+              cos(theta) * ray.get_direction().z * p0.z -
+              sin(theta) * ray.get_direction().y * p0.y;
 
     float c = cos(theta) * p0.x * p0.x +
               cos(theta) * p0.z * p0.z -
@@ -95,7 +95,7 @@ bool Cone::intersect(const Point &p, const Direction &D, float &t)
 
     float x1 = (-b + sqrt(d)) / a;
     float x2 = (-b - sqrt(d)) / a;
-
+    float t = 0;
     if (x1 > x2)
         t = x2;
     if (t < 0)
@@ -103,10 +103,11 @@ bool Cone::intersect(const Point &p, const Direction &D, float &t)
     if (t < 0)
         return false;
 
-    float y = p0.y + t * D.y;
+    float y = p0.y + t * ray.get_direction().y;
 
     if (y < -h || y > 0)
         return false;
+    ray.set_parameter(t);
     return true;
 }
 

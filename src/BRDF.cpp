@@ -87,6 +87,16 @@ void fresnel_law(const Direction &n, const Direction &wi, const float ior1, cons
     }
 }
 
+float delta_BRDF(const Direction &n, const Direction &wi, const Direction &wo)
+{
+    Direction wr = get_reflection(n, wi);
+    return wr == wo ? 1.f : 0.f;
+}
+
+float delta_BTDF(const Direction &n, const Direction &wi, const Direction &wo)
+{
+}
+
 float phong_BRDF(const float kd, const float ks, const float alpha, Direction n,
                  Direction wi, Direction wo)
 {

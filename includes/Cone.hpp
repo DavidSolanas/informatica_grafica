@@ -25,7 +25,7 @@ public:
     Point getVertex();
     float get_vertex_Y_coord();
     Direction getNormal(Point X) override;
-    bool intersect(const Point &p, const Direction &D, float &t) override;
+    bool intersect(Ray &ray) override;
     float get_area() override;
     void get_uv(const Direction &n, const float h, float &u, float &v);
 };

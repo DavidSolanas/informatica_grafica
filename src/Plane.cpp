@@ -56,11 +56,12 @@ bool Plane::isInPlane(const Point &p)
     return dot(this->getNormal(), p) + this->d == 0;
 }
 
-bool Plane::intersect(const Point &p, const Direction &D, float &t)
+bool Plane::intersect(Ray &ray)
 {
-    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
+    float t = -(dot(getNormal(), ray.get_origin()) + this->d) / (dot(ray.get_direction(), getNormal()));
     if (t <= 0)
         return false;
+    ray.set_parameter(t);
     return true;
 }
 
@@ -99,12 +100,14 @@ bool BoundedPlane::isInsidePlane(const Point &p)
     return true;
 }
 
-bool BoundedPlane::intersect(const Point &p, const Direction &D, float &t)
+bool BoundedPlane::intersect(Ray &ray)
 {
-    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
-    if (t <= 0)
-        return false;
-    return isInsidePlane(p + (D * t));
+    bool intersect_plane = Plane::intersect(ray);
+    if (intersect_plane)
+    {
+        return isInsidePlane(ray.get_position());
+    }
+    return false;
 }
 
 float BoundedPlane::get_area()
@@ -144,12 +147,14 @@ bool Triangle::isInsideTriangle(const Point &p)
     return true;
 }
 
-bool Triangle::intersect(const Point &p, const Direction &D, float &t)
+bool Triangle::intersect(Ray &ray)
 {
-    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
-    if (t <= 0)
-        return false;
-    return isInsideTriangle(p + (D * t));
+    bool intersect_plane = Plane::intersect(ray);
+    if (intersect_plane)
+    {
+        return isInsideTriangle(ray.get_position());
+    }
+    return false;
 }
 
 float Triangle::get_area()
@@ -196,12 +201,14 @@ bool Disk::isInsideDisk(const Point &p)
     return dot(d, d) <= r * r;
 }
 
-bool Disk::intersect(const Point &p, const Direction &D, float &t)
+bool Disk::intersect(Ray &ray)
 {
-    t = -(dot(this->getNormal(), p) + this->d) / (dot(D, this->getNormal()));
-    if (t <= 0)
-        return false;
-    return isInsideDisk(p + (D * t));
+    bool intersect_plane = Plane::intersect(ray);
+    if (intersect_plane)
+    {
+        return isInsideDisk(ray.get_position());
+    }
+    return false;
 }
 
 float Disk::get_area()
