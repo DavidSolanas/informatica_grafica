@@ -471,14 +471,14 @@ std::vector<Object *> cornell_box(Camera c, const int W, const int H)
 
     // Esfera
     objects.push_back(new Sphere(
-        Point(W / 2 - 550, 75, c.f.mod() + 1250), Direction(0, 150, 0),
-        Point(W / 2 - 625, 75, c.f.mod() + 1250),
+        Point(W / 2 - 375, 125, c.f.mod() + 1250), Direction(0, 250, 0),
+        Point(W / 2 - 500, 125, c.f.mod() + 1250),
         RGB(255, 255, 0)));
 
     // Esfera
     objects.push_back(new Sphere(
-        Point(W / 2 + 550, 75, c.f.mod() + 500), Direction(0, 150, 0),
-        Point(W / 2 + 625, 75, c.f.mod() + 500),
+        Point(W / 2 + 375, 125, c.f.mod() + 500), Direction(0, 250, 0),
+        Point(W / 2 + 500, 125, c.f.mod() + 500),
         RGB(255, 0, 255)));
 
     return objects;

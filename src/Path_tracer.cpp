@@ -13,6 +13,7 @@
 #include "BRDF.hpp"
 #include <fstream>
 #include <thread>
+#include <ctime>
 
 const int MAX_DEPTH = 3;
 const int NUM_THREADS = 4;
@@ -102,12 +103,15 @@ void render_image(std::vector<std::vector<RGB>> &data, const int numSamples, con
 void store_hdr(const std::vector<std::vector<RGB>> &data, std::string filename, const int H, const int W, const int cr)
 {
     std::ofstream f(filename);
-    if (f.is_open()){
+    if (f.is_open())
+    {
         f << "P3" << std::endl;
         f << W << " " << H << std::endl;
         f << cr << std::endl;
-        for (int i = data.size() - 1; i >= 0; i--){
-            for(RGB color : data[i]) {
+        for (int i = data.size() - 1; i >= 0; i--)
+        {
+            for (RGB color : data[i])
+            {
                 f << color;
             }
             f << "\n";
@@ -169,20 +173,33 @@ int main(int argc, char const *argv[])
         int inicio_y = c.o.y - c.u.mod();
         int fin_y = c.o.y + c.u.mod();
         int split_y = (fin_y - inicio_y) / NUM_THREADS;
+
+        //Medir tiempo render
+        struct timespec start, finish;
+        clock_gettime(CLOCK_REALTIME, &start);
+        std::cout << "Rendering image..." << std::endl;
+
         for (int i = 0; i < NUM_THREADS; i++)
         {
             P[i] = std::thread(&render_image, ref(img_data), ppp, w, c, H, W,
-                               inicio_x, 
+                               inicio_x,
                                fin_x,
-                               inicio_y + i * split_y, 
-                               (i + 1 == NUM_THREADS) ? inicio_y + (i+1) * split_y - 1 : inicio_y + (i+1) * split_y);
+                               inicio_y + i * split_y,
+                               (i + 1 == NUM_THREADS) ? inicio_y + (i + 1) * split_y - 1 : inicio_y + (i + 1) * split_y);
         }
-        for(int i=0; i<NUM_THREADS; i++) {
-		    P[i].join();
-	    }
+        for (int i = 0; i < NUM_THREADS; i++)
+        {
+            P[i].join();
+        }
+
+        // Obtener tiempo de ejecución
+        clock_gettime(CLOCK_REALTIME, &finish);
+        double elapsed = (finish.tv_sec - start.tv_sec);
+        elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+        std::cout << "Render completed in " << elapsed << " seconds, storing image..." << std::endl;
+
+        // Guardar imagen
         store_hdr(img_data, "/Users/david/Desktop/prueba2.ppm", H, W, 255);
-        //render_image("/Users/david/Desktop/prueba2.ppm", ppp, w, c, H, W);
-        //ray_tracer("/Users/david/Desktop/prueba.ppm", ppp, c, W, H);
     }
     return 0;
 }
