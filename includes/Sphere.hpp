@@ -14,7 +14,7 @@
  * tiene un centro (Punto), un eje (Dirección) y
  * una ciudad de referencia (Punto)
  */
-class Sphere : public Geometry
+class Sphere : public Object
 {
 public:
     /**
@@ -31,7 +31,8 @@ public:
     Point city;
 
     Sphere();
-    Sphere(const Point &center, const Direction &axis, const Point &city);
+    Sphere(const Point &center, const Direction &axis, const Point &city,
+           const RGB &c, const float ior = AIR_REFRACTION_INDEX);
     Sphere &operator=(const Sphere &p);
     Point getCenter();
     Direction getAxis();

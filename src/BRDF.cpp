@@ -51,6 +51,9 @@ void fresnel_law(const Direction &n, const Direction &wi, const float ior1, cons
     float ior_in = ior1;
     float ior_out = ior2;
     float n_wi = dot(n, wi);
+    //Clamp n_wi -- cos(th1)
+    n_wi = n_wi < -1 ? -1.f : n_wi;
+    n_wi = n_wi > 1 ? 1.f : n_wi;
     // Comprobaciones para ver si el rayo va desde el exterior al interior o viceversa
     // y aplicar la ecuación correctamente
     if (n_wi < 0)
@@ -95,10 +98,11 @@ float delta_BRDF(const Direction &n, const Direction &wi, const Direction &wo)
 
 float delta_BTDF(const Direction &n, const Direction &wi, const Direction &wo)
 {
+    return 0.f;
 }
 
-float phong_BRDF(const float kd, const float ks, const float alpha, Direction n,
-                 Direction wi, Direction wo)
+float phong_BRDF(const float kd, const float ks, const float alpha, const Direction &n,
+                 const Direction &wi, const Direction &wo)
 {
     Direction wr = get_reflection(n, wi);
     return (kd / M_PI) + ((ks * (alpha + 2) / (2 * M_PI)) * pow(abs(dot(wr, wo)), alpha));

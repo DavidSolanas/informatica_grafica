@@ -8,7 +8,7 @@
 
 #include "Geometry.hpp"
 
-class Cone : public Geometry
+class Cone : public Object
 {
 public:
     float theta;
@@ -17,7 +17,7 @@ public:
     float r;
 
     Cone();
-    Cone(const Point &p, float h, float r);
+    Cone(const Point &p, float h, float r, const RGB &c, const float ior = AIR_REFRACTION_INDEX);
     ~Cone();
     float getAngle();
     float getHeight();

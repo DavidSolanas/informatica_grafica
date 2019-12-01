@@ -25,7 +25,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
     std::vector<std::vector<RGB>> data = load_texture("/Users/david/Desktop/earthmap1k.ppm");
 
-    std::vector<Geometry *> geometry = scene3(c, W, H);
+    std::vector<Object *> geometry = scene3(c, W, H);
 
     float power = 3600000;
     PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), power, RGB(255, 255, 255));

@@ -253,12 +253,12 @@ const Direction normalize(const Direction &d)
     return Direction(d.x / mod, d.y / mod, d.z / mod);
 }
 
-void Point::view()
+void Point::view() const
 {
     std::cout << "<" << x << ", " << y << ", " << z << ", " << d << ">" << std::endl;
 }
 
-void Direction::view()
+void Direction::view() const
 {
     std::cout << "<" << x << ", " << y << ", " << z << ", " << d << ">" << std::endl;
 }
@@ -274,13 +274,13 @@ Point get_random_point()
     return Point(x, y, z);
 }
 
-Direction get_random_vect()
+Direction get_random_unit_vector()
 {
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_real_distribution<float> dist;
+    std::uniform_real_distribution<float> dist(-1.f, 1.f);
     float x = dist(mt),
           y = dist(mt),
           z = dist(mt);
-    return Direction(x, y, z);
+    return normalize(Direction(x, y, z));
 }

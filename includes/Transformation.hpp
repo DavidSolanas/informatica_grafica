@@ -7,6 +7,7 @@
 #define TRANSFORM_HPP
 
 #include "Geometry.hpp"
+#include <array>
 
 class Matrix_Transformation
 {
@@ -31,7 +32,7 @@ public:
     /**
      * Constructor para una matriz de cambio de base
      */
-    Matrix_Transformation(const Direction &n);
+    Matrix_Transformation(const Direction &n, const Point &p);
     /**
      * Constructor para una matriz dados los valores de la matriz
      */

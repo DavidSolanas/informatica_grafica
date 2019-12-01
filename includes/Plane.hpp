@@ -9,7 +9,7 @@
 #ifndef PLANE_HPP
 #define PLANE_HPP
 
-class Plane : public Geometry
+class Plane : public Object
 {
 protected:
     /**
@@ -23,8 +23,8 @@ protected:
 
 public:
     Plane();
-    Plane(const Direction &n, const Point &o);
-    Plane(const Point &a, const Point &b, const Point &c);
+    Plane(const Direction &n, const Point &o, const RGB &c, const float ior = AIR_REFRACTION_INDEX);
+    Plane(const Point &a, const Point &b, const Point &c, const RGB &color, const float ior = AIR_REFRACTION_INDEX);
     bool isInPlane(const Point &p);
     bool intersect(Ray &ray) override;
     float get_area() override;
@@ -50,7 +50,8 @@ public:
     Point D;
 
     BoundedPlane();
-    BoundedPlane(const Point &_A, const Point &_B, const Point &_C, const Point &_D);
+    BoundedPlane(const Point &_A, const Point &_B, const Point &_C, const Point &_D,
+                 const RGB &c, const float ior = AIR_REFRACTION_INDEX);
     bool isInsidePlane(const Point &p);
     bool intersect(Ray &ray) override;
     float get_area() override;
@@ -65,7 +66,8 @@ public:
     Point C;
 
     Triangle();
-    Triangle(const Point &_A, const Point &_B, const Point &_C);
+    Triangle(const Point &_A, const Point &_B, const Point &_C,
+             const RGB &c, const float ior = AIR_REFRACTION_INDEX);
     bool isInsideTriangle(const Point &p);
     bool intersect(Ray &ray) override;
     float get_area() override;
@@ -79,7 +81,7 @@ public:
     Point c;
 
     Disk();
-    Disk(const Direction &n, const Point &p, const float r);
+    Disk(const Direction &n, const Point &p, const float r, const RGB &c, const float ior = AIR_REFRACTION_INDEX);
     bool isInsideDisk(const Point &p);
     Point getCenter();
     bool intersect(Ray &ray) override;

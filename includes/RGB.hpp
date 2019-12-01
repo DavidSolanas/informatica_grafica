@@ -20,6 +20,11 @@ public:
     float get_r();
     float get_g();
     float get_b();
+    const RGB operator*(const float f) const;
+    const RGB operator*(const RGB &c) const;
+    const RGB operator/(const float f) const;
+    const RGB operator+(const float f) const;
+    const RGB operator+(const RGB &c) const;
 };
 
 #endif

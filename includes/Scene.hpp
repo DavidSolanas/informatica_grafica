@@ -10,13 +10,6 @@
 #include "Light.hpp"
 #include <vector>
 
-/// This is the refraction index of some materials / mediums.
-const float AIR_REFRACTION_INDEX = 1.0f;
-const float WATER_REFRACTION_INDEX = 1.333f;
-const float GLASS_REFRACTION_INDEX = 1.52f;
-const float SAPPHIRE_REFRACTION_INDEX = 1.77f;
-const float DIAMOND_REFRACTION_INDEX = 2.42f;
-
 class Camera
 {
 public:
@@ -36,7 +29,7 @@ public:
 class World
 {
 private:
-    std::vector<Geometry *> object_list;
+    std::vector<Object *> object_list;
     std::vector<Light *> light_list;
     RGB background;
 
@@ -45,7 +38,7 @@ public:
 
     /// Set & get background color.
     void set_background(const RGB bkg);
-    RGB get_background();
+    RGB get_background() const;
 
     /// Add a light source to our World
     void add_light(Light *ls);
@@ -53,24 +46,26 @@ public:
     int n_lights() const;
 
     /// Add an object to our world
-    void add_object(Geometry *o3d);
-    void add_objects(std::vector<Geometry *> &o3ds);
+    void add_object(Object *o3d);
+    void add_objects(std::vector<Object *> &o3ds);
 
     /// Return the object that first intersects `ray'
-    Geometry *first_intersection(Ray &ray);
+    Object *first_intersection(Ray &ray) const;
 
     /// Return the total ammount of light incoming the point from the light sources
-    float get_incoming_light(const Point &X);
+    float get_incoming_light(const Point &X) const;
 };
 
-std::vector<Geometry *> scene1(Camera c, const int W, const int H);
+std::vector<Object *> scene1(Camera c, const int W, const int H);
 
-std::vector<Geometry *> scene2(Camera c, const int W, const int H);
+std::vector<Object *> scene2(Camera c, const int W, const int H);
 
-std::vector<Geometry *> scene3(Camera c, const int W, const int H);
+std::vector<Object *> scene3(Camera c, const int W, const int H);
 
-std::vector<Geometry *> scene4(Camera c, const int W, const int H);
+std::vector<Object *> scene4(Camera c, const int W, const int H);
 
-std::vector<Geometry *> scene5(Camera c, const int W, const int H);
+std::vector<Object *> scene5(Camera c, const int W, const int H);
+
+std::vector<Object *> cornell_box(Camera c, const int W, const int H);
 
 #endif // !SCENE_HPP

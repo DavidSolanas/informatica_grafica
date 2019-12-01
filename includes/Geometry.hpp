@@ -6,7 +6,7 @@
 #ifndef GEOMETRY_HPP
 #define GEOMETRY_HPP
 
-#include <array>
+#include "RGB.hpp"
 
 class Point;
 class Direction;
@@ -15,14 +15,28 @@ class Ray;
 /** This is a constant used to dismiss intersections very close to previous
 		intersections. */
 const float SMALLEST_DIST = 1e-6;
-class Geometry
+
+/// This is the refraction index of some materials / mediums.
+const float AIR_REFRACTION_INDEX = 1.0f;
+const float WATER_REFRACTION_INDEX = 1.333f;
+const float GLASS_REFRACTION_INDEX = 1.52f;
+const float SAPPHIRE_REFRACTION_INDEX = 1.77f;
+const float DIAMOND_REFRACTION_INDEX = 2.42f;
+class Object
 {
+protected:
+    RGB emission;
+    float idx_of_refraction;
+
 public:
-    Geometry(){};
-    virtual ~Geometry(){};
+    Object() : emission(RGB(0, 0, 0)) {}
+    Object(const RGB &c) : emission(c) {}
+    virtual ~Object(){};
     virtual Direction getNormal(Point X) = 0;
     virtual bool intersect(Ray &ray) = 0;
     virtual float get_area() = 0;
+    RGB get_emission() { return emission; }
+    float get_ior() { return idx_of_refraction; }
 };
 
 /**
@@ -73,7 +87,7 @@ public:
      */
     void setCoord(float _x, float _y, float _z, float _d);
 
-    void view();
+    void view() const;
 };
 
 /**
@@ -142,7 +156,7 @@ public:
      */
     const float mod() const;
 
-    void view();
+    void view() const;
 };
 
 /** The Ray class is used to find intersections between a ray and the scene,
@@ -215,6 +229,6 @@ const Direction normalize(const Direction &d);
 
 Point get_random_point();
 
-Direction get_random_vect();
+Direction get_random_unit_vector();
 
 #endif // !GEOMETRY_HPP

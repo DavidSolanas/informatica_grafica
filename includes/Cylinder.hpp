@@ -9,7 +9,7 @@
 
 #include "Plane.hpp"
 
-class Cylinder : public Geometry
+class Cylinder : public Object
 {
 public:
     Disk b1;
@@ -18,7 +18,7 @@ public:
     float h;
 
     Cylinder();
-    Cylinder(Disk b1, Disk b2, float r, float h);
+    Cylinder(Disk b1, Disk b2, float r, float h, const RGB &c, const float ior = AIR_REFRACTION_INDEX);
     ~Cylinder();
     float getRadius();
     Direction getNormal(Point X) override;

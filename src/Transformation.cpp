@@ -107,17 +107,36 @@ Matrix_Transformation::Matrix_Transformation(const Point &p, const Direction &u,
     M[3][3] = 1;
 }
 
-Matrix_Transformation::Matrix_Transformation(const Direction &n)
+Matrix_Transformation::Matrix_Transformation(const Direction &n, const Point &p)
 {
-    Direction dr = get_random_vect();
+    Direction dr = get_random_unit_vector();
     while (dot(dr, n) == n.mod() * dr.mod())
     {
-        dr = get_random_vect();
+        dr = get_random_unit_vector();
     }
     Direction x = cross(n, dr);
     Direction y = cross(n, x);
-    Point p(0, 0, 0);
-    Matrix_Transformation(p, x, y, n);
+
+    M[0][0] = x.x;
+    M[1][0] = x.y;
+    M[2][0] = x.z;
+
+    M[0][1] = n.x;
+    M[1][1] = n.y;
+    M[2][1] = n.z;
+
+    M[0][2] = y.x;
+    M[1][2] = y.y;
+    M[2][2] = y.z;
+
+    M[0][3] = p.x;
+    M[1][3] = p.y;
+    M[2][3] = p.z;
+
+    M[3][0] = 0;
+    M[3][1] = 0;
+    M[3][2] = 0;
+    M[3][3] = 1;
 }
 
 /**
