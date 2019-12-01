@@ -53,7 +53,10 @@ public:
     Object *first_intersection(Ray &ray) const;
 
     /// Return the total ammount of light incoming the point from the light sources
-    float get_incoming_light(const Point &X) const;
+    float get_incoming_light(const Point &X, const Direction &hit_normal) const;
+
+    /// Return the source light that first intersects 'ray'
+    Light *first_light_intersection(Ray &ray) const;
 };
 
 std::vector<Object *> scene1(Camera c, const int W, const int H);

@@ -19,8 +19,9 @@ public:
     Light(const float p, const RGB &c);
     virtual Point get_point_on_surface() = 0;
     virtual int get_number_of_samples() = 0;
-    virtual float get_incoming_light(const Point &X) = 0;
+    virtual float get_incoming_light(const Point &X, const Direction &normal) = 0;
     virtual bool is_visible(const Point &X) = 0;
+    virtual Object *get_object() = 0;
     ~Light();
 };
 
@@ -31,8 +32,9 @@ public:
     PointLight(const Point &p, const float power, const RGB &color);
     Point get_point_on_surface() override;
     int get_number_of_samples() override;
-    float get_incoming_light(const Point &X) override;
+    float get_incoming_light(const Point &X, const Direction &normal) override;
     bool is_visible(const Point &X) override;
+    Object *get_object() override;
     ~PointLight();
 };
 
@@ -42,9 +44,10 @@ public:
     BoundedPlane p;
     PlaneLight(const BoundedPlane &p, const float power, const RGB &color);
     Point get_point_on_surface() override;
-    float get_incoming_light(const Point &X) override;
+    float get_incoming_light(const Point &X, const Direction &normal) override;
     int get_number_of_samples() override;
     bool is_visible(const Point &X) override;
+    Object *get_object() override;
     ~PlaneLight();
 };
 
@@ -54,9 +57,10 @@ public:
     Sphere s;
     SphereLight(const Sphere &s, const float power, const RGB &color);
     Point get_point_on_surface() override;
-    float get_incoming_light(const Point &X) override;
+    float get_incoming_light(const Point &X, const Direction &normal) override;
     int get_number_of_samples() override;
     bool is_visible(const Point &X) override;
+    Object *get_object() override;
     ~SphereLight();
 };
 

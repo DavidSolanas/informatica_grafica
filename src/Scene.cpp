@@ -110,10 +110,43 @@ Object *World::first_intersection(Ray &ray) const
     return object_list[closest_idx];
 }
 
-/// Return the light that first intersects `ray'
-float World::get_incoming_light(const Point &X) const
+/// Return the total ammount of light incoming the point from the light sources
+float World::get_incoming_light(const Point &X, const Direction &hit_normal) const
 {
-    return .0f;
+    float Ld = 0.0f;
+    for (Light *light : light_list)
+    {
+        Ld += light->get_incoming_light(X, hit_normal);
+    }
+    return Ld;
+}
+
+/// Return the light that first intersects `ray'
+Light *World::first_light_intersection(Ray &ray) const
+{
+    int closest_idx = -1;
+    float tmin = INFINITY;
+
+    for (int j = 0; j < light_list.size(); j++)
+    {
+        // Si obj es nullptr se trata de una luz puntual, no intersecta
+        Object *obj = light_list[j]->get_object();
+        if (obj != nullptr && obj->intersect(ray))
+        {
+            if (ray.get_parameter() > 0 && ray.get_parameter() < tmin)
+            {
+                closest_idx = j;
+                tmin = ray.get_parameter();
+            }
+        }
+    }
+    if (closest_idx == -1)
+    {
+        return nullptr;
+    }
+    //Ha habido intersección
+    ray.set_parameter(tmin);
+    return light_list[closest_idx];
 }
 
 std::vector<Object *> scene1(Camera c, const int W, const int H)

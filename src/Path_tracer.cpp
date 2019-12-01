@@ -38,11 +38,19 @@ Direction RandomUnitVectorInHemisphereOf(const Direction &n, const Point &p)
 
 RGB trace_path(const World &w, Ray &ray, const int depth)
 {
+    ray.set_parameter(INFINITY);
+    Ray ray_light = ray;
+    Light *light = w.first_light_intersection(ray_light);
     Object *obj = w.first_intersection(ray);
-    if (obj == nullptr)
+    if (obj == nullptr && light == nullptr)
     {
         //No ha habido intersección
         return w.get_background();
+    }
+    // Ha intersectado con una fuente de luz, devuelve el color de dicha fuente
+    if (light != nullptr && ray_light.get_parameter() <= ray.get_parameter())
+    {
+        return light->color * light->power;
     }
 
     Point hit = ray.get_position();
@@ -53,12 +61,9 @@ RGB trace_path(const World &w, Ray &ray, const int depth)
     const float p = 1 / (2 * M_PI);
 
     //Direct light contribution
-    PointLight pl = *reinterpret_cast<PointLight *>(w.light(0));
-    float Ld = pl.get_incoming_light(ray.get_position());
-    Direction wi = normalize(pl.get_point_on_surface() - ray.get_position());
-    float g = dot(hit_normal, wi) < 0 ? 0 : dot(hit_normal, wi);
+    float total_direct_light_cont = w.get_incoming_light(hit, hit_normal);
 
-    RGB direct_light = color_brdf * g * Ld / p;
+    RGB direct_light = color_brdf * total_direct_light_cont / p;
     if (depth >= MAX_DEPTH)
     {
         // Ha habido intersección y rebote máximo
@@ -161,7 +166,14 @@ int main(int argc, char const *argv[])
         Point c0((int)W / 2, (int)H / 2, 0);
         Camera c(f, u, l, c0);
         std::vector<Object *> objs = cornell_box(c, W, H);
-        PointLight light(Point(W / 2, H - 100, f.mod() + 300), 360000, RGB(255, 255, 255));
+        PlaneLight light(
+            BoundedPlane(
+                Point(W / 2 - 150, H, c.f.mod() + 900),
+                Point(W / 2 - 150, H, c.f.mod() + 600),
+                Point(W / 2 + 150, H, c.f.mod() + 600),
+                Point(W / 2 + 150, H, c.f.mod() + 900),
+                RGB(255, 255, 255)),
+            360000, RGB(255, 255, 255));
         World w;
         w.add_light(&light);
         w.add_objects(objs);
