@@ -46,25 +46,25 @@ float RGB::get_b()
 
 const RGB RGB::operator*(const float f) const
 {
-    return RGB(r * f, g * f, b * f);
+    return RGB(this->r * f, this->g * f, this->b * f);
 }
 
 const RGB RGB::operator*(const RGB &c) const
 {
-    return RGB(r * c.r, g * c.g, b * c.b);
+    return RGB(this->r * c.r, this->g * c.g, this->b * c.b);
 }
 
 const RGB RGB::operator/(const float f) const
 {
-    return RGB(r / f, g / f, b / f);
+    return RGB(this->r / f, this->g / f, this->b / f);
 }
 
 const RGB RGB::operator+(const RGB &c) const
 {
-    return RGB(r + c.r, g + c.g, b + c.b);
+    return RGB(this->r + c.r, this->g + c.g, this->b + c.b);
 }
 
 const RGB RGB::operator+(const float f) const
 {
-    return RGB(r + f, g + f, b + f);
+    return RGB(this->r + f, this->g + f, this->b + f);
 }

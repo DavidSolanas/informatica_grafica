@@ -18,7 +18,7 @@ public:
     float h;
 
     Cylinder();
-    Cylinder(Disk b1, Disk b2, float r, float h, const RGB &c, const float ior = AIR_REFRACTION_INDEX);
+    Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat);
     ~Cylinder();
     float getRadius();
     Direction getNormal(Point X) override;

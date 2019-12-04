@@ -4,7 +4,6 @@
  *****************************************/
 
 #include "Ray_tracer.hpp"
-#include "BRDF.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"
 #include "Cylinder.hpp"
@@ -28,7 +27,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
     std::vector<Object *> geometry = scene3(c, W, H);
 
     float power = 3600000;
-    PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), power, RGB(255, 255, 255));
+    PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), 3600, RGB(1.f, 1.f, 1.f));
 
     std::ofstream _f(filename);
     if (_f.is_open())

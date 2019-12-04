@@ -32,7 +32,7 @@ public:
 
     Sphere();
     Sphere(const Point &center, const Direction &axis, const Point &city,
-           const RGB &c, const float ior = AIR_REFRACTION_INDEX);
+           BRDF *mat);
     Sphere &operator=(const Sphere &p);
     Point getCenter();
     Direction getAxis();

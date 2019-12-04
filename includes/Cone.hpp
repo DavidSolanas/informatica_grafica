@@ -17,7 +17,7 @@ public:
     float r;
 
     Cone();
-    Cone(const Point &p, float h, float r, const RGB &c, const float ior = AIR_REFRACTION_INDEX);
+    Cone(const Point &p, float h, float r, BRDF *mat);
     ~Cone();
     float getAngle();
     float getHeight();

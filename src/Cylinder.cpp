@@ -12,9 +12,8 @@ Cylinder::Cylinder()
 {
 }
 
-Cylinder::Cylinder(Disk b1, Disk b2, float r, float h, const RGB &c, const float ior) : Object(c)
+Cylinder::Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat) : Object(mat)
 {
-    idx_of_refraction = ior;
     this->b1 = b1;
     this->b2 = b2;
     this->h = h;

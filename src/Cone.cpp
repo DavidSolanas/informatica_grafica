@@ -7,13 +7,12 @@
 #include <cmath>
 #include <iostream>
 
-Cone::Cone()
+Cone::Cone() : Object()
 {
 }
 
-Cone::Cone(const Point &p, float h, float r, const RGB &c, const float ior) : Object(c)
+Cone::Cone(const Point &p, float h, float r, BRDF *mat) : Object(mat)
 {
-    idx_of_refraction = ior;
     this->vertex = p;
     this->h = h;
     this->r = r;

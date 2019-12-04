@@ -9,14 +9,21 @@
 #include <cmath>
 #include <iostream>
 
-Light::Light(const float p, const RGB &c)
+const int N_SAMPLES = 5;
+
+Light::Light(const float power, const RGB &c)
 {
-    this->power = p;
+    this->power = power;
     this->color = c;
 }
 
 Light::~Light()
 {
+}
+
+RGB Light::get_light_amount() const
+{
+    return color * power;
 }
 
 PointLight::PointLight(const Point &p, const float power, const RGB &color) : Light(power, color)
@@ -38,12 +45,11 @@ int PointLight::get_number_of_samples()
     return 1;
 }
 
-float PointLight::get_incoming_light(const Point &X, const Direction &normal)
+RGB PointLight::get_incoming_light(const Point &X, const Direction &normal)
 {
-    Point c = get_point_on_surface();
-    float Li = power / ((p - X).mod() * (p - X).mod());
-    Direction wi = normalize(c - X);
-    float g = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
+    RGB Li = get_light_amount() / ((p - X).mod() * (p - X).mod());
+    Direction wi = normalize(p - X);
+    float g = std::max(0.0f, dot(normal, wi));
     return Li * g;
 }
 
@@ -80,19 +86,19 @@ int PlaneLight::get_number_of_samples()
     return p.get_area();
 }
 
-float PlaneLight::get_incoming_light(const Point &X, const Direction &normal)
+RGB PlaneLight::get_incoming_light(const Point &X, const Direction &normal)
 {
-    float Li = 0.0f;
-    float tot_Li = 0.0f;
-    for (int i = 0; i < 6; i++)
+    RGB Li(0, 0, 0);
+    RGB tot_Li(0, 0, 0);
+    for (int i = 0; i < N_SAMPLES; i++)
     {
         Point c = get_point_on_surface();
-        Li = (power / 6) / ((c - X).mod() * (c - X).mod());
+        Li = (get_light_amount() / N_SAMPLES) / ((c - X).mod() * (c - X).mod());
         Direction wi = normalize(c - X);
-        float g1 = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
+        float g1 = std::max(0.0f, dot(normal, wi));
         Direction wi_s = normalize(X - c);
-        float g2 = dot(p.getNormal(), wi_s) < 0 ? 0 : dot(p.getNormal(), wi_s);
-        tot_Li += Li * g1 * g2;
+        float g2 = std::max(0.0f, dot(p.getNormal(), wi_s));
+        tot_Li = tot_Li + Li * g1 * g2;
     }
     return tot_Li;
 }
@@ -132,18 +138,18 @@ int SphereLight::get_number_of_samples()
     return s.get_area();
 }
 
-float SphereLight::get_incoming_light(const Point &X, const Direction &normal)
+RGB SphereLight::get_incoming_light(const Point &X, const Direction &normal)
 {
-    float Li = 0.0f, tot_Li = 0.0f;
-    for (int i = 0; i < get_number_of_samples(); i++)
+    RGB Li(0, 0, 0), tot_Li(0, 0, 0);
+    for (int i = 0; i < N_SAMPLES; i++)
     {
         Point c = get_point_on_surface();
-        Li = (power / get_number_of_samples()) / ((c - X).mod() * (c - X).mod());
+        Li = (get_light_amount() / N_SAMPLES) / ((c - X).mod() * (c - X).mod());
         Direction wi = normalize(c - X);
-        float g1 = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
+        float g1 = std::max(0.0f, dot(normal, wi));
         Direction wi_s = normalize(X - c);
-        float g2 = dot(s.getNormal(c), wi_s) < 0 ? 0 : dot(s.getNormal(c), wi_s);
-        tot_Li += Li * g1 * g2;
+        float g2 = std::max(0.0f, dot(s.getNormal(c), wi_s));
+        tot_Li = tot_Li + Li * g1 * g2;
     }
     return tot_Li;
 }

@@ -4,18 +4,16 @@
  *****************************************/
 
 #include <iostream>
-#include "Geometry.hpp"
 #include <cmath>
 #include "Scene.hpp"
-#include "Light.hpp"
 #include "Transformation.hpp"
-#include <random>
-#include "BRDF.hpp"
 #include <fstream>
 #include <thread>
 #include <ctime>
+#include <random>
+#include "Lambertian.hpp"
 
-const int MAX_DEPTH = 3;
+const int MAX_DEPTH = 4;
 const int NUM_THREADS = 4;
 
 std::ostream &operator<<(std::ostream &os, const RGB &c)
@@ -24,20 +22,12 @@ std::ostream &operator<<(std::ostream &os, const RGB &c)
     return os;
 }
 
-Direction RandomUnitVectorInHemisphereOf(const Direction &n, const Point &p)
-{
-    //Cambio de coordenadas locales
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_real_distribution<float> dist(-1.f, 1.f);
-    Matrix_Transformation T(n, p);
-    float x = dist(mt), y = abs(dist(mt)), z = dist(mt);
-    Direction _n(x, y, z);
-    return normalize(T.inverse() * _n);
-}
-
 RGB trace_path(const World &w, Ray &ray, const int depth)
 {
+    if (depth >= MAX_DEPTH)
+    {
+        return w.get_background();
+    }
     ray.set_parameter(INFINITY);
     Ray ray_light = ray;
     Light *light = w.first_light_intersection(ray_light);
@@ -50,32 +40,25 @@ RGB trace_path(const World &w, Ray &ray, const int depth)
     // Ha intersectado con una fuente de luz, devuelve el color de dicha fuente
     if (light != nullptr && ray_light.get_parameter() <= ray.get_parameter())
     {
-        return light->color * light->power;
+        return light->get_light_amount();
     }
 
     Point hit = ray.get_position();
     Direction hit_normal = obj->getNormal(hit);
-    Direction new_direction = RandomUnitVectorInHemisphereOf(hit_normal, hit);
-    RGB color_brdf = obj->get_emission() * lambertian_BRDF(0.7f);
 
-    const float p = 1 / (2 * M_PI);
+    Ray new_ray;
+    float p = 1 / (2 * M_PI);
+
+    obj->get_material()->get_outgoing_sample_ray(ray, hit_normal, new_ray, p);
+
+    RGB brdf = obj->get_material()->get_albedo(ray, hit_normal, hit);
+    float cos_th = std::max(0.0f, dot(new_ray.get_direction(), hit_normal));
 
     //Direct light contribution
-    float total_direct_light_cont = w.get_incoming_light(hit, hit_normal);
-
-    RGB direct_light = color_brdf * total_direct_light_cont / p;
-    if (depth >= MAX_DEPTH)
-    {
-        // Ha habido intersección y rebote máximo
-        return direct_light;
-    }
-    Ray new_ray(hit, new_direction);
-
-    float cos_th = abs(dot(new_direction, hit_normal));
-
+    RGB total_direct_light_cont = w.get_incoming_light(hit, hit_normal);
     RGB Li = trace_path(w, new_ray, depth + 1);
 
-    return (color_brdf * (Li + direct_light) * cos_th / p);
+    return (Li + total_direct_light_cont) * brdf * cos_th / p;
 }
 
 void render_image(std::vector<std::vector<RGB>> &data, const int numSamples, const World &w,
@@ -100,7 +83,7 @@ void render_image(std::vector<std::vector<RGB>> &data, const int numSamples, con
                 color = color + trace_path(w, ray, 0);
             }
             color = color / numSamples;
-            data[y][x] = color;
+            data[y][x] = color * 255;
         }
     }
 }
@@ -158,7 +141,8 @@ int main(int argc, char const *argv[])
                 break;
             }
         }
-        const int H = 720, W = 1280;
+        const int H = 480, W = 640;
+        BRDF *white = new Lambertian(RGB(.85, .85, .85));
 
         Direction l((int)W / 2, 0, 0);
         Direction u(0, (int)H / 2, 0);
@@ -168,12 +152,14 @@ int main(int argc, char const *argv[])
         std::vector<Object *> objs = cornell_box(c, W, H);
         PlaneLight light(
             BoundedPlane(
-                Point(W / 2 - 150, H, c.f.mod() + 900),
-                Point(W / 2 - 150, H, c.f.mod() + 600),
-                Point(W / 2 + 150, H, c.f.mod() + 600),
-                Point(W / 2 + 150, H, c.f.mod() + 900),
-                RGB(255, 255, 255)),
-            360000, RGB(255, 255, 255));
+                Point(W / 2 - 100, H, c.f.mod() + 850),
+                Point(W / 2 - 100, H, c.f.mod() + 650),
+                Point(W / 2 + 100, H, c.f.mod() + 650),
+                Point(W / 2 + 100, H, c.f.mod() + 850),
+                white),
+            360000, RGB(1., 1., 1.));
+
+        //PointLight light(Point(W / 2, H - 75, c.f.mod() + 750), 360000., RGB(1., 1., 1.));
         World w;
         w.add_light(&light);
         w.add_objects(objs);
@@ -197,7 +183,7 @@ int main(int argc, char const *argv[])
                                inicio_x,
                                fin_x,
                                inicio_y + i * split_y,
-                               (i + 1 == NUM_THREADS) ? inicio_y + (i + 1) * split_y - 1 : inicio_y + (i + 1) * split_y);
+                               inicio_y + (i + 1) * split_y);
         }
         for (int i = 0; i < NUM_THREADS; i++)
         {
@@ -211,7 +197,7 @@ int main(int argc, char const *argv[])
         std::cout << "Render completed in " << elapsed << " seconds, storing image..." << std::endl;
 
         // Guardar imagen
-        store_hdr(img_data, "/Users/david/Desktop/prueba2.ppm", H, W, 255);
+        store_hdr(img_data, "/Users/david/Desktop/cornell_box_hdr.ppm", H, W, 255);
     }
     return 0;
 }

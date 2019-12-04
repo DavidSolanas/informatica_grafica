@@ -280,7 +280,7 @@ void global_reinhard(Image &img, const float key)
         for (auto &&rgb : row)
         {
             //Se añade 0.0000001f para evitar singularidades cuando RGB = 000
-            float L = 0.27 * rgb.r + 0.67 * rgb.g + 0.06 * rgb.b + 0.0000001f;
+            float L = 0.27 * rgb.r + 0.67 * rgb.g + 0.06 * rgb.b;
             rgb.r = rgb.r * (vld[i][j] / (1.0f + L));
             rgb.g = rgb.g * (vld[i][j] / (1.0f + L));
             rgb.b = rgb.b * (vld[i][j] / (1.0f + L));

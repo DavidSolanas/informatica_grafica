@@ -191,6 +191,18 @@ void Ray::set_parameter(const float _t)
     t = _t;
 }
 
+// Set direction of ray
+void Ray::set_direction(const Direction &d)
+{
+    direction = d;
+}
+
+// Set origin of ray
+void Ray::set_origin(const Point &p)
+{
+    origin = p;
+}
+
 // Get direction of ray.
 const Direction &Ray::get_direction() const
 {

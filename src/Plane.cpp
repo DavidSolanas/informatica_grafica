@@ -18,9 +18,8 @@ float max(float a, float b, float c)
 
 Plane::Plane() {}
 
-Plane::Plane(const Direction &n, const Point &o, const RGB &c, const float ior) : Object(c)
+Plane::Plane(const Direction &n, const Point &o, BRDF *mat) : Object(mat)
 {
-    idx_of_refraction = ior;
     Direction n_normalized = normalize(n);
     this->a = n_normalized.x;
     this->b = n_normalized.y;
@@ -28,9 +27,8 @@ Plane::Plane(const Direction &n, const Point &o, const RGB &c, const float ior) 
     this->d = -dot(n_normalized, o);
 }
 
-Plane::Plane(const Point &a, const Point &b, const Point &c, const RGB &color, const float ior) : Object(color)
+Plane::Plane(const Point &a, const Point &b, const Point &c, BRDF *mat) : Object(mat)
 {
-    idx_of_refraction = ior;
     Direction n = normalize(cross(b - a, c - a));
     this->a = n.x;
     this->b = n.y;
@@ -77,7 +75,7 @@ BoundedPlane::BoundedPlane()
 }
 
 BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
-                           const Point &_C, const Point &_D, const RGB &c, const float ior) : Plane(_A, _B, _C, c, ior)
+                           const Point &_C, const Point &_D, BRDF *mat) : Plane(_A, _B, _C, mat)
 {
     this->A = _A;
     this->B = _B;
@@ -130,7 +128,7 @@ Triangle::Triangle()
 }
 
 Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C,
-                   const RGB &c, const float ior) : Plane(_A, _B, _C, c, ior)
+                   BRDF *mat) : Plane(_A, _B, _C, mat)
 {
     this->A = _A;
     this->B = _B;
@@ -187,7 +185,7 @@ Disk::Disk()
 {
 }
 
-Disk::Disk(const Direction &n, const Point &p, const float r, const RGB &c, const float ior) : Plane(n, p, c, ior)
+Disk::Disk(const Direction &n, const Point &p, const float r, BRDF *mat) : Plane(n, p, mat)
 {
     this->r = r;
     this->c = p;

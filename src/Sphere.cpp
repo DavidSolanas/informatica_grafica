@@ -11,9 +11,8 @@
 Sphere::Sphere() {}
 
 Sphere::Sphere(const Point &center, const Direction &axis, const Point &city,
-               const RGB &c, const float ior) : Object(c)
+               BRDF *mat) : Object(mat)
 {
-    idx_of_refraction = ior;
     float radius = axis.mod() / 2;
     bool correct = abs((city - center).mod() - radius) <= 1e-6;
     if (correct)

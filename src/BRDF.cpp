@@ -5,6 +5,8 @@
 
 #include "BRDF.hpp"
 #include <cmath>
+#include <random>
+#include "Transformation.hpp"
 
 Direction get_reflection(const Direction &n, const Direction &wi)
 {
