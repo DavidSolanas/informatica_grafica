@@ -9,8 +9,6 @@
 #include <cmath>
 #include <iostream>
 
-const int N_SAMPLES = 5;
-
 Light::Light(const float power, const RGB &c)
 {
     this->power = power;
@@ -88,19 +86,7 @@ int PlaneLight::get_number_of_samples()
 
 RGB PlaneLight::get_incoming_light(const Point &X, const Direction &normal)
 {
-    RGB Li(0, 0, 0);
-    RGB tot_Li(0, 0, 0);
-    for (int i = 0; i < N_SAMPLES; i++)
-    {
-        Point c = get_point_on_surface();
-        Li = (get_light_amount() / N_SAMPLES) / ((c - X).mod() * (c - X).mod());
-        Direction wi = normalize(c - X);
-        float g1 = std::max(0.0f, dot(normal, wi));
-        Direction wi_s = normalize(X - c);
-        float g2 = std::max(0.0f, dot(p.getNormal(), wi_s));
-        tot_Li = tot_Li + Li * g1 * g2;
-    }
-    return tot_Li;
+    return RGB(.0f, .0f, .0f);
 }
 
 bool PlaneLight::is_visible(const Point &X)
@@ -140,18 +126,7 @@ int SphereLight::get_number_of_samples()
 
 RGB SphereLight::get_incoming_light(const Point &X, const Direction &normal)
 {
-    RGB Li(0, 0, 0), tot_Li(0, 0, 0);
-    for (int i = 0; i < N_SAMPLES; i++)
-    {
-        Point c = get_point_on_surface();
-        Li = (get_light_amount() / N_SAMPLES) / ((c - X).mod() * (c - X).mod());
-        Direction wi = normalize(c - X);
-        float g1 = std::max(0.0f, dot(normal, wi));
-        Direction wi_s = normalize(X - c);
-        float g2 = std::max(0.0f, dot(s.getNormal(c), wi_s));
-        tot_Li = tot_Li + Li * g1 * g2;
-    }
-    return tot_Li;
+    return RGB(.0f, .0f, .0f);
 }
 
 bool SphereLight::is_visible(const Point &X)

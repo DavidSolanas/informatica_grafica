@@ -107,7 +107,7 @@ float phong_BRDF(const float kd, const float ks, const float alpha, const Direct
                  const Direction &wi, const Direction &wo)
 {
     Direction wr = get_reflection(n, wi);
-    return (kd / M_PI) + ((ks * (alpha + 2) / (2 * M_PI)) * pow(abs(dot(wr, wo)), alpha));
+    return (kd / M_PI) + ((ks * (alpha + 2) / (2 * M_PI)) * pow(fabs(dot(wr, wo)), alpha));
 }
 
 float lambertian_BRDF(const float kd)

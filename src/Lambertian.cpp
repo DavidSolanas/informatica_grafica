@@ -7,7 +7,7 @@
 #include <random>
 #include "Transformation.hpp"
 
-Lambertian::Lambertian(const RGB &_kd) : kd(_kd) {}
+Lambertian::Lambertian(const RGB &_kd) : BRDF(_kd, RGB(.0, .0, .0), RGB(.0, .0, .0), RGB(.0, .0, .0)) {}
 
 Direction RandomUnitVectorInHemisphereOf(const Direction &n, const Point &p)
 {
@@ -16,7 +16,7 @@ Direction RandomUnitVectorInHemisphereOf(const Direction &n, const Point &p)
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(-1.f, 1.f);
     Matrix_Transformation T(n, p);
-    float x = dist(mt), y = abs(dist(mt)), z = dist(mt);
+    float x = dist(mt), y = fabs(dist(mt)), z = dist(mt);
     Direction _n(x, y, z);
     return normalize(T.inverse() * _n);
 }
@@ -28,17 +28,27 @@ void Lambertian::get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray 
     ro.set_parameter(INFINITY);
 }
 
-RGB Lambertian::get_albedo(const Ray &ray, const Direction &n, const Point &hit) const
+RGB Lambertian::get_difusse() const
 {
-    return kd / M_PI;
+    return kd;
 }
 
-float Lambertian::get_specular(const Ray &ray, const Direction &n, const Point &hit) const
+RGB Lambertian::get_specular() const
 {
-    return 0.f;
+    return ks;
+}
+
+RGB Lambertian::get_perfect_specular() const
+{
+    return kps;
+}
+
+RGB Lambertian::get_perfect_refractive() const
+{
+    return kpr;
 }
 
 bool Lambertian::is_delta() const
 {
-    return true;
+    return false;
 }

@@ -223,9 +223,9 @@ void Disk::get_uv(const Point &p, float &u, float &v)
     float x = p.x - c.x,
           y = p.y - c.y,
           z = p.z - c.z;
-    float nx = abs(n.x),
-          ny = abs(n.y),
-          nz = abs(n.z);
+    float nx = fabs(n.x),
+          ny = fabs(n.y),
+          nz = fabs(n.z);
     float cmax = max(nx, ny, nz);
     if (cmax == nx)
     {

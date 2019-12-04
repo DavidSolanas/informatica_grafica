@@ -296,3 +296,11 @@ Direction get_random_unit_vector()
           z = dist(mt);
     return normalize(Direction(x, y, z));
 }
+
+float get_random_value(const float a, const float b)
+{
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<float> dist(a, b);
+    return dist(mt);
+}

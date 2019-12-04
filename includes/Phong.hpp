@@ -1,19 +1,21 @@
 /****************************************+
- * Fichero: Lambertian.hpp
+ * Fichero: Phong.hpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 
-#ifndef LAMBERTIAN_HPP
-#define LAMBERTIAN_HPP
+#ifndef PHONG_HPP
+#define PHONG_HPP
 
 #include "BRDF.hpp"
 
-class Lambertian : public BRDF
+class Phong : public BRDF
 {
 private:
+    const float shininess;
+
 public:
-    Lambertian(const RGB &_kd);
-    ~Lambertian() {}
+    Phong(const RGB &_kd, const RGB &_ks, const float shiny);
+    ~Phong() {}
     void get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro, float &pdf) const override;
     RGB get_difusse() const override;
     RGB get_specular() const override;
@@ -22,4 +24,4 @@ public:
     bool is_delta() const override;
 };
 
-#endif // !LAMBERTIAN_HPP
+#endif // !PHONG_HPP

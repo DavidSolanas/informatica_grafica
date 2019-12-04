@@ -54,11 +54,11 @@ RGB trace_path(const World &w, Ray &ray, const int depth)
     RGB brdf = obj->get_material()->get_albedo(ray, hit_normal, hit);
     float cos_th = std::max(0.0f, dot(new_ray.get_direction(), hit_normal));
 
-    //Direct light contribution
-    RGB total_direct_light_cont = w.get_incoming_light(hit, hit_normal);
+    //Direct light contribution SOLO DE LAS PUNTUALES (omitir por ahora)
+    //RGB total_direct_light_cont = w.get_incoming_light(hit, hit_normal);
     RGB Li = trace_path(w, new_ray, depth + 1);
 
-    return (Li + total_direct_light_cont) * brdf * cos_th / p;
+    return Li * brdf * cos_th / p;
 }
 
 void render_image(std::vector<std::vector<RGB>> &data, const int numSamples, const World &w,
@@ -197,7 +197,7 @@ int main(int argc, char const *argv[])
         std::cout << "Render completed in " << elapsed << " seconds, storing image..." << std::endl;
 
         // Guardar imagen
-        store_hdr(img_data, "/Users/david/Desktop/cornell_box_hdr.ppm", H, W, 255);
+        store_hdr(img_data, "/Users/david/Desktop/prueba.ppm", H, W, 255);
     }
     return 0;
 }

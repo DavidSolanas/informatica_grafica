@@ -227,4 +227,6 @@ Point get_random_point();
 
 Direction get_random_unit_vector();
 
+float get_random_value(const float a, const float b);
+
 #endif // !GEOMETRY_HPP

@@ -1,19 +1,19 @@
 /****************************************+
- * Fichero: Lambertian.hpp
+ * Fichero: Specular.hpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 
-#ifndef LAMBERTIAN_HPP
-#define LAMBERTIAN_HPP
+#ifndef SPECULAR_HPP
+#define SPECULAR_HPP
 
 #include "BRDF.hpp"
 
-class Lambertian : public BRDF
+class Specular : public BRDF
 {
 private:
 public:
-    Lambertian(const RGB &_kd);
-    ~Lambertian() {}
+    Specular(const RGB &kps);
+    ~Specular() {}
     void get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro, float &pdf) const override;
     RGB get_difusse() const override;
     RGB get_specular() const override;
@@ -22,4 +22,4 @@ public:
     bool is_delta() const override;
 };
 
-#endif // !LAMBERTIAN_HPP
+#endif // !Specular_HPP

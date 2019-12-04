@@ -14,7 +14,7 @@ Sphere::Sphere(const Point &center, const Direction &axis, const Point &city,
                BRDF *mat) : Object(mat)
 {
     float radius = axis.mod() / 2;
-    bool correct = abs((city - center).mod() - radius) <= 1e-6;
+    bool correct = fabs((city - center).mod() - radius) <= 1e-6;
     if (correct)
     {
         this->center = center;

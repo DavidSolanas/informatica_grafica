@@ -1,19 +1,21 @@
 /****************************************+
- * Fichero: Lambertian.hpp
+ * Fichero: Transmissive.hpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 
-#ifndef LAMBERTIAN_HPP
-#define LAMBERTIAN_HPP
+#ifndef TRANSMISSIVE_HPP
+#define TRANSMISSIVE_HPP
 
 #include "BRDF.hpp"
 
-class Lambertian : public BRDF
+class Transmissive : public BRDF
 {
 private:
+    float idx_of_refraction;
+
 public:
-    Lambertian(const RGB &_kd);
-    ~Lambertian() {}
+    Transmissive(const RGB &kpr, const float ior);
+    ~Transmissive() {}
     void get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro, float &pdf) const override;
     RGB get_difusse() const override;
     RGB get_specular() const override;
@@ -22,4 +24,4 @@ public:
     bool is_delta() const override;
 };
 
-#endif // !LAMBERTIAN_HPP
+#endif // !TRANSMISSIVE_HPP
