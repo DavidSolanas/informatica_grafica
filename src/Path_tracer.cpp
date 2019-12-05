@@ -51,7 +51,7 @@ RGB trace_path(const World &w, Ray &ray, const int depth)
 
     obj->get_material()->get_outgoing_sample_ray(ray, hit_normal, new_ray, p);
 
-    RGB brdf = obj->get_material()->get_albedo(ray, hit_normal, hit);
+    RGB brdf = obj->get_material()->get_fr(ray, hit_normal, new_ray);
     float cos_th = std::max(0.0f, dot(new_ray.get_direction(), hit_normal));
 
     //Direct light contribution SOLO DE LAS PUNTUALES (omitir por ahora)

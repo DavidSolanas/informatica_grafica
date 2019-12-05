@@ -37,6 +37,10 @@ RGB Transmissive::get_perfect_refractive() const
     return kpr;
 }
 
+RGB Transmissive::get_fr(const Ray &ri, const Direction &n, const Ray &ro) const
+{
+}
+
 bool Transmissive::is_delta() const
 {
     return true;

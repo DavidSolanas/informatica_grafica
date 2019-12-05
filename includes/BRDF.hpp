@@ -50,6 +50,8 @@ public:
     virtual RGB get_perfect_specular() const = 0;
     // Returns the perfect refractive coefficient
     virtual RGB get_perfect_refractive() const = 0;
+    // Returns the function fr for the point X and directions wi, wo
+    virtual RGB get_fr(const Ray &ri, const Direction &n, const Ray &ro) const = 0;
 
     virtual bool is_delta() const = 0;
 };

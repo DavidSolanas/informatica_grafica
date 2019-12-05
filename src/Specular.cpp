@@ -36,6 +36,10 @@ RGB Specular::get_perfect_refractive() const
     return kpr;
 }
 
+RGB Specular::get_fr(const Ray &ri, const Direction &n, const Ray &ro) const
+{
+}
+
 bool Specular::is_delta() const
 {
     return true;

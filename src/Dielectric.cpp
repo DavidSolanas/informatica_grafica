@@ -36,6 +36,10 @@ RGB Dielectric::get_perfect_refractive() const
     return kpr;
 }
 
+RGB Dielectric::get_fr(const Ray &ri, const Direction &n, const Ray &ro) const
+{
+}
+
 bool Dielectric::is_delta() const
 {
     return false;

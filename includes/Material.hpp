@@ -1,21 +1,19 @@
 /****************************************+
- * Fichero: Phong.hpp
+ * Fichero: Material.hpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 
-#ifndef PHONG_HPP
-#define PHONG_HPP
+#ifndef MATERIAL_HPP
+#define MATERIAL_HPP
 
 #include "BRDF.hpp"
 
-class Phong : public BRDF
+class Material : public BRDF
 {
 private:
-    const float shininess;
-
 public:
-    Phong(const RGB &_kd, const RGB &_ks, const float shiny);
-    ~Phong() {}
+    Material(const RGB &_kd, const RGB &_ks, const RGB &_kps, const RGB &_kpr);
+    ~Material() {}
     void get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro, float &pdf) const override;
     RGB get_difusse() const override;
     RGB get_specular() const override;
@@ -25,4 +23,4 @@ public:
     bool is_delta() const override;
 };
 
-#endif // !PHONG_HPP
+#endif // !Material_HPP

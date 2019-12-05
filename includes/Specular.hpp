@@ -19,6 +19,7 @@ public:
     RGB get_specular() const override;
     RGB get_perfect_specular() const override;
     RGB get_perfect_refractive() const override;
+    RGB get_fr(const Ray &ri, const Direction &n, const Ray &ro) const override;
     bool is_delta() const override;
 };
 

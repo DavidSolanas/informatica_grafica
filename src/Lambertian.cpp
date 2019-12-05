@@ -16,7 +16,7 @@ Direction RandomUnitVectorInHemisphereOf(const Direction &n, const Point &p)
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(-1.f, 1.f);
     Matrix_Transformation T(n, p);
-    float x = dist(mt), y = fabs(dist(mt)), z = dist(mt);
+    float x = dist(mt), y = dist(mt), z = fabs(dist(mt));
     Direction _n(x, y, z);
     return normalize(T.inverse() * _n);
 }
@@ -46,6 +46,11 @@ RGB Lambertian::get_perfect_specular() const
 RGB Lambertian::get_perfect_refractive() const
 {
     return kpr;
+}
+
+RGB Lambertian::get_fr(const Ray &ri, const Direction &n, const Ray &ro) const
+{
+    return kd / M_PI;
 }
 
 bool Lambertian::is_delta() const

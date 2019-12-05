@@ -10,12 +10,14 @@
 #include "Cone.hpp"
 #include <cmath>
 #include "Lambertian.hpp"
+#include "Phong.hpp"
 
 //Some lambertian colors
 BRDF *white = new Lambertian(RGB(.85, .85, .85));
 BRDF *red = new Lambertian(RGB(.85, .085, .085));
 BRDF *green = new Lambertian(RGB(.085, .85, .085));
 BRDF *orange = new Lambertian(RGB(.85, .6, .0));
+BRDF *orange_phong = new Phong(RGB(.425, .3, .0), RGB(0.45, 0.20, .0), 25.0f);
 
 Camera::Camera(const Direction &_f, const Direction &_u, const Direction &_l, const Point &_o)
 {
@@ -513,7 +515,7 @@ std::vector<Object *> cornell_box(Camera c, const int W, const int H)
     objects.push_back(new Sphere(
         Point(W / 2 - 200, 75, c.f.mod() + 1250), Direction(0, 150, 0),
         Point(W / 2 - 125, 75, c.f.mod() + 1250),
-        orange));
+        orange_phong));
 
     // Esfera
     objects.push_back(new Sphere(
