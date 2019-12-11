@@ -14,9 +14,9 @@
  * tiene un centro (Punto), un eje (Dirección) y
  * una ciudad de referencia (Punto)
  */
-class Sphere : public Geometry
+class Sphere : public Object
 {
-private:
+public:
     /**
      * Centro del Spherea
      */
@@ -30,9 +30,9 @@ private:
      */
     Point city;
 
-public:
     Sphere();
-    Sphere(const Point &center, const Direction &axis, const Point &city);
+    Sphere(const Point &center, const Direction &axis, const Point &city,
+           BRDF *mat);
     Sphere &operator=(const Sphere &p);
     Point getCenter();
     Direction getAxis();
@@ -40,7 +40,8 @@ public:
     float getRadius();
     const float getAzimuth() const;
     Direction getNormal(Point X) override;
-    bool intersect(const Point &p, const Direction &D, float &t) override;
+    bool intersect(Ray &ray) override;
+    float get_area() override;
     void get_uv(const Direction &n, float &u, float &v);
 };
 

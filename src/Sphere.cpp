@@ -10,10 +10,11 @@
 
 Sphere::Sphere() {}
 
-Sphere::Sphere(const Point &center, const Direction &axis, const Point &city)
+Sphere::Sphere(const Point &center, const Direction &axis, const Point &city,
+               BRDF *mat) : Object(mat)
 {
     float radius = axis.mod() / 2;
-    bool correct = abs((city - center).mod() - radius) <= 1e-6;
+    bool correct = fabs((city - center).mod() - radius) <= 1e-6;
     if (correct)
     {
         this->center = center;
@@ -56,16 +57,15 @@ float Sphere::getRadius()
 
 const float Sphere::getAzimuth() const
 {
-    std::array<float, 4> c = city.getCoord();
-    float x = c[0];
-    float z = c[2];
+    float x = city.x;
+    float z = city.z;
     return atanf(x / -z);
 }
 
 void Sphere::get_uv(const Direction &n, float &u, float &v)
 {
-    u = atan2(n.getCoord()[0], n.getCoord()[2]) / (2 * M_PI) + 0.5;
-    v = 0.5 - asin(n.getCoord()[1]) / M_PI;
+    u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
+    v = 0.5 - asin(n.y) / M_PI;
 }
 
 SphereGeometry::SphereGeometry(const float &inc, const float &az, const Sphere &p)
@@ -126,13 +126,11 @@ Direction SphereGeometry::getLatitudeTD()
  */
 Point getSurfacePoint(Sphere p, const float az, const float inc)
 {
-    //origin
-    std::array<float, 4> o = p.getCenter().getCoord();
     //radius
     float r = p.getRadius();
-    float x = o[0] + r * sin(az) * sin(inc);
-    float y = o[1] + r * cos(inc);
-    float z = o[2] + r * -cos(az) * sin(inc);
+    float x = p.center.x + r * sin(az) * sin(inc);
+    float y = p.center.y + r * cos(inc);
+    float z = p.center.z + r * -cos(az) * sin(inc);
     return Point(x, y, z);
 }
 
@@ -147,11 +145,11 @@ Direction Sphere::getNormal(Point X)
 	(o + td - c) · (o + td - c) - r² = 0 =>
 	t²(D·D) + 2t(d · (o - c)) + (o - c) · (o - c) - r² = 0
  */
-bool Sphere::intersect(const Point &p, const Direction &D, float &t)
+bool Sphere::intersect(Ray &ray)
 {
-    Direction L = p - center;
-    float a = dot(D, D);
-    float b = 2 * dot(D, L);
+    Direction L = ray.get_origin() - center;
+    float a = dot(ray.get_direction(), ray.get_direction());
+    float b = 2 * dot(ray.get_direction(), L);
     float c = dot(L, L) - (this->getRadius() * this->getRadius());
     float d = (b * b) - (4 * a * c);
     if (d < 0)
@@ -159,11 +157,18 @@ bool Sphere::intersect(const Point &p, const Direction &D, float &t)
 
     float x1 = (-b + sqrt(d)) / (2 * a);
     float x2 = (-b - sqrt(d)) / (2 * a);
+    float t = 0;
     if (x1 > x2)
         t = x2;
     if (t < 0)
         t = x1;
     if (t < 0)
         return false;
+    ray.set_parameter(t);
     return true;
+}
+
+float Sphere::get_area()
+{
+    return 4 * M_PI * getRadius() * getRadius();
 }

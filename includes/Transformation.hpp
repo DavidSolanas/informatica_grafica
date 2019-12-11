@@ -7,13 +7,13 @@
 #define TRANSFORM_HPP
 
 #include "Geometry.hpp"
+#include <array>
 
 class Matrix_Transformation
 {
-private:
+public:
     std::array<std::array<float, 4>, 4> M;
 
-public:
     /**
      * Constructor para una matriz de traslacion (op = 0) o
      * de escalado (op = 1)
@@ -32,7 +32,7 @@ public:
     /**
      * Constructor para una matriz de cambio de base
      */
-    Matrix_Transformation(const Direction &n);
+    Matrix_Transformation(const Direction &n, const Point &p);
     /**
      * Constructor para una matriz dados los valores de la matriz
      */

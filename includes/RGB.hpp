@@ -9,18 +9,22 @@
 
 class RGB
 {
-private:
+public:
     float r, g, b;
 
-public:
     RGB();
     RGB(float r, float g, float b);
-    void setR(float r);
-    void setG(float g);
-    void setB(float b);
-    float getR();
-    float getG();
-    float getB();
+    void set_r(float r);
+    void set_g(float g);
+    void set_b(float b);
+    float get_r();
+    float get_g();
+    float get_b();
+    const RGB operator*(const float f) const;
+    const RGB operator*(const RGB &c) const;
+    const RGB operator/(const float f) const;
+    const RGB operator+(const float f) const;
+    const RGB operator+(const RGB &c) const;
 };
 
 #endif

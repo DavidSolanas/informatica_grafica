@@ -8,17 +8,16 @@
 
 #include "Geometry.hpp"
 
-class Cone : public Geometry
+class Cone : public Object
 {
-private:
+public:
     float theta;
     Point vertex;
     float h;
     float r;
 
-public:
     Cone();
-    Cone(const Point &p, float h, float r);
+    Cone(const Point &p, float h, float r, BRDF *mat);
     ~Cone();
     float getAngle();
     float getHeight();
@@ -26,7 +25,8 @@ public:
     Point getVertex();
     float get_vertex_Y_coord();
     Direction getNormal(Point X) override;
-    bool intersect(const Point &p, const Direction &D, float &t) override;
+    bool intersect(Ray &ray) override;
+    float get_area() override;
     void get_uv(const Direction &n, const float h, float &u, float &v);
 };
 

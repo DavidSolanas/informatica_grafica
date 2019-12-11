@@ -14,32 +14,57 @@ RGB::RGB(float rv, float gv, float bv) : r(rv), g(gv), b(bv)
 {
 }
 
-void RGB::setR(float r)
+void RGB::set_r(float r)
 {
     this->r = r;
 }
 
-void RGB::setG(float g)
+void RGB::set_g(float g)
 {
     this->g = g;
 }
 
-void RGB::setB(float b)
+void RGB::set_b(float b)
 {
     this->b = b;
 }
 
-float RGB::getR()
+float RGB::get_r()
 {
     return this->r;
 }
 
-float RGB::getG()
+float RGB::get_g()
 {
     return this->g;
 }
 
-float RGB::getB()
+float RGB::get_b()
 {
     return this->b;
+}
+
+const RGB RGB::operator*(const float f) const
+{
+    return RGB(this->r * f, this->g * f, this->b * f);
+}
+
+const RGB RGB::operator*(const RGB &c) const
+{
+    return RGB(this->r * c.r, this->g * c.g, this->b * c.b);
+}
+
+const RGB RGB::operator/(const float f) const
+{
+    return RGB(this->r / f, this->g / f, this->b / f);
+}
+
+const RGB RGB::operator+(const RGB &c) const
+{
+    return RGB(this->r + c.r, this->g + c.g, this->b + c.b);
+}
+
+const RGB RGB::operator+(const float f) const
+{
+    return RGB(this->r + f, this->g + f, this->b + f);
 }

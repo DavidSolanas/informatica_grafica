@@ -8,6 +8,16 @@
 #include "Sphere.hpp"
 #include "Cylinder.hpp"
 #include "Cone.hpp"
+#include <cmath>
+#include "Lambertian.hpp"
+#include "Phong.hpp"
+
+//Some lambertian colors
+BRDF *white = new Lambertian(RGB(.85, .85, .85));
+BRDF *red = new Lambertian(RGB(.85, .085, .085));
+BRDF *green = new Lambertian(RGB(.085, .85, .085));
+BRDF *orange = new Lambertian(RGB(.85, .6, .0));
+BRDF *orange_phong = new Phong(RGB(.425, .3, .0), RGB(0.45, 0.20, .0), 25.0f);
 
 Camera::Camera(const Direction &_f, const Direction &_u, const Direction &_l, const Point &_o)
 {
@@ -21,297 +31,497 @@ Camera::Camera(const Point &_o, const Direction &_f)
 {
 }
 
-Direction Camera::getF()
+Direction Camera::get_f()
 {
     return this->f;
 }
 
-Direction Camera::getU()
+Direction Camera::get_u()
 {
     return this->u;
 }
 
-Direction Camera::getL()
+Direction Camera::get_l()
 {
     return this->l;
 }
 
-Point Camera::getO()
+Point Camera::get_o()
 {
     return this->o;
 }
 
-std::array<std::unique_ptr<Geometry>, 17> scene1(Camera c, const int W, const int H)
+World::World()
 {
-    std::array<std::unique_ptr<Geometry>, 17> geometry;
+}
+
+/// Set & get background color.
+void World::set_background(const RGB bkg)
+{
+    this->background = bkg;
+}
+
+RGB World::get_background() const
+{
+    return this->background;
+}
+
+/// Add a light source to our World
+void World::add_light(Light *ls)
+{
+    this->light_list.push_back(ls);
+}
+
+Light *World::light(const int idx) const
+{
+    return this->light_list[idx];
+}
+
+int World::n_lights() const
+{
+    return this->light_list.size();
+}
+
+/// Add an object to our world
+void World::add_object(Object *o3d)
+{
+    this->object_list.push_back(o3d);
+}
+
+void World::add_objects(std::vector<Object *> &o3ds)
+{
+    this->object_list = o3ds;
+}
+
+/// Return the object that first intersects `ray'
+Object *World::first_intersection(Ray &ray) const
+{
+    int closest_idx = -1;
+    float tmin = INFINITY;
+
+    for (int j = 0; j < object_list.size(); j++)
+    {
+        if (object_list[j]->intersect(ray))
+        {
+            if (ray.get_parameter() > 0 && ray.get_parameter() < tmin)
+            {
+                closest_idx = j;
+                tmin = ray.get_parameter();
+            }
+        }
+    }
+    if (closest_idx == -1)
+    {
+        return nullptr;
+    }
+    //Ha habido intersección
+    ray.set_parameter(tmin);
+    return object_list[closest_idx];
+}
+
+/// Return the total ammount of light incoming the point from the light sources
+RGB World::get_incoming_light(const Point &X, const Direction &hit_normal) const
+{
+    RGB Ld(0.0f, 0.0f, 0.0f);
+    for (Light *light : light_list)
+    {
+        Ld = Ld + light->get_incoming_light(X, hit_normal);
+    }
+    return Ld;
+}
+
+/// Return the light that first intersects `ray'
+Light *World::first_light_intersection(Ray &ray) const
+{
+    int closest_idx = -1;
+    float tmin = INFINITY;
+
+    for (int j = 0; j < light_list.size(); j++)
+    {
+        // Si obj es nullptr se trata de una luz puntual, no intersecta
+        Object *obj = light_list[j]->get_object();
+        if (obj != nullptr && obj->intersect(ray))
+        {
+            if (ray.get_parameter() > 0 && ray.get_parameter() < tmin)
+            {
+                closest_idx = j;
+                tmin = ray.get_parameter();
+            }
+        }
+    }
+    if (closest_idx == -1)
+    {
+        return nullptr;
+    }
+    //Ha habido intersección
+    ray.set_parameter(tmin);
+    return light_list[closest_idx];
+}
+
+std::vector<Object *> scene1(Camera c, const int W, const int H)
+{
+    std::vector<Object *> geometry;
     float split = W / 5;
     for (int i = 0; i < 5; i++)
     {
-        geometry[i] = std::unique_ptr<Geometry>(new Sphere(Point((i + 1) * split - (split / 2), (H / 2 - 200) + i * 75, c.getF().mod() + i * 100), Direction(0, 200, 0),
-                                                           Point((i + 1) * split - (split / 2) + 100, (H / 2 - 200) + i * 75, c.getF().mod() + i * 100)));
+        geometry.push_back(new Sphere(Point((i + 1) * split - (split / 2), (H / 2 - 200) + i * 75, c.f.mod() + i * 100), Direction(0, 200, 0),
+                                      Point((i + 1) * split - (split / 2) + 100, (H / 2 - 200) + i * 75, c.f.mod() + i * 100),
+                                      white));
     }
-    geometry[5] = std::unique_ptr<Geometry>(new Plane(Direction(0, 1, 0), Point(W / 2, c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
-    geometry[8] = std::unique_ptr<Geometry>(new Plane(Direction(0, -1, 0), Point(W / 2, c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod())));
-    geometry[6] = std::unique_ptr<Geometry>(new Plane(Direction(1, 0, 0), Point(c.getO().getCoord()[0] - c.getL().mod(), H / 2, c.getF().mod())));
-    geometry[7] = std::unique_ptr<Geometry>(new Plane(Direction(-1, 0, 0), Point(c.getO().getCoord()[0] + c.getL().mod(), H / 2, c.getF().mod())));
-    geometry[9] = std::unique_ptr<Geometry>(new Plane(Direction(0, 0, -1), Point(W / 2, H / 2, c.getF().mod() + 750)));
+    geometry.push_back(new Plane(Direction(0, 1, 0), Point(W / 2, c.o.y - c.u.mod(), c.f.mod()), white));
+    geometry.push_back(new Plane(Direction(0, -1, 0), Point(W / 2, c.o.y + c.u.mod(), c.f.mod()), white));
+    geometry.push_back(new Plane(Direction(1, 0, 0), Point(c.o.x - c.l.mod(), H / 2, c.f.mod()), white));
+    geometry.push_back(new Plane(Direction(-1, 0, 0), Point(c.o.x + c.l.mod(), H / 2, c.f.mod()), white));
+    geometry.push_back(new Plane(Direction(0, 0, -1), Point(W / 2, H / 2, c.f.mod() + 750), white));
     // CARA FRONTAL
-    geometry[10] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(500, H - 100, c.getF().mod() + 300),
-        Point(800, H - 100, c.getF().mod() + 300),
-        Point(800, H - 300, c.getF().mod() + 300),
-        Point(500, H - 300, c.getF().mod() + 300)));
+    geometry.push_back(new BoundedPlane(
+        Point(500, H - 100, c.f.mod() + 300),
+        Point(800, H - 100, c.f.mod() + 300),
+        Point(800, H - 300, c.f.mod() + 300),
+        Point(500, H - 300, c.f.mod() + 300),
+        white));
 
     // CARA DERECHA
-    geometry[11] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(800, H - 100, c.getF().mod() + 300),
-        Point(900, H - 100, c.getF().mod() + 400),
-        Point(900, H - 300, c.getF().mod() + 400),
-        Point(800, H - 300, c.getF().mod() + 300)));
+    geometry.push_back(new BoundedPlane(
+        Point(800, H - 100, c.f.mod() + 300),
+        Point(900, H - 100, c.f.mod() + 400),
+        Point(900, H - 300, c.f.mod() + 400),
+        Point(800, H - 300, c.f.mod() + 300),
+        white));
     //CARA IZQUIERDA
-    geometry[12] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(500, H - 100, c.getF().mod() + 300),
-        Point(600, H - 100, c.getF().mod() + 400),
-        Point(600, H - 300, c.getF().mod() + 400),
-        Point(500, H - 300, c.getF().mod() + 300)));
+    geometry.push_back(new BoundedPlane(
+        Point(500, H - 100, c.f.mod() + 300),
+        Point(600, H - 100, c.f.mod() + 400),
+        Point(600, H - 300, c.f.mod() + 400),
+        Point(500, H - 300, c.f.mod() + 300),
+        white));
     //CARA TRASERA
-    geometry[13] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(600, H - 100, c.getF().mod() + 400),
-        Point(900, H - 100, c.getF().mod() + 400),
-        Point(900, H - 300, c.getF().mod() + 400),
-        Point(600, H - 300, c.getF().mod() + 400)));
+    geometry.push_back(new BoundedPlane(
+        Point(600, H - 100, c.f.mod() + 400),
+        Point(900, H - 100, c.f.mod() + 400),
+        Point(900, H - 300, c.f.mod() + 400),
+        Point(600, H - 300, c.f.mod() + 400),
+        white));
     // CARA SUPERIOR
-    geometry[14] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(500, H - 100, c.getF().mod() + 300),
-        Point(600, H - 100, c.getF().mod() + 400),
-        Point(900, H - 100, c.getF().mod() + 400),
-        Point(800, H - 100, c.getF().mod() + 300)));
+    geometry.push_back(new BoundedPlane(
+        Point(500, H - 100, c.f.mod() + 300),
+        Point(600, H - 100, c.f.mod() + 400),
+        Point(900, H - 100, c.f.mod() + 400),
+        Point(800, H - 100, c.f.mod() + 300),
+        white));
     //CARA INFERIOR
-    geometry[15] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(500, H - 300, c.getF().mod() + 300),
-        Point(600, H - 300, c.getF().mod() + 400),
-        Point(900, H - 300, c.getF().mod() + 400),
-        Point(800, H - 300, c.getF().mod() + 300)));
+    geometry.push_back(new BoundedPlane(
+        Point(500, H - 300, c.f.mod() + 300),
+        Point(600, H - 300, c.f.mod() + 400),
+        Point(900, H - 300, c.f.mod() + 400),
+        Point(800, H - 300, c.f.mod() + 300),
+        white));
 
-    geometry[16] = std::unique_ptr<Geometry>(new Triangle(
-        Point(500, H - 100, c.getF().mod() + 299),
-        Point(800, H - 300, c.getF().mod() + 299),
-        Point(500, H - 300, c.getF().mod() + 299)));
+    geometry.push_back(new Triangle(
+        Point(500, H - 100, c.f.mod() + 299),
+        Point(800, H - 300, c.f.mod() + 299),
+        Point(500, H - 300, c.f.mod() + 299),
+        white));
     return geometry;
 }
 
-std::array<std::unique_ptr<Geometry>, 12> scene2(Camera c, const int W, const int H)
+std::vector<Object *> scene2(Camera c, const int W, const int H)
 {
-    std::array<std::unique_ptr<Geometry>, 12> geometry;
+    std::vector<Object *> geometry;
 
     //Pared IZQ
-    geometry[0] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod()),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod()),
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white));
 
     //Pared DCH
-    geometry[1] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), H, c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Fondo
-    geometry[2] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Superior
-    geometry[3] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Inferior
-    geometry[4] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white));
 
     //Lado IZQ
-    geometry[5] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(W / 2 - 50, H / 2 - 50, c.getF().mod()),
-        Point(W / 2 - 50, H / 2 - 50, c.getF().mod() + 100),
-        Point(W / 2 - 50, 0, c.getF().mod() + 100),
-        Point(W / 2 - 50, 0, c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(W / 2 - 50, H / 2 - 50, c.f.mod()),
+        Point(W / 2 - 50, H / 2 - 50, c.f.mod() + 100),
+        Point(W / 2 - 50, 0, c.f.mod() + 100),
+        Point(W / 2 - 50, 0, c.f.mod()),
+        white));
 
     //Lado DCH
-    geometry[6] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(W / 2 + 50, H / 2 - 50, c.getF().mod() + 100),
-        Point(W / 2 + 50, H / 2 - 50, c.getF().mod()),
-        Point(W / 2 + 50, 0, c.getF().mod()),
-        Point(W / 2 + 50, 0, c.getF().mod() + 100)));
+    geometry.push_back(new BoundedPlane(
+        Point(W / 2 + 50, H / 2 - 50, c.f.mod() + 100),
+        Point(W / 2 + 50, H / 2 - 50, c.f.mod()),
+        Point(W / 2 + 50, 0, c.f.mod()),
+        Point(W / 2 + 50, 0, c.f.mod() + 100),
+        white));
 
     //Lado Fondo
-    geometry[7] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(W / 2 - 50, H / 2 - 50, c.getF().mod() + 100),
-        Point(W / 2 + 50, H / 2 - 50, c.getF().mod() + 100),
-        Point(W / 2 + 50, 0, c.getF().mod() + 100),
-        Point(W / 2 - 50, 0, c.getF().mod() + 100)));
+    geometry.push_back(new BoundedPlane(
+        Point(W / 2 - 50, H / 2 - 50, c.f.mod() + 100),
+        Point(W / 2 + 50, H / 2 - 50, c.f.mod() + 100),
+        Point(W / 2 + 50, 0, c.f.mod() + 100),
+        Point(W / 2 - 50, 0, c.f.mod() + 100),
+        white));
 
     //Lado frontal
-    geometry[8] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(W / 2 - 50, H / 2 - 50, c.getF().mod()),
-        Point(W / 2 + 50, H / 2 - 50, c.getF().mod()),
-        Point(W / 2 + 50, 0, c.getF().mod()),
-        Point(W / 2 - 50, 0, c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(W / 2 - 50, H / 2 - 50, c.f.mod()),
+        Point(W / 2 + 50, H / 2 - 50, c.f.mod()),
+        Point(W / 2 + 50, 0, c.f.mod()),
+        Point(W / 2 - 50, 0, c.f.mod()),
+        white));
 
     //Lado Superior
-    geometry[9] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(W / 2 - 50, H / 2 - 50, c.getF().mod() + 100),
-        Point(W / 2 - 50, H / 2 - 50, c.getF().mod()),
-        Point(W / 2 + 50, H / 2 - 50, c.getF().mod()),
-        Point(W / 2 + 50, H / 2 - 50, c.getF().mod() + 100)));
+    geometry.push_back(new BoundedPlane(
+        Point(W / 2 - 50, H / 2 - 50, c.f.mod() + 100),
+        Point(W / 2 - 50, H / 2 - 50, c.f.mod()),
+        Point(W / 2 + 50, H / 2 - 50, c.f.mod()),
+        Point(W / 2 + 50, H / 2 - 50, c.f.mod() + 100),
+        white));
 
     //Lado Inferior
-    geometry[10] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(W / 2 - 50, 0, c.getF().mod()),
-        Point(W / 2 - 50, 0, c.getF().mod() + 100),
-        Point(W / 2 + 50, 0, c.getF().mod() + 100),
-        Point(W / 2 + 50, 0, c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(W / 2 - 50, 0, c.f.mod()),
+        Point(W / 2 - 50, 0, c.f.mod() + 100),
+        Point(W / 2 + 50, 0, c.f.mod() + 100),
+        Point(W / 2 + 50, 0, c.f.mod()),
+        white));
 
     // Esfera
-    geometry[11] = std::unique_ptr<Geometry>(new Sphere(
-        Point(W / 2, H / 2, c.getF().mod() + 50), Direction(0, 100, 0),
-        Point(W / 2 - 50, H / 2, c.getF().mod() + 50)));
+    geometry.push_back(new Sphere(
+        Point(W / 2, H / 2, c.f.mod() + 50), Direction(0, 100, 0),
+        Point(W / 2 - 50, H / 2, c.f.mod() + 50),
+        white));
 
     return geometry;
 }
 
-std::array<std::unique_ptr<Geometry>, 7> scene3(Camera c, const int W, const int H)
+std::vector<Object *> scene3(Camera c, const int W, const int H)
 {
-    std::array<std::unique_ptr<Geometry>, 7> geometry;
+    std::vector<Object *> geometry;
 
     //Pared IZQ
-    geometry[0] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod()),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod()),
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white));
 
     //Pared DCH
-    geometry[1] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), H, c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Fondo
-    geometry[2] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Superior
-    geometry[3] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Inferior
-    geometry[4] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white));
 
     //Cilindro
-    geometry[5] = std::unique_ptr<Geometry>(new Cylinder(
-        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.getF().mod() + 50), 50),
-        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.getF().mod() + 50), 50),
-        50, H / 2 - 50));
+    geometry.push_back(new Cylinder(
+        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 50), 50, white),
+        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 50), 50, white),
+        50, H / 2 - 50,
+        white));
 
     // Esfera
-    geometry[6] = std::unique_ptr<Geometry>(new Sphere(
-        Point(W / 2, H / 2, c.getF().mod() + 50), Direction(0, 100, 0),
-        Point(W / 2 - 50, H / 2, c.getF().mod() + 50)));
+    geometry.push_back(new Sphere(
+        Point(W / 2, H / 2, c.f.mod() + 50), Direction(0, 100, 0),
+        Point(W / 2 - 50, H / 2, c.f.mod() + 50),
+        white));
 
     return geometry;
 }
 
-std::array<std::unique_ptr<Geometry>, 1> scene4(Camera c, const int W, const int H)
+std::vector<Object *> scene4(Camera c, const int W, const int H)
 {
-    std::array<std::unique_ptr<Geometry>, 1> geometry;
+    std::vector<Object *> geometry;
     // Esfera
-    geometry[0] = std::unique_ptr<Geometry>(new Sphere(
-        Point(W / 2, H / 2, c.getF().mod()), Direction(0, 200, 0),
-        Point(W / 2 - 100, H / 2, c.getF().mod())));
+    geometry.push_back(new Sphere(
+        Point(W / 2, H / 2, c.f.mod()), Direction(0, 200, 0),
+        Point(W / 2 - 100, H / 2, c.f.mod()),
+        white));
 
     return geometry;
 }
 
-std::array<std::unique_ptr<Geometry>, 9> scene5(Camera c, const int W, const int H)
+std::vector<Object *> scene5(Camera c, const int W, const int H)
 {
-    std::array<std::unique_ptr<Geometry>, 9> geometry;
+    std::vector<Object *> geometry;
 
     //Pared IZQ
-    geometry[0] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod()),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod()),
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white));
 
     //Pared DCH
-    geometry[1] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), H, c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Fondo
-    geometry[2] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), H, c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Superior
-    geometry[3] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] + c.getU().mod(), c.getF().mod() + 750)));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 750),
+        white));
 
     //Pared Inferior
-    geometry[4] = std::unique_ptr<Geometry>(new BoundedPlane(
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod()),
-        Point(c.getO().getCoord()[0] - c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod() + 750),
-        Point(c.getO().getCoord()[0] + c.getL().mod(), c.getO().getCoord()[1] - c.getU().mod(), c.getF().mod())));
+    geometry.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white));
 
     //Cilindro
-    geometry[5] = std::unique_ptr<Geometry>(new Cylinder(
-        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.getF().mod() + 50), 50),
-        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.getF().mod() + 50), 50),
-        50, H / 2 - 50));
+    geometry.push_back(new Cylinder(
+        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 50), 50, white),
+        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 50), 50, white),
+        50, H / 2 - 50, white));
 
     // Esfera
-    geometry[6] = std::unique_ptr<Geometry>(new Sphere(
-        Point(W / 2, H / 2, c.getF().mod() + 50), Direction(0, 100, 0),
-        Point(W / 2 - 50, H / 2, c.getF().mod() + 50)));
+    geometry.push_back(new Sphere(
+        Point(W / 2, H / 2, c.f.mod() + 50), Direction(0, 100, 0),
+        Point(W / 2 - 50, H / 2, c.f.mod() + 50),
+        white));
 
     // Cono
-    geometry[7] = std::unique_ptr<Geometry>(new Cone(
-        Point(W / 2 - 500, H / 2 - 200, c.getF().mod() + 400),
-        300, 150));
+    geometry.push_back(new Cone(
+        Point(W / 2 - 500, H / 2 - 200, c.f.mod() + 400),
+        300, 150, white));
 
-    geometry[8] = std::unique_ptr<Geometry>(new Disk(
+    geometry.push_back(new Disk(
         Direction(0, 0, -1),
-        Point(W / 2 + 500, H / 2 - 200, c.getF().mod() + 400),
-        55.5f));
+        Point(W / 2 + 500, H / 2 - 200, c.f.mod() + 400),
+        55.5f, white));
 
     return geometry;
+}
+
+std::vector<Object *> cornell_box(Camera c, const int W, const int H)
+{
+    std::vector<Object *> objects;
+
+    //Pared IZQ
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod()),
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        red));
+
+    //Pared DCH
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), H, c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        green));
+
+    //Pared Fondo
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        white));
+
+    //Pared Superior
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
+        white));
+
+    //Pared Inferior
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white));
+
+    // Esfera
+    objects.push_back(new Sphere(
+        Point(W / 2 - 200, 75, c.f.mod() + 1250), Direction(0, 150, 0),
+        Point(W / 2 - 125, 75, c.f.mod() + 1250),
+        orange_phong));
+
+    // Esfera
+    objects.push_back(new Sphere(
+        Point(W / 2 + 200, 75, c.f.mod() + 500), Direction(0, 150, 0),
+        Point(W / 2 + 125, 75, c.f.mod() + 500),
+        orange));
+
+    return objects;
 }
