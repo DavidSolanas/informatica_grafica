@@ -121,13 +121,13 @@ Matrix_Transformation::Matrix_Transformation(const Direction &n, const Point &p)
     M[1][0] = x.y;
     M[2][0] = x.z;
 
-    M[0][1] = y.x;
-    M[1][1] = y.y;
-    M[2][1] = y.z;
+    M[0][1] = n.x;
+    M[1][1] = n.y;
+    M[2][1] = n.z;
 
-    M[0][2] = n.x;
-    M[1][2] = n.y;
-    M[2][2] = n.z;
+    M[0][2] = y.x;
+    M[1][2] = y.y;
+    M[2][2] = y.z;
 
     M[0][3] = p.x;
     M[1][3] = p.y;

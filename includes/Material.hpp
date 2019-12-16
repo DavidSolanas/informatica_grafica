@@ -11,10 +11,13 @@
 class Material : public BRDF
 {
 private:
+    const float shininess;
+    float idx_of_refraction;
+
 public:
-    Material(const RGB &_kd, const RGB &_ks, const RGB &_kps, const RGB &_kpr);
+    Material(const RGB &_kd, const RGB &_ks, const RGB &_kps, const RGB &_kpr, const float sh, const float ior);
     ~Material() {}
-    void get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro, float &pdf) const override;
+    RGB get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro) const override;
     RGB get_difusse() const override;
     RGB get_specular() const override;
     RGB get_perfect_specular() const override;

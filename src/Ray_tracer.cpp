@@ -73,10 +73,10 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
                         float Li = power / ((light.p - X).mod() * (light.p - X).mod());
                         Direction normal = geometry[i]->getNormal(X);
                         Direction wi = normalize(light.p - X);
-                        Direction wo = normalize(c.o - X);
-                        float kd = i == 5 ? 0.9f : 0.6f;
-                        float ks = i == 5 ? 0.05f : 0.25f;
-                        float brdf = phong_BRDF(kd, ks, 10, normal, wi, wo);
+                        //Direction wo = normalize(c.o - X);
+                        //float kd = i == 5 ? 0.9f : 0.6f;
+                        //float ks = i == 5 ? 0.05f : 0.25f;
+                        float brdf = 0;
                         float g = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
                         Lo += Li * brdf * g;
                     }

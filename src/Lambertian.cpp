@@ -9,23 +9,25 @@
 
 Lambertian::Lambertian(const RGB &_kd) : BRDF(_kd, RGB(.0, .0, .0), RGB(.0, .0, .0), RGB(.0, .0, .0)) {}
 
-Direction RandomUnitVectorInHemisphereOf(const Direction &n, const Point &p)
-{
-    //Cambio de coordenadas locales
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_real_distribution<float> dist(-1.f, 1.f);
-    Matrix_Transformation T(n, p);
-    float x = dist(mt), y = dist(mt), z = fabs(dist(mt));
-    Direction _n(x, y, z);
-    return normalize(T.inverse() * _n);
-}
-
-void Lambertian::get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro, float &pdf) const
+RGB Lambertian::get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro) const
 {
     ro.set_origin(ri.get_position());
-    ro.set_direction(RandomUnitVectorInHemisphereOf(n, ro.get_origin()));
     ro.set_parameter(INFINITY);
+
+    // Calcular probabilidades y normalizarlas
+    float pkd = kd.max();
+    float err = get_random_value(0.0f, 1.0f);
+    if (err < pkd)
+    {
+        //Difuso
+        ro.set_direction(get_cosine_ray(n, ro.get_origin()));
+        return kd / pkd;
+    }
+    else
+    {
+        //MATAR RAYO
+        return RGB(-1, -1, -1);
+    }
 }
 
 RGB Lambertian::get_difusse() const

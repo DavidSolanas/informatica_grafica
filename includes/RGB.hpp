@@ -17,14 +17,16 @@ public:
     void set_r(float r);
     void set_g(float g);
     void set_b(float b);
-    float get_r();
-    float get_g();
-    float get_b();
+    float get_r() const;
+    float get_g() const;
+    float get_b() const;
+    float max() const;
     const RGB operator*(const float f) const;
     const RGB operator*(const RGB &c) const;
     const RGB operator/(const float f) const;
     const RGB operator+(const float f) const;
     const RGB operator+(const RGB &c) const;
+    const bool operator==(const float v) const;
 };
 
 #endif
