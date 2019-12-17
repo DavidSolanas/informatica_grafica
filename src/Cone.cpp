@@ -2,7 +2,7 @@
  * Fichero: Cone.cpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
-
+#define _USE_MATH_DEFINES
 #include "Cone.hpp"
 #include <cmath>
 #include <iostream>

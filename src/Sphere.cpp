@@ -2,7 +2,7 @@
  * Fichero: Spheres.cpp
  * Autor: David Solanas
  *****************************************/
-
+#define _USE_MATH_DEFINES
 #include "Sphere.hpp"
 #include <iostream>
 #include <cmath>

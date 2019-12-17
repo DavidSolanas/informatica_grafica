@@ -25,10 +25,10 @@ void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
 				std::random_device& rd, std::mt19937& mt, std::uniform_real_distribution<float> dist, Semaphore& s0,Semaphore& s1, int id){
 
     std::vector<std::vector<RGB>> data = load_texture("C:\\Users\\santi\\Desktop\\earthmap1k.ppm");
-	std::array<std::unique_ptr<Geometry>, 7> geometry = scene3(c, W, H);
+	std::vector<Object *> geometry = scene3(c, W, H);
 
 	float power = 3600000;
-    PointLight light(Point(W / 2, H - 200, c.getF().mod() - 500), power, RGB(255, 255, 255));
+    PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), power, RGB(255, 255, 255));
 
 
 	for (int y = finY; y > inicioY; y=y-1)
@@ -38,32 +38,34 @@ void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
 			float Lo = 0;
 			int i;
 			Point X;
-			for (int k = 0; k < n_ray; k++)
+			for (int k = 0; k < n_ray; k++) //Para cada rayo
 			{
 				i = -1;
 				float xrand = dist(mt), yrand = dist(mt);
-				Point pixel(x + xrand, y + yrand, c.getF().mod());
-				Direction d_ray = normalize(pixel - c.getO()); 	//Rayo que va de la camara al pixel
-				float t, tmin = INFINITY;
-				for (int j = 0; j < geometry.size(); j++) //Para todos los elementos de la escena
+				Point pixel(x + xrand, y + yrand, c.f.mod());
+				Direction d_ray = normalize(pixel - c.o);
+				Ray ray(c.o, d_ray);
+				float tmin = INFINITY;
+				for (int j = 0; j < geometry.size(); j++)
 				{
-					if (geometry[j]->intersect(c.getO(), d_ray, t))
+					if (geometry[j]->intersect(ray))
 					{
-						if (t > 0 && t < tmin)
+						if (ray.get_parameter() > 0 && ray.get_parameter() < tmin)
 						{
-							tmin = t;
+							tmin = ray.get_parameter();
 							i = j;
 						}
 					}
 				}
 				if (i != -1)
 				{
+					ray.set_parameter(tmin);
 					// Calcular luz puntual
-					X = c.getO() + (d_ray * tmin);
+					X = ray.get_position();
 					float Li = power / ((light.p - X).mod() * (light.p - X).mod());
 					Direction normal = geometry[i]->getNormal(X);
 					Direction wi = normalize(light.p - X);
-					Direction wo = normalize(c.getO() - X);
+					Direction wo = normalize(c.o - X);
 					float kd = i == 5 ? 0.9f : 0.6f;
 					float ks = i == 5 ? 0.05f : 0.25f;
 					float brdf = phong_BRDF(kd, ks, 10, normal, wi, wo);
@@ -84,75 +86,75 @@ void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
 				switch (i)
 				{
 				case 0:
-					color.setR(240);
-					color.setG(240);
-					color.setB(240);
+					color.r = 240;
+					color.g = 240;
+					color.b = 240;
 					break;
 				case 1:
-					color.setR(240);
-					color.setG(240);
-					color.setB(240);
+					color.r = 240;
+					color.g = 240;
+					color.b = 240;
 					break;
 				case 2:
-					bp = *reinterpret_cast<BoundedPlane *>((geometry[i].get()));
+					bp = *reinterpret_cast<BoundedPlane *>(geometry[i]);
 					bp.get_uv(X, u, v);
 					color = get_pixel(data, u, v);
 					break;
 				case 3:
-					color.setR(240);
-					color.setG(240);
-					color.setB(240);
+					color.r = 240;
+					color.g = 240;
+					color.b = 240;
 					break;
 				case 4:
-					color.setR(240);
-					color.setG(240);
-					color.setB(240);
+					color.r = 240;
+					color.g = 240;
+					color.b = 240;
 					break;
 				case 5:
 					normal = geometry[i]->getNormal(X);
-					cy = *reinterpret_cast<Cylinder *>((geometry[i].get()));
-					cy.get_uv(normal, X.getCoord()[1] - cy.get_base_Y_coord(), u, v);
+					cy = *reinterpret_cast<Cylinder *>(geometry[i]);
+					cy.get_uv(normal, X.y - cy.get_base_Y_coord(), u, v);
 					color = get_pixel(data, u, v);
 					break;
 				case 6:
-					s = *reinterpret_cast<Sphere *>((geometry[i].get()));
+					s = *reinterpret_cast<Sphere *>(geometry[i]);
 					normal = normalize(s.getCenter() - X);
 					s.get_uv(normal, u, v);
 					color = get_pixel(data, u, v);
 					break;
 				case 7:
 					normal = geometry[i]->getNormal(X);
-					cone = *reinterpret_cast<Cone *>((geometry[i].get()));
-					cone.get_uv(normal, cone.get_vertex_Y_coord() - X.getCoord()[1], u, v);
+					cone = *reinterpret_cast<Cone *>(geometry[i]);
+					cone.get_uv(normal, cone.get_vertex_Y_coord() - X.y, u, v);
 					color = get_pixel(data, u, v);
 					break;
 				case 8:
 				case 9:
 				case 10:
-					color.setR(93);
-					color.setG(173);
-					color.setB(164);
+					color.r = 93;
+					color.g = 173;
+					color.b = 164;
 					break;
 
 				case 11:
-					color.setR(255);
-					color.setG(143);
-					color.setB(0);
+					color.r = 255;
+					color.g = 143;
+					color.b = 0;
 					break;
 				case 14:
-					color.setR(0);
-					color.setG(255);
-					color.setB(0);
+					color.r = 0;
+					color.g = 255;
+					color.b = 0;
 					break;
 
 				default:
-					color.setR(141);
-					color.setG(141);
-					color.setB(141);
+					color.r = 141;
+					color.g = 141;
+					color.b = 141;
 					break;
 				}
 				Lo /= n_ray;
-
+				
 				if (id==0){
 					s0.wait();
 				}
@@ -160,9 +162,9 @@ void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
 					s1.wait();
 				}
 
-				_f << Lo * color.getR() << " "
-				   << Lo * color.getG() << " "
-				   << Lo * color.getB() << "\t";
+				_f << Lo * color.r << " "
+				   << Lo * color.g << " "
+				   << Lo * color.b << "\t";
 
 				if (id==0){
 					s1.signal();
@@ -170,11 +172,9 @@ void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
 				else if (id==1){
 					s0.signal();
 				}
-
 			}
 			else
 			{			// Si i=-1:
-
 				if (id==0){
 					s0.wait();
 				}
@@ -234,140 +234,23 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
         int finX = c.o.x + c.l.mod();
         int inicioY = c.o.y - c.u.mod();
         int finY = c.o.y + c.u.mod();
-        for (int y = finY; y > inicioY; y--)
-        {
-            for (int x = inicioX; x < finX; x++)
-            {
-                float Lo = 0;
-                int i;
-                Point X;
-                for (int k = 0; k < n_ray; k++)
-                {
-                    i = -1;
-                    float xrand = dist(mt), yrand = dist(mt);
-                    Point pixel(x + xrand, y + yrand, c.f.mod());
-                    Direction d_ray = normalize(pixel - c.o);
-                    Ray ray(c.o, d_ray);
-                    float tmin = INFINITY;
-                    for (int j = 0; j < geometry.size(); j++)
-                    {
-                        if (geometry[j]->intersect(ray))
-                        {
-                            if (ray.get_parameter() > 0 && ray.get_parameter() < tmin)
-                            {
-                                tmin = ray.get_parameter();
-                                i = j;
-                            }
-                        }
-                    }
-                    if (i != -1)
-                    {
-                        ray.set_parameter(tmin);
-                        // Calcular luz puntual
-                        X = ray.get_position();
-                        float Li = power / ((light.p - X).mod() * (light.p - X).mod());
-                        Direction normal = geometry[i]->getNormal(X);
-                        Direction wi = normalize(light.p - X);
-                        Direction wo = normalize(c.o - X);
-                        float kd = i == 5 ? 0.9f : 0.6f;
-                        float ks = i == 5 ? 0.05f : 0.25f;
-                        float brdf = phong_BRDF(kd, ks, 10, normal, wi, wo);
-                        float g = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
-                        Lo += Li * brdf * g;
-                    }
-                }
-                if (i != -1)
-                {
-                    RGB color;
-                    Sphere s;
-                    Cylinder cy;
-                    Triangle t;
-                    BoundedPlane bp;
-                    Cone cone;
-                    Direction normal;
-                    float u, v;
-                    switch (i)
-                    {
-                    case 0:
-                        color.r = 240;
-                        color.g = 240;
-                        color.b = 240;
-                        break;
-                    case 1:
-                        color.r = 240;
-                        color.g = 240;
-                        color.b = 240;
-                        break;
-                    case 2:
-                        bp = *reinterpret_cast<BoundedPlane *>(geometry[i]);
-                        bp.get_uv(X, u, v);
-                        color = get_pixel(data, u, v);
-                        break;
-                    case 3:
-                        color.r = 240;
-                        color.g = 240;
-                        color.b = 240;
-                        break;
-                    case 4:
-                        color.r = 240;
-                        color.g = 240;
-                        color.b = 240;
-                        break;
-                    case 5:
-                        normal = geometry[i]->getNormal(X);
-                        cy = *reinterpret_cast<Cylinder *>(geometry[i]);
-                        cy.get_uv(normal, X.y - cy.get_base_Y_coord(), u, v);
-                        color = get_pixel(data, u, v);
-                        break;
-                    case 6:
-                        s = *reinterpret_cast<Sphere *>(geometry[i]);
-                        normal = normalize(s.getCenter() - X);
-                        s.get_uv(normal, u, v);
-                        color = get_pixel(data, u, v);
-                        break;
-                    case 7:
-                        normal = geometry[i]->getNormal(X);
-                        cone = *reinterpret_cast<Cone *>(geometry[i]);
-                        cone.get_uv(normal, cone.get_vertex_Y_coord() - X.y, u, v);
-                        color = get_pixel(data, u, v);
-                        break;
-                    case 8:
-                    case 9:
-                    case 10:
-                        color.r = 93;
-                        color.g = 173;
-                        color.b = 164;
-                        break;
+		
+		// EJECUCION EN PARALELO
+		int numProcesos=2;
+		std::thread P[numProcesos];
 
-                    case 11:
-                        color.r = 255;
-                        color.g = 143;
-                        color.b = 0;
-                        break;
-                    case 14:
-                        color.r = 0;
-                        color.g = 255;
-                        color.b = 0;
-                        break;
-
-                    default:
-                        color.r = 141;
-                        color.g = 141;
-                        color.b = 141;
-                        break;
-                    }
-                    Lo /= n_ray;
-                    _f << Lo * color.r << " "
-                       << Lo * color.g << " "
-                       << Lo * color.b << "\t";
-                }
-                else
-                {
-                    _f << 255 << " " << 255 << " " << 255 << "\t";
-                }
-            }
-            _f << "\n";
-        }
+		Semaphore s0(1);
+		Semaphore s1(0);
+//		Semaphore turno[numProcesos];
+//		turno[0]=s0;
+		
+		P[0]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX,finX-1,inicioY,finY-1,H,W,ref(rd),ref(mt), dist, ref(s0), ref(s1), 0); //Impares
+		P[1]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX+1,finX,inicioY+1,finY,H,W,ref(rd),ref(mt), dist, ref(s0), ref(s1), 1);
+//		P[2]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX,(finX/2)-1,inicioY,(finY/2)-1,H,W,ref(rd),ref(mt), dist);
+//		P[3]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,finX/2,finX,inicioY,(finY/2)-1,H,W,ref(rd),ref(mt), dist);
+		for (int i=0;i<numProcesos;i++){
+			P[i].join();
+		}		
     }
     _f.close();
 }

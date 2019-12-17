@@ -2,7 +2,7 @@
  * Fichero: Lambertian.cpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
-
+#define _USE_MATH_DEFINES
 #include "Lambertian.hpp"
 #include <random>
 #include "Transformation.hpp"
