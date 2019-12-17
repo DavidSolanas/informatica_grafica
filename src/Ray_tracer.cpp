@@ -154,7 +154,7 @@ void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
 					break;
 				}
 				Lo /= n_ray;
-				
+
 				if (id==0){
 					s0.wait();
 				}
@@ -234,7 +234,7 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
         int finX = c.o.x + c.l.mod();
         int inicioY = c.o.y - c.u.mod();
         int finY = c.o.y + c.u.mod();
-		
+
 		// EJECUCION EN PARALELO
 		int numProcesos=2;
 		std::thread P[numProcesos];
@@ -243,14 +243,14 @@ void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, co
 		Semaphore s1(0);
 //		Semaphore turno[numProcesos];
 //		turno[0]=s0;
-		
+
 		P[0]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX,finX-1,inicioY,finY-1,H,W,ref(rd),ref(mt), dist, ref(s0), ref(s1), 0); //Impares
 		P[1]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX+1,finX,inicioY+1,finY,H,W,ref(rd),ref(mt), dist, ref(s0), ref(s1), 1);
 //		P[2]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX,(finX/2)-1,inicioY,(finY/2)-1,H,W,ref(rd),ref(mt), dist);
 //		P[3]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,finX/2,finX,inicioY,(finY/2)-1,H,W,ref(rd),ref(mt), dist);
 		for (int i=0;i<numProcesos;i++){
 			P[i].join();
-		}		
+		}
     }
     _f.close();
 }

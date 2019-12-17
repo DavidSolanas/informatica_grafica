@@ -14,7 +14,7 @@ private:
 public:
     Specular(const RGB &kps);
     ~Specular() {}
-    void get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro, float &pdf) const override;
+    RGB get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro) const override;
     RGB get_difusse() const override;
     RGB get_specular() const override;
     RGB get_perfect_specular() const override;

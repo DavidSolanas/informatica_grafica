@@ -40,7 +40,7 @@ public:
     // Stochastically samples a new ray 'r' given a previous intersection 'it'. The 'pdf'
     // value is needed to get statistically correct results, but it is not needed for
     // specular and transparent objects (a parameter is needed, but it can just be ignored.
-    virtual void get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro, float &pdf) const = 0;
+    virtual RGB get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro) const = 0;
 
     // Returns the difusse coefficient
     virtual RGB get_difusse() const = 0;
@@ -56,22 +56,23 @@ public:
     virtual bool is_delta() const = 0;
 };
 
-void fresnel_law(const Direction &n, const Direction &wi, const float ior1, const float ior2,
+void fresnel_law(const Direction &n, const Direction &wi, const float idx_r,
                  float &fr, float &ft);
 
 Direction get_reflection(const Direction &n, const Direction &wi);
 
-Direction get_refraction(const Direction &n, const Direction &wi, const float ior1, const float ior2);
+Direction get_refraction(const Direction &n, const Direction &wi, const float idx_r);
+
+Direction get_cosine_ray(const Direction &n, const Point &x);
 
 // Perfect specular
-float delta_BRDF(const Direction &n, const Direction &wi, const Direction &wo);
+RGB delta_BRDF(const RGB &kps, const Ray &ri, const Direction &n, const Ray &ro);
 
 // Perfect refraction
-float delta_BTDF(const Direction &n, const Direction &wi, const Direction &wo);
+RGB delta_BTDF(const RGB &kpr, const Ray &ri, const Direction &n, const Ray &ro, const float idx_refracion);
 
-float phong_BRDF(const float kd, const float ks, const float alpha, const Direction &n,
-                 const Direction &wi, const Direction &wo);
+RGB phong_specular_BRDF(const RGB &ks, const float alpha, const Ray &ri, const Direction &n, const Ray &ro);
 
-float lambertian_BRDF(const float kd);
+RGB lambertian_BRDF(const RGB &kd);
 
 #endif // !BRDF_HPP

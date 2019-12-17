@@ -13,7 +13,6 @@
 #include <random>
 #include "Lambertian.hpp"
 
-const int MAX_DEPTH = 4;
 const int NUM_THREADS = 4;
 
 std::ostream &operator<<(std::ostream &os, const RGB &c)
@@ -22,12 +21,8 @@ std::ostream &operator<<(std::ostream &os, const RGB &c)
     return os;
 }
 
-RGB trace_path(const World &w, Ray &ray, const int depth)
+RGB trace_path(const World &w, Ray &ray)
 {
-    if (depth >= MAX_DEPTH)
-    {
-        return w.get_background();
-    }
     ray.set_parameter(INFINITY);
     Ray ray_light = ray;
     Light *light = w.first_light_intersection(ray_light);
@@ -47,18 +42,21 @@ RGB trace_path(const World &w, Ray &ray, const int depth)
     Direction hit_normal = obj->getNormal(hit);
 
     Ray new_ray;
-    float p = 1 / (2 * M_PI);
 
-    obj->get_material()->get_outgoing_sample_ray(ray, hit_normal, new_ray, p);
+    RGB brdf_g_pdf = obj->get_material()->get_outgoing_sample_ray(ray, hit_normal, new_ray);
 
-    RGB brdf = obj->get_material()->get_fr(ray, hit_normal, new_ray);
-    float cos_th = std::max(0.0f, dot(new_ray.get_direction(), hit_normal));
+    if (brdf_g_pdf == -1)
+    {
+        //Rayo muerto por ruleta rusa
+        return w.get_background();
+    }
 
     //Direct light contribution SOLO DE LAS PUNTUALES (omitir por ahora)
     //RGB total_direct_light_cont = w.get_incoming_light(hit, hit_normal);
-    RGB Li = trace_path(w, new_ray, depth + 1);
 
-    return Li * brdf * cos_th / p;
+    RGB Li = trace_path(w, new_ray);
+
+    return Li * brdf_g_pdf;
 }
 
 void render_image(std::vector<std::vector<RGB>> &data, const int numSamples, const World &w,
@@ -80,10 +78,10 @@ void render_image(std::vector<std::vector<RGB>> &data, const int numSamples, con
                 Point pixel(x + xrand, y + yrand, c.f.mod());
                 Direction d_ray = normalize(pixel - c.o);
                 Ray ray(c.o, d_ray);
-                color = color + trace_path(w, ray, 0);
+                color = color + trace_path(w, ray);
             }
             color = color / numSamples;
-            data[y][x] = color * 255;
+            data[y][x] = color;
         }
     }
 }
@@ -157,7 +155,7 @@ int main(int argc, char const *argv[])
                 Point(W / 2 + 100, H, c.f.mod() + 650),
                 Point(W / 2 + 100, H, c.f.mod() + 850),
                 white),
-            360000, RGB(1., 1., 1.));
+            36000, RGB(1., 1., 1.));
 
         //PointLight light(Point(W / 2, H - 75, c.f.mod() + 750), 360000., RGB(1., 1., 1.));
         World w;
@@ -197,7 +195,7 @@ int main(int argc, char const *argv[])
         std::cout << "Render completed in " << elapsed << " seconds, storing image..." << std::endl;
 
         // Guardar imagen
-        store_hdr(img_data, "/Users/david/Desktop/prueba.ppm", H, W, 255);
+        store_hdr(img_data, "/Users/david/Desktop/glass.ppm", H, W, 255);
     }
     return 0;
 }
