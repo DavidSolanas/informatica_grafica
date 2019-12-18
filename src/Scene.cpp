@@ -529,8 +529,8 @@ std::vector<Object *> cornell_box(Camera c, const int W, const int H)
 
     // Esfera
     objects.push_back(new Sphere(
-        Point(W / 2 + 200, 75, c.f.mod() + 250), Direction(0, 150, 0),
-        Point(W / 2 + 125, 75, c.f.mod() + 250),
+        Point(W / 2 + 200, 150, c.f.mod() + 450), Direction(0, 150, 0),
+        Point(W / 2 + 125, 150, c.f.mod() + 450),
         orange));
 
     return objects;

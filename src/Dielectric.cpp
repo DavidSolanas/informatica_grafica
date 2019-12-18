@@ -18,18 +18,18 @@ RGB Dielectric::get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &
     float pkps;
     float pkpr;
     fresnel_law(n, ri.get_direction(), idx_of_refraction, pkps, pkpr);
-    pkps *= .9;
-    pkpr *= .9;
+    // Normalizar probs
+    pkps *= kps.max();
+    pkpr *= kpr.max();
     float err = get_random_value(0.0f, 1.0f);
 
     if (err < pkps)
     {
         // Especular perfecto
         ro.set_direction(get_reflection(n, ri.get_direction()));
-        //pdf = 1 / (2 * M_PI);
-        return delta_BRDF(kps, ri, n, ro);
+        return kps / pkps;
     }
-    else if (err >= pkps && err < pkps + pkpr)
+    else if (err >= pkps && err < (pkps + pkpr))
     {
         // Refracción perfecta
         Direction out_direction = get_refraction(n, ri.get_direction(), idx_of_refraction);
@@ -37,13 +37,12 @@ RGB Dielectric::get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &
         if (out_direction.mod() == 0)
             out_direction = get_reflection(n * -1, ri.get_direction());
         ro.set_direction(out_direction);
-        //pdf = 1 / (2 * M_PI);
-        return delta_BTDF(kpr, ri, n, ro, idx_of_refraction);
+
+        return kpr / pkpr;
     }
     else
     {
         //MATAR RAYO
-        //pdf = -1;
         return RGB(-1, -1, -1);
     }
 }

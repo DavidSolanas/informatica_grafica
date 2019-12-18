@@ -16,27 +16,26 @@ RGB Phong::get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro) c
     ro.set_parameter(INFINITY);
 
     // Calcular probabilidades y normalizarlas
-    float pkd = kd.max() * .9;
-    float pks = ks.max() * .9;
+    float pkd = kd.max();
+    float pks = ks.max();
     float err = get_random_value(0.0f, 1.0f);
     if (err < pkd)
     {
         //Difuso
         ro.set_direction(get_cosine_ray(n, ro.get_origin()));
-        //pdf = fabs(dot(ro.get_direction(), n)) / M_PI;
-        return lambertian_BRDF(kd);
+
+        return kd / pkd;
     }
     else if (err >= pkd && err < (pkd + pks))
     {
         //Especular (phong)
         ro.set_direction(get_cosine_ray(n, ro.get_origin()));
-        //pdf = fabs(dot(ro.get_direction(), n)) / M_PI;
+
         return phong_specular_BRDF(ks, shininess, ri, n, ro);
     }
     else
     {
         //MATAR RAYO
-        //pdf = -1;
         return RGB(-1, -1, -1);
     }
 }

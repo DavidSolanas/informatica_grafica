@@ -150,10 +150,10 @@ int main(int argc, char const *argv[])
         std::vector<Object *> objs = cornell_box(c, W, H);
         PlaneLight light(
             BoundedPlane(
-                Point(W / 2 - 100, H, c.f.mod() + 850),
-                Point(W / 2 - 100, H, c.f.mod() + 650),
-                Point(W / 2 + 100, H, c.f.mod() + 650),
-                Point(W / 2 + 100, H, c.f.mod() + 850),
+                Point(W / 2 - 150, H, c.f.mod() + 950),
+                Point(W / 2 - 150, H, c.f.mod() + 550),
+                Point(W / 2 + 150, H, c.f.mod() + 550),
+                Point(W / 2 + 150, H, c.f.mod() + 950),
                 white),
             36000, RGB(1., 1., 1.));
 
