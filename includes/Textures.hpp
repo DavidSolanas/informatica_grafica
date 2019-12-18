@@ -8,6 +8,7 @@
 
 #include "RGB.hpp"
 #include <vector>
+#include <string>
 
 std::vector<std::vector<RGB>> load_texture(std::string filename);
 
