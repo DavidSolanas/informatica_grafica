@@ -2,7 +2,7 @@
  * Fichero: Ray_tracer.cpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
-#define _USE_MATH_DEFINES
+
 #include "Ray_tracer.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"
@@ -11,7 +11,7 @@
 #include "Textures.hpp"
 #include "Transformation.hpp"
 #include "Light.hpp"
-#include "Semaphore.hpp"
+//#include "Semaphore.hpp"
 #include <iostream>
 #include <random>
 #include <memory>
@@ -20,20 +20,20 @@
 #include <ctime>
 
 //Para la ejecucion en paralelo
-void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
-				int inicioX, int finX, int inicioY, int finY, const int H, const int W,
-				std::random_device& rd, std::mt19937& mt, std::uniform_real_distribution<float> dist, Semaphore& s0,Semaphore& s1, int id){
+void hiloRayTracer(std::ofstream &_f, const int n_ray, Camera c,
+				   int inicioX, int finX, int inicioY, int finY, const int H, const int W,
+				   std::random_device &rd, std::mt19937 &mt, std::uniform_real_distribution<float> dist, /*Semaphore &s0, Semaphore &s1,*/ int id)
+{
 
-    std::vector<std::vector<RGB>> data = load_texture("C:\\Users\\santi\\Desktop\\earthmap1k.ppm");
+	std::vector<std::vector<RGB>> data = load_texture("C:\\Users\\santi\\Desktop\\earthmap1k.ppm");
 	std::vector<Object *> geometry = scene3(c, W, H);
 
 	float power = 3600000;
-    PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), power, RGB(255, 255, 255));
+	PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), power, RGB(255, 255, 255));
 
-
-	for (int y = finY; y > inicioY; y=y-1)
+	for (int y = finY; y > inicioY; y = y - 1)
 	{
-		for (int x = inicioX; x < finX; x+=2)
+		for (int x = inicioX; x < finX; x += 2)
 		{
 			float Lo = 0;
 			int i;
@@ -59,18 +59,18 @@ void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
 				}
 				if (i != -1)
 				{
-					ray.set_parameter(tmin);
+					//ray.set_parameter(tmin);
 					// Calcular luz puntual
-					X = ray.get_position();
-					float Li = power / ((light.p - X).mod() * (light.p - X).mod());
-					Direction normal = geometry[i]->getNormal(X);
-					Direction wi = normalize(light.p - X);
-					Direction wo = normalize(c.o - X);
-					float kd = i == 5 ? 0.9f : 0.6f;
-					float ks = i == 5 ? 0.05f : 0.25f;
-					float brdf = phong_BRDF(kd, ks, 10, normal, wi, wo);
-					float g = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
-					Lo += Li * brdf * g;
+					//X = ray.get_position();
+					//float Li = power / ((light.p - X).mod() * (light.p - X).mod());
+					//Direction normal = geometry[i]->getNormal(X);
+					//Direction wi = normalize(light.p - X);
+					//Direction wo = normalize(c.o - X);
+					//float kd = i == 5 ? 0.9f : 0.6f;
+					//float ks = i == 5 ? 0.05f : 0.25f;
+					//float brdf = phong_BRDF(kd, ks, 10, normal, wi, wo);
+					//float g = dot(normal, wi) < 0 ? 0 : dot(normal, wi);
+					//Lo += Li * brdf * g;
 				}
 			}
 			if (i != -1)
@@ -155,151 +155,164 @@ void hiloRayTracer(std::ofstream& _f, const int n_ray, Camera c,
 				}
 				Lo /= n_ray;
 
-				if (id==0){
-					s0.wait();
+				if (id == 0)
+				{
+					//s0.wait();
 				}
-				else if (id==1){
-					s1.wait();
+				else if (id == 1)
+				{
+					//s1.wait();
 				}
 
 				_f << Lo * color.r << " "
 				   << Lo * color.g << " "
 				   << Lo * color.b << "\t";
 
-				if (id==0){
-					s1.signal();
+				if (id == 0)
+				{
+					//s1.signal();
 				}
-				else if (id==1){
-					s0.signal();
+				else if (id == 1)
+				{
+					//s0.signal();
 				}
 			}
 			else
-			{			// Si i=-1:
-				if (id==0){
-					s0.wait();
+			{ // Si i=-1:
+				if (id == 0)
+				{
+					//s0.wait();
 				}
-				else if (id==1){
-					s1.wait();
+				else if (id == 1)
+				{
+					//s1.wait();
 				}
 
-				_f << 255 << " " << 255 << " " << 255 << "\t";  	// Imprime 1920 255s en la primera linea: ¿por que?
+				_f << 255 << " " << 255 << " " << 255 << "\t"; // Imprime 1920 255s en la primera linea: ¿por que?
 
-				if (id==0){
-					s1.signal();
+				if (id == 0)
+				{
+					//s1.signal();
 				}
-				else if (id==1){
-					s0.signal();
+				else if (id == 1)
+				{
+					//s0.signal();
 				}
 			}
 		}
 
-		if (id==0){
-			s0.wait();
+		if (id == 0)
+		{
+			//s0.wait();
 		}
-		else if (id==1){
-			s1.wait();
+		else if (id == 1)
+		{
+			//s1.wait();
 		}
 
 		_f << "\n";
 
-		if (id==0){
-			s1.signal();
+		if (id == 0)
+		{
+			//s1.signal();
 		}
-		else if (id==1){
-			s0.signal();
+		else if (id == 1)
+		{
+			//s0.signal();
 		}
 	}
 }
 
 void ray_tracer(std::string filename, const int n_ray, Camera c, const int W, const int H)
 {
-    //Random number generator
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-    std::vector<std::vector<RGB>> data = load_texture("C:\\Users\\santi\\Desktop\\earthmap1k.ppm");
+	//Random number generator
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+	std::vector<std::vector<RGB>> data = load_texture("C:\\Users\\santi\\Desktop\\earthmap1k.ppm");
 
-    std::vector<Object *> geometry = scene3(c, W, H);
+	std::vector<Object *> geometry = scene3(c, W, H);
 
-    float power = 3600000;
-    PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), 3600, RGB(1.f, 1.f, 1.f));
+	//float power = 3600000;
+	PointLight light(Point(W / 2, H - 200, c.f.mod() - 500), 3600, RGB(1.f, 1.f, 1.f));
 
-    std::ofstream _f(filename);
-    if (_f.is_open())
-    {
-        _f << "P3" << std::endl;
-        _f << W << " " << H << std::endl;
-        _f << "255" << std::endl;
-        int inicioX = c.o.x - c.l.mod();
-        int finX = c.o.x + c.l.mod();
-        int inicioY = c.o.y - c.u.mod();
-        int finY = c.o.y + c.u.mod();
+	std::ofstream _f(filename);
+	if (_f.is_open())
+	{
+		_f << "P3" << std::endl;
+		_f << W << " " << H << std::endl;
+		_f << "255" << std::endl;
+		//int inicioX = c.o.x - c.l.mod();
+		//int finX = c.o.x + c.l.mod();
+		//int inicioY = c.o.y - c.u.mod();
+		//int finY = c.o.y + c.u.mod();
 
 		// EJECUCION EN PARALELO
-		int numProcesos=2;
+		int numProcesos = 2;
 		std::thread P[numProcesos];
 
-		Semaphore s0(1);
-		Semaphore s1(0);
-//		Semaphore turno[numProcesos];
-//		turno[0]=s0;
+		//Semaphore s0(1);
+		//Semaphore s1(0);
+		//		Semaphore turno[numProcesos];
+		//		turno[0]=s0;
 
-		P[0]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX,finX-1,inicioY,finY-1,H,W,ref(rd),ref(mt), dist, ref(s0), ref(s1), 0); //Impares
-		P[1]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX+1,finX,inicioY+1,finY,H,W,ref(rd),ref(mt), dist, ref(s0), ref(s1), 1);
-//		P[2]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX,(finX/2)-1,inicioY,(finY/2)-1,H,W,ref(rd),ref(mt), dist);
-//		P[3]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,finX/2,finX,inicioY,(finY/2)-1,H,W,ref(rd),ref(mt), dist);
-		for (int i=0;i<numProcesos;i++){
+		//[0] = std::thread(&hiloRayTracer, ref(_f), n_ray, c, inicioX, finX - 1, inicioY, finY - 1, H, W, ref(rd), ref(mt), dist, ref(s0), ref(s1), 0); //Impares
+		//P[1] = std::thread(&hiloRayTracer, ref(_f), n_ray, c, inicioX + 1, finX, inicioY + 1, finY, H, W, ref(rd), ref(mt), dist, ref(s0), ref(s1), 1);
+		//		P[2]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,inicioX,(finX/2)-1,inicioY,(finY/2)-1,H,W,ref(rd),ref(mt), dist);
+		//		P[3]= std::thread(&hiloRayTracer, ref(_f), n_ray,c,finX/2,finX,inicioY,(finY/2)-1,H,W,ref(rd),ref(mt), dist);
+		for (int i = 0; i < numProcesos; i++)
+		{
 			P[i].join();
 		}
-    }
-    _f.close();
+	}
+	_f.close();
 }
 
 int main(int argc, const char **argv)
 {
-	unsigned t0= clock();
+	unsigned t0 = clock();
 
-    std::string usage = "Usage: Ray_tracer -n n_rays";
-    if (argc != 3)
-    {
-        std::cerr << "Incorrect number of parameters" << std::endl;
-        std::cerr << usage << std::endl;
-        exit(1);
-    }
-    else
-    {
-        int n_ray = 1;
-        for (int i = 1; i < argc; i++)
-        {
-            switch (i)
-            {
-            case 1:
-                if (strcmp("-n", argv[i]) != 0)
-                {
-                    std::cerr << "Incorrect parameter, found \"" << argv[i] << "\" but expected \"-n\"" << std::endl;
-                    std::cerr << usage << std::endl;
-                    exit(1);
-                }
-                break;
-            case 2:
-                n_ray = atoi(argv[i]);
-                break;
+	std::string usage = "Usage: Ray_tracer -n n_rays";
+	if (argc != 3)
+	{
+		std::cerr << "Incorrect number of parameters" << std::endl;
+		std::cerr << usage << std::endl;
+		exit(1);
+	}
+	else
+	{
+		int n_ray = 1;
+		for (int i = 1; i < argc; i++)
+		{
+			switch (i)
+			{
+			case 1:
+				if (strcmp("-n", argv[i]) != 0)
+				{
+					std::cerr << "Incorrect parameter, found \"" << argv[i] << "\" but expected \"-n\"" << std::endl;
+					std::cerr << usage << std::endl;
+					exit(1);
+				}
+				break;
+			case 2:
+				n_ray = atoi(argv[i]);
+				break;
 
-            default:
-                break;
-            }
-        }
-        const int H = 1080, W = 1920;
+			default:
+				break;
+			}
+		}
+		const int H = 1080, W = 1920;
 
-        Direction l((int)W / 2, 0, 0);
-        Direction u(0, (int)H / 2, 0);
-        Direction f(0, 0, u.mod() / tan(M_PI / 24));
-        Point c0((int)W / 2, (int)H / 2, 0);
-        Camera c(f, u, l, c0);
-        ray_tracer("C:\\Users\\santi\\Desktop\\prueba.ppm", n_ray, c, W, H);
-    }
-	unsigned t1= clock();
-	double time = (double(t1-t0)/CLOCKS_PER_SEC);
-	std::cout << "Tiempo de ejecucion: " << time << " segundos\n" ;
-    return 0;
+		Direction l((int)W / 2, 0, 0);
+		Direction u(0, (int)H / 2, 0);
+		Direction f(0, 0, u.mod() / tan(M_PI / 24));
+		Point c0((int)W / 2, (int)H / 2, 0);
+		Camera c(f, u, l, c0);
+		ray_tracer("C:\\Users\\santi\\Desktop\\prueba.ppm", n_ray, c, W, H);
+	}
+	unsigned t1 = clock();
+	double time = (double(t1 - t0) / CLOCKS_PER_SEC);
+	std::cout << "Tiempo de ejecucion: " << time << " segundos\n";
+	return 0;
 }

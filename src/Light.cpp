@@ -3,7 +3,7 @@
  * Fichero: Light.cpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
-#define _USE_MATH_DEFINES
+
 #include "Light.hpp"
 #include <random>
 #include <cmath>

@@ -2,7 +2,7 @@
  * Fichero: Phong.cpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
-#define _USE_MATH_DEFINES
+
 #include "Phong.hpp"
 #include <cmath>
 #include <random>

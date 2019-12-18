@@ -3,7 +3,7 @@
  * Fichero: Cylinder.cpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
-#define _USE_MATH_DEFINES
+
 #include "Cylinder.hpp"
 #include <cmath>
 #include <iostream>

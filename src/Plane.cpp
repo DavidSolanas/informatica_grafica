@@ -2,7 +2,7 @@
  * Fichero: Plane.cpp
  * Autor: David Solanas
  *****************************************/
-#define _USE_MATH_DEFINES
+
 #include "Plane.hpp"
 #include <cmath>
 #include <iostream>

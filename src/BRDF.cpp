@@ -2,7 +2,7 @@
  * Fichero: BRDF.cpp
  * Autor: David Solanas, Santiago Buey
  *****************************************/
-#define _USE_MATH_DEFINES
+
 #include "BRDF.hpp"
 #include <cmath>
 #include <random>
