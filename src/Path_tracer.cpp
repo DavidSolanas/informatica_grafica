@@ -147,7 +147,7 @@ int main(int argc, char const *argv[])
         Direction f(0, 0, u.mod() / tan(M_PI / 24));
         Point c0((int)W / 2, (int)H / 2, 0);
         Camera c(f, u, l, c0);
-        std::vector<Object *> objs = cornell_box(c, W, H);
+        std::vector<Object *> objs = cornell_box_test(c, W, H);
         PlaneLight light(
             BoundedPlane(
                 Point(W / 2 - 150, H, c.f.mod() + 950),

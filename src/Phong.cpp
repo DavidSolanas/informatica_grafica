@@ -31,7 +31,10 @@ RGB Phong::get_outgoing_sample_ray(const Ray &ri, const Direction &n, Ray &ro) c
         //Especular (phong)
         ro.set_direction(get_cosine_ray(n, ro.get_origin()));
 
-        return phong_specular_BRDF(ks, shininess, ri, n, ro);
+        Direction wi = normalize(ro.get_direction());
+        Direction wo = normalize(ri.get_direction() * -1);
+        Direction wr = get_reflection(n, wi);
+        return (ks * (shininess + 2) * pow(fabs(dot(wr, wo)), shininess)) / 2;
     }
     else
     {

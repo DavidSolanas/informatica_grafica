@@ -13,15 +13,20 @@
 #include "Phong.hpp"
 #include "Specular.hpp"
 #include "Transmissive.hpp"
+#include "Material.hpp"
+#include "Dielectric.hpp"
 
 //Some lambertian colors
 BRDF *white = new Lambertian(RGB(.85, .85, .85));
 BRDF *red = new Lambertian(RGB(.85, .085, .085));
 BRDF *green = new Lambertian(RGB(.085, .85, .085));
 BRDF *orange = new Lambertian(RGB(.85, .6, .0));
-BRDF *orange_phong = new Phong(RGB(.425, .3, .0), RGB(0.35, 0.20, .0), 25.0f);
+BRDF *orange_phong = new Phong(RGB(.425, .3, .0), RGB(0.35, 0.20, .0), 8.0f);
 BRDF *mirror = new Specular(RGB(.85, .85, .85));
 BRDF *glass = new Transmissive(RGB(.85, .85, .85), GLASS_REFRACTION_INDEX);
+BRDF *water = new Transmissive(RGB(.85, .85, .85), WATER_REFRACTION_INDEX);
+BRDF *dielectric = new Dielectric(RGB(.4, .4, .4), RGB(.4, .4, .4), DIAMOND_REFRACTION_INDEX);
+BRDF *test = new Material(RGB(.05, .15, .3), RGB(.1, .1, .25), RGB(.1, .1, .1), RGB(.15, .15, .15), 8, GLASS_REFRACTION_INDEX);
 
 Camera::Camera(const Direction &_f, const Direction &_u, const Direction &_l, const Point &_o)
 {
@@ -532,6 +537,77 @@ std::vector<Object *> cornell_box(Camera c, const int W, const int H)
         Point(W / 2 + 200, 150, c.f.mod() + 450), Direction(0, 150, 0),
         Point(W / 2 + 125, 150, c.f.mod() + 450),
         orange));
+
+    return objects;
+}
+
+std::vector<Object *> cornell_box_test(Camera c, const int W, const int H)
+{
+    std::vector<Object *> objects;
+
+    //Pared IZQ
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod()),
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        red));
+
+    //Pared DCH
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), H, c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        green));
+
+    //Pared Fondo
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        white));
+
+    //Pared Superior
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
+        white));
+
+    //Pared Inferior
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white));
+
+    // Esfera
+    objects.push_back(new Sphere(
+        Point(W / 2 - 200, 75, c.f.mod() + 1250), Direction(0, 150, 0),
+        Point(W / 2 - 125, 75, c.f.mod() + 1250),
+        orange_phong));
+
+    // Esfera
+    objects.push_back(new Sphere(
+        Point(W / 2, 75, c.f.mod() + 500), Direction(0, 150, 0),
+        Point(W / 2 + 75, 75, c.f.mod() + 500),
+        water));
+
+    // Esfera
+    objects.push_back(new Sphere(
+        Point(W / 2 + 200, 150, c.f.mod() + 750), Direction(0, 150, 0),
+        Point(W / 2 + 125, 150, c.f.mod() + 750),
+        dielectric));
+
+    // Esfera
+    objects.push_back(new Sphere(
+        Point(75, 240, c.f.mod() + 900), Direction(0, 150, 0),
+        Point(0, 240, c.f.mod() + 900),
+        test));
 
     return objects;
 }

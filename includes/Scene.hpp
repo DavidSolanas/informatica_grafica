@@ -70,4 +70,6 @@ std::vector<Object *> scene5(Camera c, const int W, const int H);
 
 std::vector<Object *> cornell_box(Camera c, const int W, const int H);
 
+std::vector<Object *> cornell_box_test(Camera c, const int W, const int H);
+
 #endif // !SCENE_HPP
