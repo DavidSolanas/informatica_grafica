@@ -18,14 +18,18 @@ class Object
 {
 protected:
     BRDF *material;
+    bool texture;
 
 public:
     Object() {}
-    Object(BRDF *mat) : material(mat) {}
+    Object(BRDF *mat) : material(mat), texture(false) {}
+    Object(BRDF *mat, bool t) : material(mat), texture(t) {}
     virtual ~Object(){};
     virtual Direction getNormal(Point X) = 0;
     virtual bool intersect(Ray &ray) = 0;
     virtual float get_area() = 0;
+    virtual void get_uv(const Point &X, const Direction &n, float &u, float &v) = 0;
+    bool has_texture() { return texture; }
     BRDF *get_material() { return material; }
 };
 

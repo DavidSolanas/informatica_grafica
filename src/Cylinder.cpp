@@ -20,6 +20,14 @@ Cylinder::Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat) : Object(mat)
     this->r = r;
 }
 
+Cylinder::Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat, bool texture) : Object(mat, texture)
+{
+    this->b1 = b1;
+    this->b2 = b2;
+    this->h = h;
+    this->r = r;
+}
+
 Cylinder::~Cylinder()
 {
 }
@@ -110,8 +118,9 @@ float Cylinder::get_area()
     return (2 * M_PI * r * r) + (2 * M_PI * r * h);
 }
 
-void Cylinder::get_uv(const Direction &n, const float h, float &u, float &v)
+void Cylinder::get_uv(const Point &X, const Direction &n, float &u, float &v)
 {
+    float h = X.y - this->get_base_Y_coord();
     u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
     v = h / this->h;
 }

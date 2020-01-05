@@ -19,6 +19,7 @@ public:
 
     Cylinder();
     Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat);
+    Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat, bool texture);
     ~Cylinder();
     float getRadius();
     Direction getNormal(Point X) override;
@@ -26,7 +27,7 @@ public:
     bool intersect(Ray &ray) override;
     bool isInCylinder(const Point &p, const Direction &D, const Point &center, float &t);
     float get_area() override;
-    void get_uv(const Direction &n, const float h, float &u, float &v);
+    void get_uv(const Point &X, const Direction &n, float &u, float &v) override;
 };
 
 #endif // !CYLINDER_HPP

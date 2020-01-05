@@ -18,6 +18,7 @@ public:
 
     Cone();
     Cone(const Point &p, float h, float r, BRDF *mat);
+    Cone(const Point &p, float h, float r, BRDF *mat, bool texture);
     ~Cone();
     float getAngle();
     float getHeight();
@@ -27,7 +28,7 @@ public:
     Direction getNormal(Point X) override;
     bool intersect(Ray &ray) override;
     float get_area() override;
-    void get_uv(const Direction &n, const float h, float &u, float &v);
+    void get_uv(const Point &X, const Direction &n, float &u, float &v) override;
 };
 
 #endif // !CONE_HPP

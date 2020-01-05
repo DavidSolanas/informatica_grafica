@@ -12,8 +12,10 @@
 #include <ctime>
 #include <random>
 #include "Lambertian.hpp"
+#include "Textures.hpp"
 
 const int NUM_THREADS = 4;
+std::vector<std::vector<RGB>> data = load_texture("/Users/david/Desktop/images_IG/earthmap1k.ppm");
 
 std::ostream &operator<<(std::ostream &os, const RGB &c)
 {
@@ -55,6 +57,12 @@ RGB trace_path(const World &w, Ray &ray)
     //RGB total_direct_light_cont = w.get_incoming_light(hit, hit_normal);
 
     RGB Li = trace_path(w, new_ray);
+    if (obj->has_texture())
+    {
+        float u, v;
+        obj->get_uv(hit, hit_normal, u, v);
+        return Li * brdf_g_pdf * get_pixel(data, u, v);
+    }
 
     return Li * brdf_g_pdf;
 }
@@ -109,8 +117,9 @@ void store_hdr(const std::vector<std::vector<RGB>> &data, std::string filename, 
 int main(int argc, char const *argv[])
 {
 
-    std::string usage = "Usage: Path_tracer -n ppp";
-    if (argc != 3)
+    std::string usage = "Usage: Path_tracer <file> -n ppp";
+    std::string filename;
+    if (argc != 4)
     {
         std::cerr << "Incorrect number of parameters" << std::endl;
         std::cerr << usage << std::endl;
@@ -124,6 +133,9 @@ int main(int argc, char const *argv[])
             switch (i)
             {
             case 1:
+                filename = argv[i];
+                break;
+            case 2:
                 if (strcmp("-n", argv[i]) != 0)
                 {
                     std::cerr << "Incorrect parameter, found \"" << argv[i] << "\" but expected \"-n\"" << std::endl;
@@ -131,7 +143,7 @@ int main(int argc, char const *argv[])
                     exit(1);
                 }
                 break;
-            case 2:
+            case 3:
                 ppp = atoi(argv[i]);
                 break;
 
@@ -147,13 +159,13 @@ int main(int argc, char const *argv[])
         Direction f(0, 0, u.mod() / tan(M_PI / 24));
         Point c0((int)W / 2, (int)H / 2, 0);
         Camera c(f, u, l, c0);
-        std::vector<Object *> objs = cornell_box_test(c, W, H);
+        std::vector<Object *> objs = scene5(c, W, H);
         PlaneLight light(
             BoundedPlane(
-                Point(W / 2 - 150, H, c.f.mod() + 950),
-                Point(W / 2 - 150, H, c.f.mod() + 550),
-                Point(W / 2 + 150, H, c.f.mod() + 550),
-                Point(W / 2 + 150, H, c.f.mod() + 950),
+                Point(W / 2 - 150, H, c.f.mod() + 500),
+                Point(W / 2 - 150, H, c.f.mod() + 300),
+                Point(W / 2 + 150, H, c.f.mod() + 300),
+                Point(W / 2 + 150, H, c.f.mod() + 500),
                 white),
             36000, RGB(1., 1., 1.));
 
@@ -195,7 +207,7 @@ int main(int argc, char const *argv[])
         std::cout << "Render completed in " << elapsed << " seconds, storing image..." << std::endl;
 
         // Guardar imagen
-        store_hdr(img_data, "/Users/david/Desktop/glass.ppm", H, W, 255);
+        store_hdr(img_data, filename, H, W, 255);
     }
     return 0;
 }

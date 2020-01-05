@@ -34,9 +34,9 @@ std::vector<std::vector<RGB>> load_texture(std::string filename)
             {
                 //Procesar RGB
                 f >> _r >> _g >> _b;
-                data[i][j].r = _r;
-                data[i][j].g = _g;
-                data[i][j].b = _b;
+                data[i][j].r = (float)_r / cr;
+                data[i][j].g = (float)_g / cr;
+                data[i][j].b = (float)_b / cr;
             }
         }
     }

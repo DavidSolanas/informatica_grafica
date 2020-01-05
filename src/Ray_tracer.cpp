@@ -82,7 +82,7 @@ void hiloRayTracer(std::ofstream &_f, const int n_ray, Camera c,
 				BoundedPlane bp;
 				Cone cone;
 				Direction normal;
-				float u, v;
+				float u = 0, v = 0;
 				switch (i)
 				{
 				case 0:
@@ -97,7 +97,7 @@ void hiloRayTracer(std::ofstream &_f, const int n_ray, Camera c,
 					break;
 				case 2:
 					bp = *reinterpret_cast<BoundedPlane *>(geometry[i]);
-					bp.get_uv(X, u, v);
+					//bp.get_uv(X, u, v);
 					color = get_pixel(data, u, v);
 					break;
 				case 3:
@@ -113,19 +113,19 @@ void hiloRayTracer(std::ofstream &_f, const int n_ray, Camera c,
 				case 5:
 					normal = geometry[i]->getNormal(X);
 					cy = *reinterpret_cast<Cylinder *>(geometry[i]);
-					cy.get_uv(normal, X.y - cy.get_base_Y_coord(), u, v);
+					//cy.get_uv(normal, X.y - cy.get_base_Y_coord(), u, v);
 					color = get_pixel(data, u, v);
 					break;
 				case 6:
 					s = *reinterpret_cast<Sphere *>(geometry[i]);
 					normal = normalize(s.getCenter() - X);
-					s.get_uv(normal, u, v);
+					//s.get_uv(normal, u, v);
 					color = get_pixel(data, u, v);
 					break;
 				case 7:
 					normal = geometry[i]->getNormal(X);
 					cone = *reinterpret_cast<Cone *>(geometry[i]);
-					cone.get_uv(normal, cone.get_vertex_Y_coord() - X.y, u, v);
+					//cone.get_uv(normal, cone.get_vertex_Y_coord() - X.y, u, v);
 					color = get_pixel(data, u, v);
 					break;
 				case 8:

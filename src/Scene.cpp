@@ -15,6 +15,7 @@
 #include "Transmissive.hpp"
 #include "Material.hpp"
 #include "Dielectric.hpp"
+#include "Cube.hpp"
 
 //Some lambertian colors
 BRDF *white = new Lambertian(RGB(.85, .85, .85));
@@ -433,7 +434,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        white));
+        white, true));
 
     //Pared Superior
     geometry.push_back(new BoundedPlane(
@@ -453,25 +454,65 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
 
     //Cilindro
     geometry.push_back(new Cylinder(
-        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 50), 50, white),
-        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 50), 50, white),
-        50, H / 2 - 50, white));
+        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 500), 50, white),
+        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 500), 50, white),
+        50, H / 2 - 50, white, true));
 
     // Esfera
     geometry.push_back(new Sphere(
-        Point(W / 2, H / 2, c.f.mod() + 50), Direction(0, 100, 0),
-        Point(W / 2 - 50, H / 2, c.f.mod() + 50),
-        white));
+        Point(W / 2, H / 2, c.f.mod() + 500), Direction(0, 100, 0),
+        Point(W / 2 - 50, H / 2, c.f.mod() + 500),
+        white, true));
 
     // Cono
     geometry.push_back(new Cone(
-        Point(W / 2 - 500, H / 2 - 200, c.f.mod() + 400),
-        300, 150, white));
+        Point(W / 2 - 200, H / 2, c.f.mod() + 400),
+        150, 75, white, true));
 
-    geometry.push_back(new Disk(
-        Direction(0, 0, -1),
-        Point(W / 2 + 500, H / 2 - 200, c.f.mod() + 400),
-        55.5f, white));
+    geometry.push_back(new Cube(
+        // CARA FRONTAL
+        BoundedPlane(
+            Point(100, H - 100, c.f.mod() + 400),
+            Point(260, H - 100, c.f.mod() + 400),
+            Point(260, H - 200, c.f.mod() + 400),
+            Point(100, H - 200, c.f.mod() + 400),
+            white),
+        //CARA TRASERA
+        BoundedPlane(
+            Point(290, H - 100, c.f.mod() + 600),
+            Point(130, H - 100, c.f.mod() + 600),
+            Point(130, H - 200, c.f.mod() + 600),
+            Point(290, H - 200, c.f.mod() + 600),
+            white),
+        //CARA IZQUIERDA
+        BoundedPlane(
+            Point(130, H - 100, c.f.mod() + 600),
+            Point(100, H - 100, c.f.mod() + 400),
+            Point(100, H - 200, c.f.mod() + 400),
+            Point(130, H - 200, c.f.mod() + 600),
+            white),
+        // CARA DERECHA
+        BoundedPlane(
+            Point(260, H - 100, c.f.mod() + 400),
+            Point(290, H - 100, c.f.mod() + 600),
+            Point(290, H - 200, c.f.mod() + 600),
+            Point(260, H - 200, c.f.mod() + 400),
+            white),
+        // CARA SUPERIOR
+        BoundedPlane(
+            Point(130, H - 100, c.f.mod() + 600),
+            Point(290, H - 100, c.f.mod() + 600),
+            Point(260, H - 100, c.f.mod() + 400),
+            Point(100, H - 100, c.f.mod() + 400),
+            white),
+        //CARA INFERIOR
+        BoundedPlane(
+            Point(100, H - 200, c.f.mod() + 400),
+            Point(260, H - 200, c.f.mod() + 400),
+            Point(290, H - 200, c.f.mod() + 600),
+            Point(130, H - 200, c.f.mod() + 600),
+            white),
+        white, true));
 
     return geometry;
 }
@@ -534,8 +575,8 @@ std::vector<Object *> cornell_box(Camera c, const int W, const int H)
 
     // Esfera
     objects.push_back(new Sphere(
-        Point(W / 2 + 200, 150, c.f.mod() + 450), Direction(0, 150, 0),
-        Point(W / 2 + 125, 150, c.f.mod() + 450),
+        Point(W / 2 + 200, 150, c.f.mod() + 130), Direction(0, 150, 0),
+        Point(W / 2 + 125, 150, c.f.mod() + 130),
         orange));
 
     return objects;
@@ -608,6 +649,53 @@ std::vector<Object *> cornell_box_test(Camera c, const int W, const int H)
         Point(75, 240, c.f.mod() + 900), Direction(0, 150, 0),
         Point(0, 240, c.f.mod() + 900),
         test));
+
+    return objects;
+}
+
+std::vector<Object *> texture_test(Camera c, const int W, const int H)
+{
+    std::vector<Object *> objects;
+
+    //Pared IZQ
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod()),
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        red, false));
+
+    //Pared DCH
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), H, c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        green, false));
+
+    //Pared Fondo
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        white, false));
+
+    //Pared Superior
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
+        white, false));
+
+    //Pared Inferior
+    objects.push_back(new BoundedPlane(
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
+        white, false));
 
     return objects;
 }

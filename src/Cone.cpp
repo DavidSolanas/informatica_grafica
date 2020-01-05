@@ -25,6 +25,20 @@ Cone::Cone(const Point &p, float h, float r, BRDF *mat) : Object(mat)
     this->theta = acos(h / lado);
 }
 
+Cone::Cone(const Point &p, float h, float r, BRDF *mat, bool texture) : Object(mat, texture)
+{
+    this->vertex = p;
+    this->h = h;
+    this->r = r;
+    //Calcular el angulo de la parte superior del cono,
+    //definir el punto superior y un punto en un extremo de
+    //la base del cono y calcular el arccos(altura/lado)
+    Point p1(p.x + r, p.y, p.z);
+    Point p2(p.x, p.y - h, p.z);
+    float lado = (p2 - p1).mod();
+    this->theta = acos(h / lado);
+}
+
 Cone::~Cone()
 {
 }
@@ -119,8 +133,9 @@ float Cone::get_area()
     return (M_PI * r * r) + (M_PI * r * l);
 }
 
-void Cone::get_uv(const Direction &n, const float h, float &u, float &v)
+void Cone::get_uv(const Point &X, const Direction &n, float &u, float &v)
 {
+    float h = vertex.y - X.y;
     u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
     v = 1 - (h / this->h);
 }

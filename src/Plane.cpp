@@ -27,7 +27,25 @@ Plane::Plane(const Direction &n, const Point &o, BRDF *mat) : Object(mat)
     this->d = -dot(n_normalized, o);
 }
 
+Plane::Plane(const Direction &n, const Point &o, BRDF *mat, bool texture) : Object(mat, texture)
+{
+    Direction n_normalized = normalize(n);
+    this->a = n_normalized.x;
+    this->b = n_normalized.y;
+    this->c = n_normalized.z;
+    this->d = -dot(n_normalized, o);
+}
+
 Plane::Plane(const Point &a, const Point &b, const Point &c, BRDF *mat) : Object(mat)
+{
+    Direction n = normalize(cross(b - a, c - a));
+    this->a = n.x;
+    this->b = n.y;
+    this->c = n.z;
+    this->d = -dot(n, a);
+}
+
+Plane::Plane(const Point &a, const Point &b, const Point &c, BRDF *mat, bool texture) : Object(mat, texture)
 {
     Direction n = normalize(cross(b - a, c - a));
     this->a = n.x;
@@ -53,7 +71,7 @@ Direction Plane::getNormal(Point X)
 
 bool Plane::isInPlane(const Point &p)
 {
-    return dot(this->getNormal(), p) + this->d == 0;
+    return dot(this->getNormal(), p) + this->d < SMALLEST_DIST;
 }
 
 bool Plane::intersect(Ray &ray)
@@ -63,6 +81,10 @@ bool Plane::intersect(Ray &ray)
         return false;
     ray.set_parameter(t);
     return true;
+}
+
+void Plane::get_uv(const Point &X, const Direction &n, float &u, float &v)
+{
 }
 
 float Plane::get_area()
@@ -76,6 +98,15 @@ BoundedPlane::BoundedPlane()
 
 BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
                            const Point &_C, const Point &_D, BRDF *mat) : Plane(_A, _B, _C, mat)
+{
+    this->A = _A;
+    this->B = _B;
+    this->C = _C;
+    this->D = _D;
+}
+
+BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
+                           const Point &_C, const Point &_D, BRDF *mat, bool texture) : Plane(_A, _B, _C, mat, texture)
 {
     this->A = _A;
     this->B = _B;
@@ -115,12 +146,29 @@ float BoundedPlane::get_area()
     return (A - B).mod() * (C - B).mod();
 }
 
-void BoundedPlane::get_uv(const Point &p, float &u, float &v)
+void BoundedPlane::get_uv(const Point &X, const Direction &n, float &u, float &v)
 {
+    float nx = fabs(n.x),
+          ny = fabs(n.y),
+          nz = fabs(n.z);
+    float cmax = max(nx, ny, nz);
     float w = (B - A).mod(),
           h = (D - A).mod();
-    u = (p.x - A.x) / w;
-    v = (p.y - D.y) / h;
+    if (cmax == nx)
+    {
+        u = fabs(X.z - A.z) / w;
+        v = fabs(X.y - D.y) / h;
+    }
+    if (cmax == ny)
+    {
+        u = fabs(X.x - A.x) / w;
+        v = fabs(X.z - D.z) / h;
+    }
+    if (cmax == nz)
+    {
+        u = fabs(X.x - A.x) / w;
+        v = fabs(X.y - D.y) / h;
+    }
 }
 
 Triangle::Triangle()
@@ -129,6 +177,14 @@ Triangle::Triangle()
 
 Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C,
                    BRDF *mat) : Plane(_A, _B, _C, mat)
+{
+    this->A = _A;
+    this->B = _B;
+    this->C = _C;
+}
+
+Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C,
+                   BRDF *mat, bool texture) : Plane(_A, _B, _C, mat, texture)
 {
     this->A = _A;
     this->B = _B;
@@ -167,15 +223,15 @@ float Triangle::get_area()
     return sqrt(s * (s - a) * (s - b) * (s - c));
 }
 
-void Triangle::get_uv(const Point &p, float &u, float &v)
+void Triangle::get_uv(const Point &X, const Direction &n, float &u, float &v)
 {
     float ba, bb, bc;
     float xmax = max(A.x, B.x, C.x);
     float ymax = max(A.y, B.y, C.y);
     float abc_area = cross(B - A, C - A).mod();
 
-    ba = cross(A - C, p - C).mod() / abc_area;
-    bb = cross(B - A, p - A).mod() / abc_area;
+    ba = cross(A - C, X - C).mod() / abc_area;
+    bb = cross(B - A, X - A).mod() / abc_area;
     bc = 1 - ba - bb;
     u = ba * (A.x / xmax) + bb * (B.x / xmax) + bc * (C.x / xmax);
     v = ba * (A.y / ymax) + bb * (B.y / ymax) + bc * (C.y / ymax);
@@ -186,6 +242,12 @@ Disk::Disk()
 }
 
 Disk::Disk(const Direction &n, const Point &p, const float r, BRDF *mat) : Plane(n, p, mat)
+{
+    this->r = r;
+    this->c = p;
+}
+
+Disk::Disk(const Direction &n, const Point &p, const float r, BRDF *mat, bool texture) : Plane(n, p, mat, texture)
 {
     this->r = r;
     this->c = p;
@@ -217,15 +279,15 @@ float Disk::get_area()
     return M_PI * r * r;
 }
 
-void Disk::get_uv(const Point &p, float &u, float &v)
+void Disk::get_uv(const Point &X, const Direction &n, float &u, float &v)
 {
-    Direction n = this->getNormal(p);
-    float x = p.x - c.x,
-          y = p.y - c.y,
-          z = p.z - c.z;
-    float nx = fabs(n.x),
-          ny = fabs(n.y),
-          nz = fabs(n.z);
+    Direction _n = this->getNormal(X);
+    float x = X.x - c.x,
+          y = X.y - c.y,
+          z = X.z - c.z;
+    float nx = fabs(_n.x),
+          ny = fabs(_n.y),
+          nz = fabs(_n.z);
     float cmax = max(nx, ny, nz);
     if (cmax == nx)
     {

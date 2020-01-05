@@ -33,6 +33,8 @@ public:
     Sphere();
     Sphere(const Point &center, const Direction &axis, const Point &city,
            BRDF *mat);
+    Sphere(const Point &center, const Direction &axis, const Point &city,
+           BRDF *mat, bool texture);
     Sphere &operator=(const Sphere &p);
     Point getCenter();
     Direction getAxis();
@@ -42,7 +44,7 @@ public:
     Direction getNormal(Point X) override;
     bool intersect(Ray &ray) override;
     float get_area() override;
-    void get_uv(const Direction &n, float &u, float &v);
+    void get_uv(const Point &X, const Direction &n, float &u, float &v) override;
 };
 
 /**

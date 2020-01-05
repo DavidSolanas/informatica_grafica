@@ -27,6 +27,23 @@ Sphere::Sphere(const Point &center, const Direction &axis, const Point &city,
     }
 }
 
+Sphere::Sphere(const Point &center, const Direction &axis, const Point &city,
+               BRDF *mat, bool texture) : Object(mat, texture)
+{
+    float radius = axis.mod() / 2;
+    bool correct = fabs((city - center).mod() - radius) <= 1e-6;
+    if (correct)
+    {
+        this->center = center;
+        this->axis = axis;
+        this->city = city;
+    }
+    else
+    {
+        std::cout << "Planeta no coherente" << std::endl;
+    }
+}
+
 Sphere &Sphere::operator=(const Sphere &p)
 {
     this->center = p.center;
@@ -62,7 +79,7 @@ const float Sphere::getAzimuth() const
     return atanf(x / -z);
 }
 
-void Sphere::get_uv(const Direction &n, float &u, float &v)
+void Sphere::get_uv(const Point &X, const Direction &n, float &u, float &v)
 {
     u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
     v = 0.5 - asin(n.y) / M_PI;
