@@ -19,7 +19,7 @@ public:
 
     Cylinder();
     Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat);
-    Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat, bool texture);
+    Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat, bool texture, std::string texture_file);
     ~Cylinder();
     float getRadius();
     Direction getNormal(Point X) override;

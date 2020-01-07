@@ -20,7 +20,7 @@ Cylinder::Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat) : Object(mat)
     this->r = r;
 }
 
-Cylinder::Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat, bool texture) : Object(mat, texture)
+Cylinder::Cylinder(Disk b1, Disk b2, float r, float h, BRDF *mat, bool texture, std::string texture_file) : Object(mat, texture, texture_file)
 {
     this->b1 = b1;
     this->b2 = b2;

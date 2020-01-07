@@ -6,6 +6,7 @@
 #ifndef GEOMETRY_HPP
 #define GEOMETRY_HPP
 
+#include "Textures.hpp"
 #include "BRDF.hpp"
 
 class Ray;
@@ -21,9 +22,13 @@ protected:
     bool texture;
 
 public:
+    std::vector<std::vector<RGB>> data;
     Object() {}
     Object(BRDF *mat) : material(mat), texture(false) {}
-    Object(BRDF *mat, bool t) : material(mat), texture(t) {}
+    Object(BRDF *mat, bool t, std::string texture) : material(mat), texture(t)
+    {
+        data = load_texture(texture);
+    }
     virtual ~Object(){};
     virtual Direction getNormal(Point X) = 0;
     virtual bool intersect(Ray &ray) = 0;

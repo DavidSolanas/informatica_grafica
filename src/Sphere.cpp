@@ -28,7 +28,7 @@ Sphere::Sphere(const Point &center, const Direction &axis, const Point &city,
 }
 
 Sphere::Sphere(const Point &center, const Direction &axis, const Point &city,
-               BRDF *mat, bool texture) : Object(mat, texture)
+               BRDF *mat, bool texture, std::string texture_file) : Object(mat, texture, texture_file)
 {
     float radius = axis.mod() / 2;
     bool correct = fabs((city - center).mod() - radius) <= 1e-6;

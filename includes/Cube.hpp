@@ -27,7 +27,7 @@ public:
      Cube(BoundedPlane _front, BoundedPlane _back,
           BoundedPlane _left, BoundedPlane _right,
           BoundedPlane _up, BoundedPlane _down,
-          BRDF *mat, bool texture) : Object(mat, texture), front(_front), back(_back), left(_left), right(_right), up(_up), down(_down) {}
+          BRDF *mat, bool texture, std::string texture_file) : Object(mat, texture, texture_file), front(_front), back(_back), left(_left), right(_right), up(_up), down(_down) {}
 
      ~Cube() {}
 

@@ -418,7 +418,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
         Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
-        white));
+        white, true, "/Users/david/Desktop/images_IG/wall.ppm"));
 
     //Pared DCH
     geometry.push_back(new BoundedPlane(
@@ -426,7 +426,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), H, c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        white));
+        white, true, "/Users/david/Desktop/images_IG/wall.ppm"));
 
     //Pared Fondo
     geometry.push_back(new BoundedPlane(
@@ -434,7 +434,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        white, true));
+        white, true, "/Users/david/Desktop/images_IG/wall.ppm"));
 
     //Pared Superior
     geometry.push_back(new BoundedPlane(
@@ -456,18 +456,18 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
     geometry.push_back(new Cylinder(
         Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 500), 50, white),
         Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 500), 50, white),
-        50, H / 2 - 50, white, true));
+        50, H / 2 - 50, white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
 
     // Esfera
     geometry.push_back(new Sphere(
         Point(W / 2, H / 2, c.f.mod() + 500), Direction(0, 100, 0),
         Point(W / 2 - 50, H / 2, c.f.mod() + 500),
-        white, true));
+        white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
 
     // Cono
     geometry.push_back(new Cone(
         Point(W / 2 - 200, H / 2, c.f.mod() + 400),
-        150, 75, white, true));
+        150, 75, white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
 
     geometry.push_back(new Cube(
         // CARA FRONTAL
@@ -512,7 +512,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
             Point(290, H - 200, c.f.mod() + 600),
             Point(130, H - 200, c.f.mod() + 600),
             white),
-        white, true));
+        white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
 
     return geometry;
 }
@@ -663,7 +663,7 @@ std::vector<Object *> texture_test(Camera c, const int W, const int H)
         Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
-        red, false));
+        red));
 
     //Pared DCH
     objects.push_back(new BoundedPlane(
@@ -671,7 +671,7 @@ std::vector<Object *> texture_test(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), H, c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
-        green, false));
+        green));
 
     //Pared Fondo
     objects.push_back(new BoundedPlane(
@@ -679,7 +679,7 @@ std::vector<Object *> texture_test(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
-        white, false));
+        white));
 
     //Pared Superior
     objects.push_back(new BoundedPlane(
@@ -687,7 +687,7 @@ std::vector<Object *> texture_test(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
         Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
-        white, false));
+        white));
 
     //Pared Inferior
     objects.push_back(new BoundedPlane(
@@ -695,7 +695,7 @@ std::vector<Object *> texture_test(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
-        white, false));
+        white));
 
     return objects;
 }

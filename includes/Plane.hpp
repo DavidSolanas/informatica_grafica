@@ -24,9 +24,9 @@ protected:
 public:
     Plane();
     Plane(const Direction &n, const Point &o, BRDF *mat);
-    Plane(const Direction &n, const Point &o, BRDF *mat, bool texture);
+    Plane(const Direction &n, const Point &o, BRDF *mat, bool texture, std::string texture_file);
     Plane(const Point &a, const Point &b, const Point &c, BRDF *mat);
-    Plane(const Point &a, const Point &b, const Point &c, BRDF *mat, bool texture);
+    Plane(const Point &a, const Point &b, const Point &c, BRDF *mat, bool texture, std::string texture_file);
     bool isInPlane(const Point &p);
     bool intersect(Ray &ray) override;
     float get_area() override;
@@ -54,7 +54,7 @@ public:
 
     BoundedPlane();
     BoundedPlane(const Point &_A, const Point &_B, const Point &_C, const Point &_D, BRDF *mat);
-    BoundedPlane(const Point &_A, const Point &_B, const Point &_C, const Point &_D, BRDF *mat, bool texture);
+    BoundedPlane(const Point &_A, const Point &_B, const Point &_C, const Point &_D, BRDF *mat, bool texture, std::string texture_file);
     bool isInsidePlane(const Point &p);
     bool intersect(Ray &ray) override;
     float get_area() override;
@@ -70,7 +70,7 @@ public:
 
     Triangle();
     Triangle(const Point &_A, const Point &_B, const Point &_C, BRDF *mat);
-    Triangle(const Point &_A, const Point &_B, const Point &_C, BRDF *mat, bool texture);
+    Triangle(const Point &_A, const Point &_B, const Point &_C, BRDF *mat, bool texture, std::string texture_file);
     bool isInsideTriangle(const Point &p);
     bool intersect(Ray &ray) override;
     float get_area() override;
@@ -85,7 +85,7 @@ public:
 
     Disk();
     Disk(const Direction &n, const Point &p, const float r, BRDF *mat);
-    Disk(const Direction &n, const Point &p, const float r, BRDF *mat, bool texture);
+    Disk(const Direction &n, const Point &p, const float r, BRDF *mat, bool texture, std::string texture_file);
     bool isInsideDisk(const Point &p);
     Point getCenter();
     bool intersect(Ray &ray) override;

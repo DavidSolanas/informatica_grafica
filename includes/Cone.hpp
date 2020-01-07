@@ -18,7 +18,7 @@ public:
 
     Cone();
     Cone(const Point &p, float h, float r, BRDF *mat);
-    Cone(const Point &p, float h, float r, BRDF *mat, bool texture);
+    Cone(const Point &p, float h, float r, BRDF *mat, bool texture, std::string texture_file);
     ~Cone();
     float getAngle();
     float getHeight();

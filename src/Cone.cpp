@@ -25,7 +25,8 @@ Cone::Cone(const Point &p, float h, float r, BRDF *mat) : Object(mat)
     this->theta = acos(h / lado);
 }
 
-Cone::Cone(const Point &p, float h, float r, BRDF *mat, bool texture) : Object(mat, texture)
+Cone::Cone(const Point &p, float h, float r, BRDF *mat, bool texture,
+           std::string texture_file) : Object(mat, texture, texture_file)
 {
     this->vertex = p;
     this->h = h;

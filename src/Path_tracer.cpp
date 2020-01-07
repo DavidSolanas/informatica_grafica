@@ -15,7 +15,6 @@
 #include "Textures.hpp"
 
 const int NUM_THREADS = 4;
-std::vector<std::vector<RGB>> data = load_texture("/Users/david/Desktop/images_IG/earthmap1k.ppm");
 
 std::ostream &operator<<(std::ostream &os, const RGB &c)
 {
@@ -54,14 +53,16 @@ RGB trace_path(const World &w, Ray &ray)
     }
 
     //Direct light contribution SOLO DE LAS PUNTUALES (omitir por ahora)
-    //RGB total_direct_light_cont = w.get_incoming_light(hit, hit_normal);
+    RGB total_direct_point_light_cont = w.get_incoming_light(hit, hit_normal);
 
     RGB Li = trace_path(w, new_ray);
+    Li = Li + total_direct_point_light_cont;
+
     if (obj->has_texture())
     {
         float u, v;
         obj->get_uv(hit, hit_normal, u, v);
-        return Li * brdf_g_pdf * get_pixel(data, u, v);
+        return Li * brdf_g_pdf * get_pixel(obj->data, u, v);
     }
 
     return Li * brdf_g_pdf;

@@ -27,7 +27,7 @@ Plane::Plane(const Direction &n, const Point &o, BRDF *mat) : Object(mat)
     this->d = -dot(n_normalized, o);
 }
 
-Plane::Plane(const Direction &n, const Point &o, BRDF *mat, bool texture) : Object(mat, texture)
+Plane::Plane(const Direction &n, const Point &o, BRDF *mat, bool texture, std::string texture_file) : Object(mat, texture, texture_file)
 {
     Direction n_normalized = normalize(n);
     this->a = n_normalized.x;
@@ -45,7 +45,7 @@ Plane::Plane(const Point &a, const Point &b, const Point &c, BRDF *mat) : Object
     this->d = -dot(n, a);
 }
 
-Plane::Plane(const Point &a, const Point &b, const Point &c, BRDF *mat, bool texture) : Object(mat, texture)
+Plane::Plane(const Point &a, const Point &b, const Point &c, BRDF *mat, bool texture, std::string texture_file) : Object(mat, texture, texture_file)
 {
     Direction n = normalize(cross(b - a, c - a));
     this->a = n.x;
@@ -106,7 +106,7 @@ BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
 }
 
 BoundedPlane::BoundedPlane(const Point &_A, const Point &_B,
-                           const Point &_C, const Point &_D, BRDF *mat, bool texture) : Plane(_A, _B, _C, mat, texture)
+                           const Point &_C, const Point &_D, BRDF *mat, bool texture, std::string texture_file) : Plane(_A, _B, _C, mat, texture, texture_file)
 {
     this->A = _A;
     this->B = _B;
@@ -184,7 +184,7 @@ Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C,
 }
 
 Triangle::Triangle(const Point &_A, const Point &_B, const Point &_C,
-                   BRDF *mat, bool texture) : Plane(_A, _B, _C, mat, texture)
+                   BRDF *mat, bool texture, std::string texture_file) : Plane(_A, _B, _C, mat, texture, texture_file)
 {
     this->A = _A;
     this->B = _B;
@@ -247,7 +247,7 @@ Disk::Disk(const Direction &n, const Point &p, const float r, BRDF *mat) : Plane
     this->c = p;
 }
 
-Disk::Disk(const Direction &n, const Point &p, const float r, BRDF *mat, bool texture) : Plane(n, p, mat, texture)
+Disk::Disk(const Direction &n, const Point &p, const float r, BRDF *mat, bool texture, std::string texture_file) : Plane(n, p, mat, texture, texture_file)
 {
     this->r = r;
     this->c = p;

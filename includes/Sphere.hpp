@@ -34,7 +34,7 @@ public:
     Sphere(const Point &center, const Direction &axis, const Point &city,
            BRDF *mat);
     Sphere(const Point &center, const Direction &axis, const Point &city,
-           BRDF *mat, bool texture);
+           BRDF *mat, bool texture, std::string texture_file);
     Sphere &operator=(const Sphere &p);
     Point getCenter();
     Direction getAxis();
