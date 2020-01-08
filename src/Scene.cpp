@@ -135,7 +135,7 @@ RGB World::get_incoming_light(const Point &X, const Direction &hit_normal) const
     RGB Ld(0.0f, 0.0f, 0.0f);
     for (Light *light : light_list)
     {
-        Ld = Ld + light->get_incoming_light(X, hit_normal);
+        Ld = Ld + light->get_incoming_light(*this, X, hit_normal);
     }
     return Ld;
 }

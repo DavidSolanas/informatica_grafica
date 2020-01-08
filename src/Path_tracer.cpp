@@ -170,9 +170,10 @@ int main(int argc, char const *argv[])
                 white),
             36000, RGB(1., 1., 1.));
 
-        //PointLight light(Point(W / 2, H - 75, c.f.mod() + 750), 360000., RGB(1., 1., 1.));
+        //PointLight light2(Point(50, H - 50, c.f.mod() + 700), 36000000., RGB(1., 1., 1.));
         World w;
         w.add_light(&light);
+        //w.add_light(&light2);
         w.add_objects(objs);
         w.set_background(RGB(0, 0, 0));
         std::thread P[NUM_THREADS];

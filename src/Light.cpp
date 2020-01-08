@@ -4,7 +4,7 @@
  * Autor: David Solanas, Santiago Buey
  *****************************************/
 
-#include "Light.hpp"
+#include "Scene.hpp"
 #include <random>
 #include <cmath>
 #include <iostream>
@@ -43,12 +43,26 @@ int PointLight::get_number_of_samples()
     return 1;
 }
 
-RGB PointLight::get_incoming_light(const Point &X, const Direction &normal)
+RGB PointLight::get_incoming_light(const World &w, const Point &X, const Direction &normal)
 {
     RGB Li = get_light_amount() / ((p - X).mod() * (p - X).mod());
     Direction wi = normalize(p - X);
+    //Comprobar si dicho vector intersecta con alguna geometría, si es así
+    //no habrá luz directa, será indirecta.
+    float t_wi = (p - X).mod();
+    Ray ray(X, wi);
+    Object *obj = w.first_intersection(ray);
     float g = std::max(0.0f, dot(normal, wi));
-    return Li * g;
+    if (g > 0 && (obj == nullptr || t_wi < ray.get_parameter()))
+    {
+        //No intersection with object or light is nearer than geometry
+        return Li * g;
+    }
+    else
+    {
+        //No direct light
+        return RGB(.0f, .0f, .0f);
+    }
 }
 
 bool PointLight::is_visible(const Point &X)
@@ -84,7 +98,7 @@ int PlaneLight::get_number_of_samples()
     return p.get_area();
 }
 
-RGB PlaneLight::get_incoming_light(const Point &X, const Direction &normal)
+RGB PlaneLight::get_incoming_light(const World &w, const Point &X, const Direction &normal)
 {
     return RGB(.0f, .0f, .0f);
 }
@@ -124,7 +138,7 @@ int SphereLight::get_number_of_samples()
     return s.get_area();
 }
 
-RGB SphereLight::get_incoming_light(const Point &X, const Direction &normal)
+RGB SphereLight::get_incoming_light(const World &w, const Point &X, const Direction &normal)
 {
     return RGB(.0f, .0f, .0f);
 }
