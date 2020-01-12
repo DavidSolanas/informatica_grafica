@@ -49,11 +49,8 @@ RGB PointLight::get_incoming_light(const World &w, const Point &X, const Directi
     Direction wi = normalize(p - X);
     //Comprobar si dicho vector intersecta con alguna geometría, si es así
     //no habrá luz directa, será indirecta.
-    float t_wi = (p - X).mod();
-    Ray ray(X, wi);
-    Object *obj = w.first_intersection(ray);
     float g = std::max(0.0f, dot(normal, wi));
-    if (g > 0 && (obj == nullptr || t_wi < ray.get_parameter()))
+    if (g > 0 && is_visible(X, w))
     {
         //No intersection with object or light is nearer than geometry
         return Li * g;
@@ -65,9 +62,13 @@ RGB PointLight::get_incoming_light(const World &w, const Point &X, const Directi
     }
 }
 
-bool PointLight::is_visible(const Point &X)
+bool PointLight::is_visible(const Point &X, const World &w)
 {
-    return true;
+    float t_wi = (p - X).mod();
+    Direction wi = normalize(p - X);
+    Ray ray(X, wi);
+    Object *obj = w.first_intersection(ray);
+    return obj == nullptr || t_wi < ray.get_parameter();
 }
 
 Object *PointLight::get_object()
@@ -103,7 +104,7 @@ RGB PlaneLight::get_incoming_light(const World &w, const Point &X, const Directi
     return RGB(.0f, .0f, .0f);
 }
 
-bool PlaneLight::is_visible(const Point &X)
+bool PlaneLight::is_visible(const Point &X, const World &w)
 {
     return true;
 }
@@ -143,7 +144,7 @@ RGB SphereLight::get_incoming_light(const World &w, const Point &X, const Direct
     return RGB(.0f, .0f, .0f);
 }
 
-bool SphereLight::is_visible(const Point &X)
+bool SphereLight::is_visible(const Point &X, const World &w)
 {
     return true;
 }

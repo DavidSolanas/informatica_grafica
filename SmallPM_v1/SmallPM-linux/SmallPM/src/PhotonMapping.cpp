@@ -17,6 +17,19 @@ In no event shall copyright holders be liable for any damage.
 #include "Ray.h"
 #include "BSDF.h"
 #include "../smallrt/include/globals.h"
+#include <random>
+
+/**
+ * This function returns a random real number between 
+ * the values 'a' and 'b'
+ */
+Real get_random_value(const Real a, const Real b)
+{
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_real_distribution<Real> dist(a, b);
+	return dist(mt);
+}
 
 //*********************************************************************
 // Compute the photons by tracing the Ray 'r' from the light source
@@ -93,10 +106,7 @@ bool PhotonMapping::trace_ray(const Ray &r, const Vector3 &p,
 		Vector3 surf_albedo = it.intersected()->material()->get_albedo(it);
 		Real avg_surf_albedo = surf_albedo.avg();
 
-		Real epsilon2 = static_cast<Real>(rand()) / static_cast<Real>(RAND_MAX);
-		while (epsilon2 < 0.)
-			epsilon2 = static_cast<Real>(rand()) / static_cast<Real>(RAND_MAX);
-
+		Real epsilon2 = get_random_value(0.f, 1.f);
 		if (epsilon2 > avg_surf_albedo || photon_ray.get_level() > MAX_PHOTON_ITERATIONS)
 			break;
 
@@ -141,6 +151,46 @@ bool PhotonMapping::trace_ray(const Ray &r, const Vector3 &p,
 //---------------------------------------------------------------------
 void PhotonMapping::preprocess()
 {
+	// De momento solo con una fuente de luz para probar
+	bool go_on = true;
+	std::list<Photon> global_photons, caustic_photons;
+	bool direct = m_raytraced_direct, direct_only = false;
+	while (go_on)
+	{
+		Real x, y, z;
+		do
+		{
+			//Random unit vector <x,y,z>
+			x = get_random_value(-1.f, 1.f);
+			y = get_random_value(-1.f, 1.f);
+			z = get_random_value(-1.f, 1.f);
+		} while (x * x + y * y + z * z > 1);
+		Vector3 d(x, y, z);
+		Ray r(world->light(0).get_position(), d);
+		go_on = trace_ray(r, world->light(0).get_intensities() / m_max_nb_shots, global_photons, caustic_photons, direct, direct_only);
+	}
+	//Fotones trazados
+	//construir mapa de fotones
+	for (auto &&photon : global_photons)
+	{
+		std::vector<float> pos(3);
+		pos[0] = photon.position.data[0];
+		pos[1] = photon.position.data[1];
+		pos[2] = photon.position.data[2];
+		m_global_map.store(pos, photon);
+	}
+	for (auto &&photon : caustic_photons)
+	{
+		std::vector<float> pos(3);
+		pos[0] = photon.position.data[0];
+		pos[1] = photon.position.data[1];
+		pos[2] = photon.position.data[2];
+		m_caustics_map.store(pos, photon);
+	}
+	if (global_photons.size() > 0)
+		m_global_map.balance();
+	if (caustic_photons.size() > 0)
+		m_caustics_map.balance();
 }
 
 //*********************************************************************
@@ -221,7 +271,24 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 			r.shift();
 			world->first_intersection(r, it);
 		}
-		L = it.intersected()->material()->get_albedo(it);
+		std::vector<const KDTree<PhotonMapping::Photon, 3>::Node *> nodes;
+		Real max_distance;
+		std::vector<Real> pos(3);
+		pos[0] = it.get_position().data[0];
+		pos[1] = it.get_position().data[1];
+		pos[2] = it.get_position().data[2];
+
+		//Find 'm_nb_photons' global nearest to intersection it
+		m_global_map.find(pos, m_nb_photons, nodes, max_distance);
+
+		Real _area = M_PI * max_distance * max_distance;
+		for (auto &&photon : nodes)
+		{
+			L = L + (it.intersected()->material()->get_albedo(it) * photon->data().flux);
+		}
+		L = L / _area;
+		//std::cout << L.data[0] << "   " << L.data[1] << "   " << L.data[2] << std::endl;
+		break;
 	}
 	// End of exampled code
 	//**********************************************************************

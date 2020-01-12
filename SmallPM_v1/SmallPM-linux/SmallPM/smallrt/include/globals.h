@@ -26,7 +26,7 @@ In no event shall copyright holders be liable for any damage.
 #endif
 
 #ifndef MAX_NB_BOUNCES
-#define MAX_NB_BOUNCES 7
+#define MAX_NB_BOUNCES 20
 #endif
 
 #ifndef NB_SAMPLES_ANTIALIASING

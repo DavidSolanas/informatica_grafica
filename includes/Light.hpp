@@ -22,7 +22,7 @@ public:
     virtual Point get_point_on_surface() = 0;
     virtual int get_number_of_samples() = 0;
     virtual RGB get_incoming_light(const World &w, const Point &X, const Direction &normal) = 0;
-    virtual bool is_visible(const Point &X) = 0;
+    virtual bool is_visible(const Point &X, const World &w) = 0;
     virtual Object *get_object() = 0;
     ~Light();
 };
@@ -35,7 +35,7 @@ public:
     Point get_point_on_surface() override;
     int get_number_of_samples() override;
     RGB get_incoming_light(const World &w, const Point &X, const Direction &normal) override;
-    bool is_visible(const Point &X) override;
+    bool is_visible(const Point &X, const World &w) override;
     Object *get_object() override;
     ~PointLight();
 };
@@ -48,7 +48,7 @@ public:
     Point get_point_on_surface() override;
     RGB get_incoming_light(const World &w, const Point &X, const Direction &normal) override;
     int get_number_of_samples() override;
-    bool is_visible(const Point &X) override;
+    bool is_visible(const Point &X, const World &w) override;
     Object *get_object() override;
     ~PlaneLight();
 };
@@ -61,7 +61,7 @@ public:
     Point get_point_on_surface() override;
     RGB get_incoming_light(const World &w, const Point &X, const Direction &normal) override;
     int get_number_of_samples() override;
-    bool is_visible(const Point &X) override;
+    bool is_visible(const Point &X, const World &w) override;
     Object *get_object() override;
     ~SphereLight();
 };
