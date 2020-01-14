@@ -19,6 +19,12 @@ In no event shall copyright holders be liable for any damage.
 #include "../smallrt/include/globals.h"
 #include <random>
 
+std::ostream &operator<<(std::ostream &os, const Vector3 &c)
+{
+	os << c.data[0] << " " << c.data[1] << " " << c.data[2] << "     ";
+	return os;
+}
+
 /**
  * This function returns a random real number between 
  * the values 'a' and 'b'
@@ -49,7 +55,7 @@ bool PhotonMapping::trace_ray(const Ray &r, const Vector3 &p,
 							  std::list<Photon> &global_photons, std::list<Photon> &caustic_photons, bool direct, bool direct_only)
 {
 #ifndef MAX_PHOTON_ITERATIONS
-#define MAX_PHOTON_ITERATIONS 20
+#define MAX_PHOTON_ITERATIONS 7
 #endif
 
 	//Check if max number of shots done...
@@ -154,7 +160,7 @@ void PhotonMapping::preprocess()
 	// De momento solo con una fuente de luz para probar
 	bool go_on = true;
 	std::list<Photon> global_photons, caustic_photons;
-	bool direct = m_raytraced_direct, direct_only = false;
+	bool direct = false, direct_only = false;
 	while (go_on)
 	{
 		Real x, y, z;
@@ -193,6 +199,146 @@ void PhotonMapping::preprocess()
 		m_caustics_map.balance();
 }
 
+/**
+ * This function computes the direct light contribution from source lights to
+ * point at intersection 'it'
+ */
+Vector3 direct_light_contribution(World *world, Intersection &it)
+{
+	Vector3 albedo = it.intersected()->material()->get_albedo(it);
+	Vector3 L_l(0.0000001);
+	for (auto &&light : world->light_source_list)
+	{
+		if (light->is_visible(it.get_position()))
+		{
+			Vector3 wi = light->get_incoming_direction(it.get_position()).normalize() * -1;
+			Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
+			Vector3 wo = it.get_ray().get_direction();
+			Vector3 brdf(1);
+			if (!it.intersected()->material()->is_delta())
+			{
+				Real alpha = it.intersected()->material()->get_specular(it);
+				//Phong or lambertian
+				if (alpha == 0.)
+				{
+					//Lambertian
+					brdf = albedo / M_PI;
+				}
+				else
+				{
+					//Phong
+					brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+				}
+			}
+			else
+			{
+				//Reflexive or refractive
+				brdf = albedo / wi.dot_abs(it.get_normal());
+			}
+			L_l = L_l +
+				  (light->get_incoming_light(it.get_position()) * brdf *
+				   it.get_normal().dot_abs(wi));
+		}
+	}
+	return L_l;
+}
+
+/**
+ * Multiple Diffuse reflections
+ */
+Vector3 global_photons_radiance(const PhotonMapping *pm, Intersection &it)
+{
+	Real max_distance;
+	Vector3 L_d(0);
+	Vector3 albedo = it.intersected()->material()->get_albedo(it);
+	std::vector<Real> pos(3);
+	std::vector<const KDTree<PhotonMapping::Photon, 3>::Node *> nodes_g;
+	pos[0] = it.get_position().data[0];
+	pos[1] = it.get_position().data[1];
+	pos[2] = it.get_position().data[2];
+
+	//Find 'm_nb_photons' global nearest to intersection it
+	pm->m_global_map.find(pos, pm->m_nb_photons, nodes_g, max_distance);
+
+	Real _area = M_PI * max_distance * max_distance;
+	for (auto &&photon : nodes_g)
+	{
+		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
+		Real alpha = it.intersected()->material()->get_specular(it);
+		Vector3 brdf;
+		if (!it.intersected()->material()->is_delta())
+		{
+			//Phong o Lambertiano
+			if (alpha == 0.)
+			{
+				//Lambertiano
+				brdf = albedo / M_PI;
+			}
+			else
+			{
+				Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
+				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+			}
+		}
+		else
+		{
+			//Refractive or reflexive
+			brdf = albedo / wi.dot_abs(it.get_normal());
+		}
+
+		L_d = L_d + photon->data().flux * brdf;
+	}
+	return L_d / _area;
+}
+
+/**
+ * Caustics
+ */
+Vector3 caustic_photons_radiance(const PhotonMapping *pm, Intersection &it)
+{
+	Real max_distance;
+	Vector3 L_c(0);
+	Vector3 albedo = it.intersected()->material()->get_albedo(it);
+	std::vector<Real> pos(3);
+	std::vector<const KDTree<PhotonMapping::Photon, 3>::Node *> nodes_c;
+	pos[0] = it.get_position().data[0];
+	pos[1] = it.get_position().data[1];
+	pos[2] = it.get_position().data[2];
+
+	//Find 'm_nb_photons' global nearest to intersection it
+	pm->m_caustics_map.find(pos, pm->m_nb_photons, nodes_c, max_distance);
+	Real _area = M_PI * max_distance * max_distance;
+
+	for (auto &&photon : nodes_c)
+	{
+		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
+		Real alpha = it.intersected()->material()->get_specular(it);
+		Vector3 brdf;
+		if (!it.intersected()->material()->is_delta())
+		{
+			//Phong o Lambertiano
+			if (alpha == 0.)
+			{
+				//Lambertiano
+				brdf = albedo / M_PI;
+			}
+			else
+			{
+				Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
+				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+			}
+		}
+		else
+		{
+			//Refractive or reflexive
+			brdf = albedo / wi.dot_abs(it.get_normal());
+		}
+
+		L_c = L_c + photon->data().flux * brdf;
+	}
+	return L_c / _area;
+}
+
 //*********************************************************************
 // TODO: Implement the function that computes the rendering equation
 // using radiance estimation with photon mapping, using the photon
@@ -206,10 +352,93 @@ void PhotonMapping::preprocess()
 //---------------------------------------------------------------------
 Vector3 PhotonMapping::shade(Intersection &it0) const
 {
-	Vector3 L(0);
+	Vector3 L(0), L_l(0);
 	Vector3 W(1);
+	Vector3 W_s(1);
+	Vector3 W_c(1);
+	Vector3 W_d(1);
+	Vector3 L_s(0);
+	Vector3 L_c(0);
+	Vector3 L_d(0);
+	Ray r;
+	Real max_distance, _area, pdf, cos_r;
+	std::vector<const KDTree<PhotonMapping::Photon, 3>::Node *> nodes_c, nodes_g;
+	std::vector<Real> pos(3);
 
 	Intersection it(it0);
+	Vector3 albedo = it.intersected()->material()->get_albedo(it);
+
+	it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
+	cos_r = it.get_normal().dot_abs(r.get_direction()) / pdf;
+
+	pos[0] = it.get_position().data[0];
+	pos[1] = it.get_position().data[1];
+	pos[2] = it.get_position().data[2];
+
+	/**
+	 * Compute direct illumination on point 'it.get_position()'
+	 */
+	if (!it.intersected()->material()->is_delta())
+		L_l = direct_light_contribution(world, it);
+
+	/**
+	 * Multiple Diffuse reflections
+	 */
+	if (!it.intersected()->material()->is_delta())
+		L_d = global_photons_radiance(this, it);
+
+	/**
+	 * Caustics
+	 */
+	L_c = caustic_photons_radiance(this, it);
+
+	/**
+	 * Compute specular reflection/refraction on point 'it.get_position()'
+	 */
+	// ----------------------------------------------------------------
+	// Reflect and refract until a diffuse surface is found, then show its albedo...
+	int nb_bounces = 0;
+	// MAX_NB_BOUNCES defined in ./SmallRT/include/globals.h
+	while (it.intersected()->material()->is_delta() && ++nb_bounces < MAX_NB_BOUNCES)
+	{
+		Ray r;
+		float pdf;
+		it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
+		W_s = W_s * it.intersected()->material()->get_albedo(it) / pdf;
+		r.shift();
+		world->first_intersection(r, it);
+	}
+	if (nb_bounces > 0)
+	{
+		//Find 'm_nb_photons' global nearest to intersection it
+		pos[0] = it.get_position().data[0];
+		pos[1] = it.get_position().data[1];
+		pos[2] = it.get_position().data[2];
+		nodes_g.clear();
+		m_global_map.find(pos, m_nb_photons, nodes_g, max_distance);
+
+		_area = M_PI * max_distance * max_distance;
+		for (auto &&photon : nodes_g)
+		{
+			Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
+			Real alpha = it.intersected()->material()->get_specular(it);
+			Vector3 brdf;
+			//Phong o Lambertiano
+			if (alpha == 0.)
+			{
+				//Lambertiano
+				brdf = albedo / M_PI;
+			}
+			else
+			{
+				Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
+				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+			}
+
+			L_s = L_s + photon->data().flux * brdf;
+		}
+		L_s = L_s * W_s / _area;
+	}
 
 	//**********************************************************************
 	// The following piece of code is included here for two reasons: first
@@ -218,7 +447,7 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 	// will need when doing the work. Goes without saying: remove the
 	// pieces of code that you won't be using.
 	//
-	unsigned int debug_mode = 7;
+	unsigned int debug_mode = 0;
 
 	switch (debug_mode)
 	{
@@ -287,11 +516,10 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 			L = L + (it.intersected()->material()->get_albedo(it) * photon->data().flux);
 		}
 		L = L / _area;
-		//std::cout << L.data[0] << "   " << L.data[1] << "   " << L.data[2] << std::endl;
 		break;
 	}
 	// End of exampled code
 	//**********************************************************************
 
-	return L * W;
+	return L_l + L_d + L_c + L_s;
 }

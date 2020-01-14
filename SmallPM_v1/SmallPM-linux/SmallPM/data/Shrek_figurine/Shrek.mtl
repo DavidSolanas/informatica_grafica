@@ -12,8 +12,8 @@ newmtl 08___Default
 	Kd 0.5882 0.5882 0.5882
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka C:\Users\Tommy\Documents\Game rips\Shrek the Third\Shrek\Shrek_Head_Legs.dds
-	map_Kd C:\Users\Tommy\Documents\Game rips\Shrek the Third\Shrek\Shrek_Head_Legs.dds
+	map_Ka /Users/david/Documents/informatica_grafica/SmallPM_v1/SmallPM-linux/SmallPM/data/Shrek_figurine/Shrek_Head_Legs.dds
+	map_Kd /Users/david/Documents/informatica_grafica/SmallPM_v1/SmallPM-linux/SmallPM/data/Shrek_figurine/Shrek_Head_Legs.dds
 
 newmtl 02___Default
 	Ns 10.0000
@@ -26,5 +26,5 @@ newmtl 02___Default
 	Kd 0.5882 0.5882 0.5882
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka C:\Users\Tommy\Documents\Game rips\Shrek the Third\Shrek\Shrek_Body.dds
-	map_Kd C:\Users\Tommy\Documents\Game rips\Shrek the Third\Shrek\Shrek_Body.dds
+	map_Ka /Users/david/Documents/informatica_grafica/SmallPM_v1/SmallPM-linux/SmallPM/data/Shrek_figurine/Shrek_Body.dds
+	map_Kd /Users/david/Documents/informatica_grafica/SmallPM_v1/SmallPM-linux/SmallPM/data/Shrek_figurine/Shrek_Body.dds

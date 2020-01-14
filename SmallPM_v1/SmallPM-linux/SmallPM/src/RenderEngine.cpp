@@ -16,16 +16,16 @@ In no event shall copyright holders be liable for any damage.
 #include <windows.h>
 #endif
 
-
 #include "Timer.h"
 #include "RenderEngine.h"
 #include "Film.h"
 #include <math.h>
 #include <iostream>
+#include <thread>
 
 using namespace std;
 
-const Vector3 RenderEngine::trace_ray(const Vector2& pi)
+const Vector3 RenderEngine::trace_ray(const Vector2 &pi)
 {
 	// NOTE: Vector2 'pi' stores the pixel coordinates in the range
 	//			pi[0] in [0, film->sizex-1], pi[1] in [0, film->sizey-1]
@@ -34,8 +34,8 @@ const Vector3 RenderEngine::trace_ray(const Vector2& pi)
 
 	Intersection it;
 	world->first_intersection(r, it);
-	
-	// Get the ray's first intersection in the scene (if exists)	
+
+	// Get the ray's first intersection in the scene (if exists)
 	if (it.did_hit())
 	{
 		return photon_mapping->shade(it);
@@ -45,19 +45,36 @@ const Vector3 RenderEngine::trace_ray(const Vector2& pi)
 		return world->get_background();
 }
 
-void RenderEngine::render(const std::string& name)
+void RenderEngine::render_multi_thread(int x_start, int x_end, int y_start, int y_end)
 {
-	Timer timer;timer.start();
+	for (int y = y_start; y < y_end; ++y)
+	{
+		for (int x = x_start; x < x_end; ++x)
+		{
+			//Get color!
+			Vector3 col = trace_ray(Vector2(x, y));
+
+			//Store the RGB data on film
+			film->draw_pixel(x, y, col);
+		}
+	}
+}
+
+void RenderEngine::render(const std::string &name)
+{
+	Timer timer;
+	timer.start();
 
 	cout << "Preparing scene to be rendered...\r";
 	world->fix();
 	{
 		Real secs = timer.get_secs();
-		int hours = static_cast<int>(secs)/3600; secs -= hours*3600;
-		int minutes = static_cast<int>(secs)/60; secs -= minutes*60;
-		std::cout << "Prepared scene to render: \t["<<hours<<":"<<minutes<<":"<<secs<<"]             \n"; 
+		int hours = static_cast<int>(secs) / 3600;
+		secs -= hours * 3600;
+		int minutes = static_cast<int>(secs) / 60;
+		secs -= minutes * 60;
+		std::cout << "Prepared scene to render: \t[" << hours << ":" << minutes << ":" << secs << "]             \n";
 	}
-
 
 	// ----------------------------------------------------------------------
 	// Precompute...
@@ -66,55 +83,51 @@ void RenderEngine::render(const std::string& name)
 	photon_mapping->preprocess();
 	{
 		Real secs = timer.get_secs();
-		int hours = static_cast<int>(secs)/3600; secs -= hours*3600;
-		int minutes = static_cast<int>(secs)/60; secs -= minutes*60;
-		std::cout << "Photons Shot: \t["<<hours<<":"<<minutes<<":"<<secs<<"]             \n"; 
+		int hours = static_cast<int>(secs) / 3600;
+		secs -= hours * 3600;
+		int minutes = static_cast<int>(secs) / 60;
+		secs -= minutes * 60;
+		std::cout << "Photons Shot: \t[" << hours << ":" << minutes << ":" << secs << "]             \n";
 	}
-	
+
 	// ----------------------------------------------------------------------
 	// Start timer and go ...
 	//
-	int x=0;
-	Real weight = 1./(NB_SAMPLES_ANTIALIASING);
+	int x = 0;
+	Real weight = 1. / (NB_SAMPLES_ANTIALIASING);
 	int sq_samples_aa = sqrtf(static_cast<float>(NB_SAMPLES_ANTIALIASING));
 
-	cout << "Rendering ...\r"; 
+	cout << "Rendering ...\r";
 	timer.start();
 
 	// ----------------------------------------------------------------------
 	//Raytrace all samples in the image
 
 	//for all pixels...
-		//trace a ray on each pixel (see function 'RenderEngine::trace_ray()')
-	for (int y=0;y<film->get_height(); ++y)
-	{	
-		if(!(y%10))
-		{
-			Real secs = timer.get_secs();
-			int hours = static_cast<int>(secs)/3600; secs -= hours*3600;
-			int minutes = static_cast<int>(secs)/60; secs -= minutes*60;
-			std::cout << "Rendering ..."
-				<<static_cast<Real>(y)/film->get_height()*100<<"%: \t["<<hours<<":"<<minutes<<":"<<secs<<"]             "<<"\r"; 
-		}
-		for( int x=0; x<film->get_width(); ++x)
-		{
-			//Get color!
-			Vector3 col = trace_ray(Vector2(x,y));
-
-			//Store the RGB data on film
-			film->draw_pixel(x,y, col);
-		}
+	//trace a ray on each pixel (see function 'RenderEngine::trace_ray()')
+	const int NUM_THREADS = 4;
+	std::thread P[NUM_THREADS];
+	int split_y = film->get_height() / NUM_THREADS;
+	for (int i = 0; i < NUM_THREADS; i++)
+	{
+		P[i] = std::thread(&RenderEngine::render_multi_thread, this, 0, film->get_width(), i * split_y, (i + 1) * split_y);
+	}
+	for (int i = 0; i < NUM_THREADS; i++)
+	{
+		P[i].join();
 	}
 
 	// ----------------------------------------------------------------------
 	// Rendering finished...
 	Real secs = timer.get_secs();
-	int hours = static_cast<int>(secs)/3600; secs -= hours*3600;
-	int minutes = static_cast<int>(secs)/60; secs -= minutes*60;
+	int hours = static_cast<int>(secs) / 3600;
+	secs -= hours * 3600;
+	int minutes = static_cast<int>(secs) / 60;
+	secs -= minutes * 60;
 	cout << "Rendering ..."
-				<<"[DONE]: \t["<<hours<<":"<<minutes<<":"<<secs<<"]                        "<<"\n"; 
-	
-	
+		 << "[DONE]: \t[" << hours << ":" << minutes << ":" << secs << "]                        "
+		 << "\n";
+
 	//..., save the image!
 	film->write(name.c_str());
 }

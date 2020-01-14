@@ -51,8 +51,8 @@ int main(int argc, char *argv[])
 	unsigned int scene = 0;
 
 	unsigned int photons_global = 100000,
-				 photons_caustic = 50000,
-				 max_shots = 100000,
+				 photons_caustic = 100000,
+				 max_shots = 20000,
 				 nb_nearest_photons = 500;
 
 	// ---------------------------------------------------------------------
@@ -131,6 +131,7 @@ int main(int argc, char *argv[])
 
 	BSDF *white = new Lambertian(w, Vector3(.85, .85, .85));
 	BSDF *red = new Lambertian(w, Vector3(.85, .085, .085));
+	BSDF *red_phong = new Phong(w);
 	BSDF *green = new Lambertian(w, Vector3(.085, .85, .085));
 	BSDF *orange = new Lambertian(w, Vector3(.85, .6, .0));
 
@@ -194,8 +195,8 @@ int main(int argc, char *argv[])
 	break;
 	case 3:
 	{
-		//Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, glass);
-		//w->add_object(sphere1);
+		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, red_phong);
+		w->add_object(sphere1);
 
 		Mesh *bunny = new Mesh("data/bunny.obj", red);
 		w->add_object(bunny);
@@ -211,15 +212,15 @@ int main(int argc, char *argv[])
 	break;
 	default:
 	{
-		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, white);
+		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, red_phong);
 		w->add_object(sphere1);
 
-		Object3D *sphere2 = new Sphere(Vector3(-0.5, 0.5, 1.5), 0.3, red);
+		Object3D *sphere2 = new Sphere(Vector3(-0.5, 0.5, 1.5), 0.3, red_phong);
 		w->add_object(sphere2);
 	}
 	}
 
-	LightSource *ls = new PointLightSource(w, Vector3(0, 1.9, 0), Vector3(5, 5, 5));
+	LightSource *ls = new PointLightSource(w, Vector3(0, 1.9, 0), Vector3(3, 3, 3));
 	w->add_light(ls);
 
 	w->fix();

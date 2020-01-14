@@ -32,31 +32,28 @@ class RenderEngine
 {
 	/// World (containing all objects and lights),
 	World *world;
-	
+
 	/// Film (unto which pixels are drawn).
-	Film* film;
+	Film *film;
 
 	/// Viewing information.
-	Camera* camera;
+	Camera *camera;
 
 	// Photon Mapping Integrator
 	PhotonMapping *photon_mapping;
 
 	/// Trace a single ray
-	const Vector3 trace_ray(const Vector2& pi);
-		
+	const Vector3 trace_ray(const Vector2 &pi);
+
 public:
-
 	/** Build engine from world information, a Film and a camera. */
- 	RenderEngine(World*  _world, Film* _film, Camera* _camera, PhotonMapping *_pm): 
- 		world(_world), film(_film), camera(_camera), photon_mapping(_pm)
+	RenderEngine(World *_world, Film *_film, Camera *_camera, PhotonMapping *_pm) : world(_world), film(_film), camera(_camera), photon_mapping(_pm)
 	{
-		srand((unsigned)time(0));	
+		srand((unsigned)time(0));
 	}
-	
-	void render(const std::string& name);
 
+	void render(const std::string &name);
+	void render_multi_thread(int x_start, int x_end, int y_start, int y_end);
 };
 
 #endif
-
