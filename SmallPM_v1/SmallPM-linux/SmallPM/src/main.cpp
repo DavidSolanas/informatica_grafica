@@ -50,10 +50,10 @@ int main(int argc, char *argv[])
 
 	unsigned int scene = 0;
 
-	unsigned int photons_global = 100000,
-				 photons_caustic = 100000,
+	unsigned int photons_global = 10000,
+				 photons_caustic = 10000,
 				 max_shots = 20000,
-				 nb_nearest_photons = 500;
+				 nb_nearest_photons = 100;
 
 	// ---------------------------------------------------------------------
 	// Parse input
@@ -131,6 +131,7 @@ int main(int argc, char *argv[])
 
 	BSDF *white = new Lambertian(w, Vector3(.85, .85, .85));
 	BSDF *red = new Lambertian(w, Vector3(.85, .085, .085));
+	BSDF *blue = new Lambertian(w, Vector3(.085, .085, .85));
 	BSDF *red_phong = new Phong(w);
 	BSDF *green = new Lambertian(w, Vector3(.085, .85, .085));
 	BSDF *orange = new Lambertian(w, Vector3(.85, .6, .0));
@@ -164,20 +165,20 @@ int main(int argc, char *argv[])
 	w->add_object(left2);
 
 	Object3D *right1 = new Triangle(Vector3(1, 2.5, 1.5), Vector3(1, 2.5, -1.5),
-									Vector3(1, -.5, -1.5), green);
+									Vector3(1, -.5, -1.5), blue);
 	w->add_object(right1);
 	Object3D *right2 = new Triangle(Vector3(1, 2.5, 1.5), Vector3(1, -.5, -1.5),
-									Vector3(1, -.5, 1.5), green);
+									Vector3(1, -.5, 1.5), blue);
 	w->add_object(right2);
 
 	switch (scene)
 	{
 	case 1:
 	{
-		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, glass);
+		Object3D *sphere1 = new Sphere(Vector3(0.31, 0.3, .4), 0.3, glass);
 		w->add_object(sphere1);
 
-		Object3D *sphere2 = new Sphere(Vector3(-0.5, 0.5, .5), 0.3, mirror);
+		Object3D *sphere2 = new Sphere(Vector3(-0.31, 0.3, .0), 0.3, mirror);
 		w->add_object(sphere2);
 	}
 	break;
@@ -204,7 +205,7 @@ int main(int argc, char *argv[])
 	break;
 	case 4:
 	{
-		Object3D *sphere1 = new Sphere(Vector3(0, 0.8, 0), 0.6, glass);
+		Object3D *sphere1 = new Sphere(Vector3(0, 0.8, 0), 0.1, green);
 		w->add_object(sphere1);
 		Object3D *sphere2 = new Sphere(Vector3(0, 0.8, 0), 0.3, orange);
 		w->add_object(sphere2);
@@ -220,7 +221,7 @@ int main(int argc, char *argv[])
 	}
 	}
 
-	LightSource *ls = new PointLightSource(w, Vector3(0, 1.9, 0), Vector3(3, 3, 3));
+	LightSource *ls = new PointLightSource(w, Vector3(0, 1.9, 0), Vector3(7, 7, 7));
 	w->add_light(ls);
 
 	w->fix();

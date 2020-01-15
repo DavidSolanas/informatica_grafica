@@ -18,6 +18,7 @@ In no event shall copyright holders be liable for any damage.
 #include "BSDF.h"
 #include "../smallrt/include/globals.h"
 #include <random>
+#include "Transmissive.h"
 
 std::ostream &operator<<(std::ostream &os, const Vector3 &c)
 {
@@ -120,7 +121,7 @@ bool PhotonMapping::trace_ray(const Ray &r, const Vector3 &p,
 			break;
 
 		// Random walk's next step
-		// Get sampled direction plus pdf, and update attenuation
+		// Get sampled Vector3 plus pdf, and update attenuation
 		it.intersected()->material()->get_outgoing_sample_ray(it, photon_ray, pdf);
 
 		// Shade...
@@ -160,7 +161,7 @@ void PhotonMapping::preprocess()
 	// De momento solo con una fuente de luz para probar
 	bool go_on = true;
 	std::list<Photon> global_photons, caustic_photons;
-	bool direct = false, direct_only = false;
+	bool direct = m_raytraced_direct, direct_only = false;
 	while (go_on)
 	{
 		Real x, y, z;
@@ -199,6 +200,16 @@ void PhotonMapping::preprocess()
 		m_caustics_map.balance();
 }
 
+bool equals(const Vector3 &a, const Vector3 &b)
+{
+	return (a.data[0] - b.data[0] < 1e-8) && (a.data[1] - b.data[1] < 1e-8) && (a.data[2] - b.data[2] < 1e-8);
+}
+
+Vector3 get_reflection(const Vector3 &n, const Vector3 &wi)
+{
+	return (wi - (n * dot(wi, n) * 2)).normalize();
+}
+
 /**
  * This function computes the direct light contribution from source lights to
  * point at intersection 'it'
@@ -212,14 +223,14 @@ Vector3 direct_light_contribution(World *world, Intersection &it)
 		if (light->is_visible(it.get_position()))
 		{
 			Vector3 wi = light->get_incoming_direction(it.get_position()).normalize() * -1;
-			Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
 			Vector3 wo = it.get_ray().get_direction();
-			Vector3 brdf(1);
+			Vector3 wr = get_reflection(it.get_normal(), wo);
+			Vector3 brdf(0);
 			if (!it.intersected()->material()->is_delta())
 			{
 				Real alpha = it.intersected()->material()->get_specular(it);
 				//Phong or lambertian
-				if (alpha == 0.)
+				if (alpha == 0. || alpha == INFINITY)
 				{
 					//Lambertian
 					brdf = albedo / M_PI;
@@ -233,7 +244,10 @@ Vector3 direct_light_contribution(World *world, Intersection &it)
 			else
 			{
 				//Reflexive or refractive
-				brdf = albedo / wi.dot_abs(it.get_normal());
+				Ray r;
+				Real pdf;
+				it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
+				brdf = equals(r.get_direction(), wi) ? albedo / wi.dot_abs(it.get_normal()) : 0;
 			}
 			L_l = L_l +
 				  (light->get_incoming_light(it.get_position()) * brdf *
@@ -266,24 +280,27 @@ Vector3 global_photons_radiance(const PhotonMapping *pm, Intersection &it)
 		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
 		Real alpha = it.intersected()->material()->get_specular(it);
 		Vector3 brdf;
+		Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
 		if (!it.intersected()->material()->is_delta())
 		{
 			//Phong o Lambertiano
-			if (alpha == 0.)
+			if (alpha == 0. || alpha == INFINITY)
 			{
 				//Lambertiano
 				brdf = albedo / M_PI;
 			}
 			else
 			{
-				Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
 				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
 			}
 		}
 		else
 		{
 			//Refractive or reflexive
-			brdf = albedo / wi.dot_abs(it.get_normal());
+			Ray r;
+			Real pdf;
+			it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
+			brdf = equals(r.get_direction(), wi) ? albedo / wi.dot_abs(it.get_normal()) : 0;
 		}
 
 		L_d = L_d + photon->data().flux * brdf;
@@ -314,24 +331,27 @@ Vector3 caustic_photons_radiance(const PhotonMapping *pm, Intersection &it)
 		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
 		Real alpha = it.intersected()->material()->get_specular(it);
 		Vector3 brdf;
+		Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
 		if (!it.intersected()->material()->is_delta())
 		{
 			//Phong o Lambertiano
-			if (alpha == 0.)
+			if (alpha == 0. || alpha == INFINITY)
 			{
 				//Lambertiano
 				brdf = albedo / M_PI;
 			}
 			else
 			{
-				Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
 				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
 			}
 		}
 		else
 		{
 			//Refractive or reflexive
-			brdf = albedo / wi.dot_abs(it.get_normal());
+			Ray r;
+			Real pdf;
+			it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
+			brdf = equals(r.get_direction(), wi) ? albedo / wi.dot_abs(it.get_normal()) : 0;
 		}
 
 		L_c = L_c + photon->data().flux * brdf;
@@ -354,26 +374,14 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 {
 	Vector3 L(0), L_l(0);
 	Vector3 W(1);
-	Vector3 W_s(1);
-	Vector3 W_c(1);
-	Vector3 W_d(1);
+
 	Vector3 L_s(0);
 	Vector3 L_c(0);
 	Vector3 L_d(0);
 	Ray r;
-	Real max_distance, _area, pdf, cos_r;
-	std::vector<const KDTree<PhotonMapping::Photon, 3>::Node *> nodes_c, nodes_g;
-	std::vector<Real> pos(3);
 
 	Intersection it(it0);
 	Vector3 albedo = it.intersected()->material()->get_albedo(it);
-
-	it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
-	cos_r = it.get_normal().dot_abs(r.get_direction()) / pdf;
-
-	pos[0] = it.get_position().data[0];
-	pos[1] = it.get_position().data[1];
-	pos[2] = it.get_position().data[2];
 
 	/**
 	 * Compute direct illumination on point 'it.get_position()'
@@ -383,14 +391,15 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 
 	/**
 	 * Multiple Diffuse reflections
-	 */
+	 *
 	if (!it.intersected()->material()->is_delta())
 		L_d = global_photons_radiance(this, it);
 
 	/**
 	 * Caustics
-	 */
-	L_c = caustic_photons_radiance(this, it);
+	 *
+	if (!it.intersected()->material()->is_delta())
+		L_c = caustic_photons_radiance(this, it);
 
 	/**
 	 * Compute specular reflection/refraction on point 'it.get_position()'
@@ -401,43 +410,34 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 	// MAX_NB_BOUNCES defined in ./SmallRT/include/globals.h
 	while (it.intersected()->material()->is_delta() && ++nb_bounces < MAX_NB_BOUNCES)
 	{
+		L_s = L_s + direct_light_contribution(world, it);
 		Ray r;
 		float pdf;
 		it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
-		W_s = W_s * it.intersected()->material()->get_albedo(it) / pdf;
 		r.shift();
 		world->first_intersection(r, it);
 	}
 	if (nb_bounces > 0)
 	{
-		//Find 'm_nb_photons' global nearest to intersection it
-		pos[0] = it.get_position().data[0];
-		pos[1] = it.get_position().data[1];
-		pos[2] = it.get_position().data[2];
-		nodes_g.clear();
-		m_global_map.find(pos, m_nb_photons, nodes_g, max_distance);
-
-		_area = M_PI * max_distance * max_distance;
-		for (auto &&photon : nodes_g)
+		Vector3 wo = it.get_ray().get_direction(), wi = wo;
+		Real alpha = it.intersected()->material()->get_specular(it);
+		albedo = it.intersected()->material()->get_albedo(it);
+		Vector3 brdf;
+		//Phong o Lambertiano
+		if (alpha == 0. || alpha == INFINITY)
 		{
-			Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
-			Real alpha = it.intersected()->material()->get_specular(it);
-			Vector3 brdf;
-			//Phong o Lambertiano
-			if (alpha == 0.)
-			{
-				//Lambertiano
-				brdf = albedo / M_PI;
-			}
-			else
-			{
-				Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
-				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
-			}
-
-			L_s = L_s + photon->data().flux * brdf;
+			//Lambertiano
+			brdf = albedo / M_PI;
 		}
-		L_s = L_s * W_s / _area;
+		else
+		{
+			Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
+			brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+		}
+		Vector3 L_it = direct_light_contribution(world, it);
+		Vector3 L_d_it = global_photons_radiance(this, it);
+		Vector3 L_c_it = caustic_photons_radiance(this, it);
+		L_s = (L_it + L_d_it + L_c_it) * brdf;
 	}
 
 	//**********************************************************************
@@ -475,7 +475,7 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 
 	case 5:
 		// ----------------------------------------------------------------
-		// Display incoming direction from light(0)
+		// Display incoming Vector3 from light(0)
 		L = world->light(0).get_incoming_direction(it.get_position());
 		break;
 
@@ -520,6 +520,5 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 	}
 	// End of exampled code
 	//**********************************************************************
-
-	return L_l + L_d + L_c + L_s;
+	return L_l + L_s;
 }
