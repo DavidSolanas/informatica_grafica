@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 	{
 	case 1:
 	{
-		Object3D *sphere1 = new Sphere(Vector3(0.31, 0.3, .4), 0.3, glass);
+		Object3D *sphere1 = new Sphere(Vector3(0., 0.7, .4), 0.3, glass);
 		w->add_object(sphere1);
 
 		Object3D *sphere2 = new Sphere(Vector3(-0.31, 0.3, .0), 0.3, mirror);
@@ -196,10 +196,10 @@ int main(int argc, char *argv[])
 	break;
 	case 3:
 	{
-		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, red_phong);
+		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, mirror);
 		w->add_object(sphere1);
 
-		Mesh *bunny = new Mesh("data/bunny.obj", red);
+		Mesh *bunny = new Mesh("data/bunny.obj", glass);
 		w->add_object(bunny);
 	}
 	break;
@@ -221,8 +221,10 @@ int main(int argc, char *argv[])
 	}
 	}
 
-	LightSource *ls = new PointLightSource(w, Vector3(0, 1.9, 0), Vector3(7, 7, 7));
+	LightSource *ls = new PointLightSource(w, Vector3(0.5, 1.7, 0), Vector3(2.5, 2.5, 2.5));
+	LightSource *ls2 = new PointLightSource(w, Vector3(-0.5, 1.7, 0), Vector3(2.5, 2.5, 2.5));
 	w->add_light(ls);
+	w->add_light(ls2);
 
 	w->fix();
 	// ----------------------------------------------------------------------

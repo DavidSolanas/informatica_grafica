@@ -161,7 +161,9 @@ void PhotonMapping::preprocess()
 	// De momento solo con una fuente de luz para probar
 	bool go_on = true;
 	std::list<Photon> global_photons, caustic_photons;
-	bool direct = m_raytraced_direct, direct_only = false;
+	bool direct = false, direct_only = false;
+	int idx = 0, cont = 0;
+	int split = 1 + m_max_nb_shots / world->nb_lights(); //Numero de fotones por fuente de luz
 	while (go_on)
 	{
 		Real x, y, z;
@@ -173,8 +175,11 @@ void PhotonMapping::preprocess()
 			z = get_random_value(-1.f, 1.f);
 		} while (x * x + y * y + z * z > 1);
 		Vector3 d(x, y, z);
-		Ray r(world->light(0).get_position(), d);
-		go_on = trace_ray(r, world->light(0).get_intensities() / m_max_nb_shots, global_photons, caustic_photons, direct, direct_only);
+		Ray r(world->light(idx).get_position(), d);
+		Vector3 power = world->light(idx).get_intensities() / split; //intensidad por fuente de luz
+		go_on = trace_ray(r, power, global_photons, caustic_photons, direct, direct_only);
+		cont++;
+		idx = cont % split == 0 ? idx + 1 : idx;
 	}
 	//Fotones trazados
 	//construir mapa de fotones
@@ -202,7 +207,7 @@ void PhotonMapping::preprocess()
 
 bool equals(const Vector3 &a, const Vector3 &b)
 {
-	return (a.data[0] - b.data[0] < 1e-8) && (a.data[1] - b.data[1] < 1e-8) && (a.data[2] - b.data[2] < 1e-8);
+	return (fabs(a.data[0] - b.data[0]) < 1e-8) && (fabs(a.data[1] - b.data[1]) < 1e-8) && (fabs(a.data[2] - b.data[2]) < 1e-8);
 }
 
 Vector3 get_reflection(const Vector3 &n, const Vector3 &wi)
@@ -224,7 +229,7 @@ Vector3 direct_light_contribution(World *world, Intersection &it)
 		{
 			Vector3 wi = light->get_incoming_direction(it.get_position()).normalize() * -1;
 			Vector3 wo = it.get_ray().get_direction();
-			Vector3 wr = get_reflection(it.get_normal(), wo);
+			Vector3 wr = get_reflection(it.get_normal(), wi);
 			Vector3 brdf(0);
 			if (!it.intersected()->material()->is_delta())
 			{
@@ -280,7 +285,7 @@ Vector3 global_photons_radiance(const PhotonMapping *pm, Intersection &it)
 		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
 		Real alpha = it.intersected()->material()->get_specular(it);
 		Vector3 brdf;
-		Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
+		Vector3 wr = get_reflection(it.get_normal(), wi);
 		if (!it.intersected()->material()->is_delta())
 		{
 			//Phong o Lambertiano
@@ -331,7 +336,7 @@ Vector3 caustic_photons_radiance(const PhotonMapping *pm, Intersection &it)
 		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
 		Real alpha = it.intersected()->material()->get_specular(it);
 		Vector3 brdf;
-		Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
+		Vector3 wr = get_reflection(it.get_normal(), wi);
 		if (!it.intersected()->material()->is_delta())
 		{
 			//Phong o Lambertiano
@@ -391,13 +396,13 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 
 	/**
 	 * Multiple Diffuse reflections
-	 *
+	 */
 	if (!it.intersected()->material()->is_delta())
 		L_d = global_photons_radiance(this, it);
 
 	/**
 	 * Caustics
-	 *
+	 */
 	if (!it.intersected()->material()->is_delta())
 		L_c = caustic_photons_radiance(this, it);
 
@@ -419,7 +424,8 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 	}
 	if (nb_bounces > 0)
 	{
-		Vector3 wo = it.get_ray().get_direction(), wi = wo;
+		Vector3 wo = it.get_ray().get_direction();
+
 		Real alpha = it.intersected()->material()->get_specular(it);
 		albedo = it.intersected()->material()->get_albedo(it);
 		Vector3 brdf;
@@ -431,8 +437,12 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 		}
 		else
 		{
-			Vector3 wr = wi - 2 * it.get_normal() * (wi.dot(it.get_normal()));
+			Ray r;
+			Real pdf;
+			it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
+			Vector3 wr = get_reflection(it.get_normal(), r.get_direction());
 			brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+			brdf = brdf / pdf;
 		}
 		Vector3 L_it = direct_light_contribution(world, it);
 		Vector3 L_d_it = global_photons_radiance(this, it);
@@ -520,5 +530,5 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 	}
 	// End of exampled code
 	//**********************************************************************
-	return L_l + L_s;
+	return L_l + L_s + L_c + L_d;
 }

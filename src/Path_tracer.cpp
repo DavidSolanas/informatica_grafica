@@ -170,9 +170,10 @@ int main(int argc, char const *argv[])
                 white),
             36000, RGB(1., 1., 1.));
 
-        PointLight light2(Point(50, H - 50, c.f.mod() + 700), 3600000., RGB(1., 1., 1.));
+        PointLight light2(Point(W / 2 - 150, H - 50, c.f.mod() + 375), 3600000., RGB(1., 1., 1.));
+        PointLight light3(Point(W / 2 + 150, H - 50, c.f.mod() + 375), 3600000., RGB(1., 1., 1.));
         World w;
-        w.add_light(&light);
+        w.add_light(&light3);
         w.add_light(&light2);
         w.add_objects(objs);
         w.set_background(RGB(0, 0, 0));

@@ -380,18 +380,11 @@ std::vector<Object *> scene3(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
         white));
 
-    //Cilindro
-    geometry.push_back(new Cylinder(
-        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 50), 50, white),
-        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 50), 50, white),
-        50, H / 2 - 50,
-        white));
-
     // Esfera
     geometry.push_back(new Sphere(
-        Point(W / 2, H / 2, c.f.mod() + 50), Direction(0, 100, 0),
-        Point(W / 2 - 50, H / 2, c.f.mod() + 50),
-        white));
+        Point(W / 2, H / 2, c.f.mod() + 375), Direction(0, 100, 0),
+        Point(W / 2 - 50, H / 2, c.f.mod() + 375),
+        mirror));
 
     return geometry;
 }
@@ -418,7 +411,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
         Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
-        white, true, "/Users/david/Desktop/images_IG/wall.ppm"));
+        red, false, "/Users/david/Desktop/images_IG/wall.ppm"));
 
     //Pared DCH
     geometry.push_back(new BoundedPlane(
@@ -426,7 +419,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), H, c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        white, true, "/Users/david/Desktop/images_IG/wall.ppm"));
+        green, false, "/Users/david/Desktop/images_IG/wall.ppm"));
 
     //Pared Fondo
     geometry.push_back(new BoundedPlane(
@@ -434,7 +427,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        white, true, "/Users/david/Desktop/images_IG/wall.ppm"));
+        white, false, "/Users/david/Desktop/images_IG/wall.ppm"));
 
     //Pared Superior
     geometry.push_back(new BoundedPlane(
@@ -451,19 +444,19 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
         white));
-
+    /*
     //Cilindro
     geometry.push_back(new Cylinder(
         Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 500), 50, white),
         Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 500), 50, white),
         50, H / 2 - 50, white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
-
+*/
     // Esfera
     geometry.push_back(new Sphere(
-        Point(W / 2, H / 2, c.f.mod() + 500), Direction(0, 100, 0),
-        Point(W / 2 - 50, H / 2, c.f.mod() + 500),
-        white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
-
+        Point(W / 2, 50, c.f.mod() + 375), Direction(0, 100, 0),
+        Point(W / 2 - 50, 50, c.f.mod() + 375),
+        mirror));
+    /*
     // Cono
     geometry.push_back(new Cone(
         Point(W / 2 - 200, H / 2, c.f.mod() + 400),
@@ -513,7 +506,7 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
             Point(130, H - 200, c.f.mod() + 600),
             white),
         white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
-
+*/
     return geometry;
 }
 
