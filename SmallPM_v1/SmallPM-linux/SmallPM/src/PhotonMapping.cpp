@@ -163,7 +163,8 @@ void PhotonMapping::preprocess()
 	std::list<Photon> global_photons, caustic_photons;
 	bool direct = false, direct_only = false;
 	int idx = 0, cont = 0;
-	int split = 1 + m_max_nb_shots / world->nb_lights(); //Numero de fotones por fuente de luz
+	int N_light = m_max_nb_shots / world->nb_lights(); //Numero de fotones por fuente de luz
+	Real pdf_photon = 1 / (4 * M_PI);
 	while (go_on)
 	{
 		Real x, y, z;
@@ -176,10 +177,10 @@ void PhotonMapping::preprocess()
 		} while (x * x + y * y + z * z > 1);
 		Vector3 d(x, y, z);
 		Ray r(world->light(idx).get_position(), d);
-		Vector3 power = world->light(idx).get_intensities() / split; //intensidad por fuente de luz
+		Vector3 power = world->light(idx).get_intensities() / (N_light * pdf_photon); //intensidad por fuente de luz
 		go_on = trace_ray(r, power, global_photons, caustic_photons, direct, direct_only);
 		cont++;
-		idx = cont % split == 0 ? idx + 1 : idx;
+		idx = cont % (N_light + 1) == 0 ? idx + 1 : idx;
 	}
 	//Fotones trazados
 	//construir mapa de fotones
@@ -205,11 +206,6 @@ void PhotonMapping::preprocess()
 		m_caustics_map.balance();
 }
 
-bool equals(const Vector3 &a, const Vector3 &b)
-{
-	return (fabs(a.data[0] - b.data[0]) < 1e-8) && (fabs(a.data[1] - b.data[1]) < 1e-8) && (fabs(a.data[2] - b.data[2]) < 1e-8);
-}
-
 Vector3 get_reflection(const Vector3 &n, const Vector3 &wi)
 {
 	return (wi - (n * dot(wi, n) * 2)).normalize();
@@ -217,12 +213,13 @@ Vector3 get_reflection(const Vector3 &n, const Vector3 &wi)
 
 /**
  * This function computes the direct light contribution from source lights to
- * point at intersection 'it'
+ * point at intersection 'it'. The material of the intersection 'it' is not
+ * a delta material (reflexive / refracor)
  */
 Vector3 direct_light_contribution(World *world, Intersection &it)
 {
 	Vector3 albedo = it.intersected()->material()->get_albedo(it);
-	Vector3 L_l(0.0000001);
+	Vector3 L_l(0);
 	for (auto &&light : world->light_source_list)
 	{
 		if (light->is_visible(it.get_position()))
@@ -231,28 +228,17 @@ Vector3 direct_light_contribution(World *world, Intersection &it)
 			Vector3 wo = it.get_ray().get_direction();
 			Vector3 wr = get_reflection(it.get_normal(), wi);
 			Vector3 brdf(0);
-			if (!it.intersected()->material()->is_delta())
+			Real alpha = it.intersected()->material()->get_specular(it);
+			//Phong or lambertian
+			if (alpha == 0. || alpha == INFINITY)
 			{
-				Real alpha = it.intersected()->material()->get_specular(it);
-				//Phong or lambertian
-				if (alpha == 0. || alpha == INFINITY)
-				{
-					//Lambertian
-					brdf = albedo / M_PI;
-				}
-				else
-				{
-					//Phong
-					brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
-				}
+				//Lambertian
+				brdf = albedo / M_PI;
 			}
 			else
 			{
-				//Reflexive or refractive
-				Ray r;
-				Real pdf;
-				it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
-				brdf = equals(r.get_direction(), wi) ? albedo / wi.dot_abs(it.get_normal()) : 0;
+				//Phong
+				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
 			}
 			L_l = L_l +
 				  (light->get_incoming_light(it.get_position()) * brdf *
@@ -263,7 +249,8 @@ Vector3 direct_light_contribution(World *world, Intersection &it)
 }
 
 /**
- * Multiple Diffuse reflections
+ * Multiple Diffuse reflections. The material of the intersection 'it' is not
+ * a delta material (reflexive / refracor)
  */
 Vector3 global_photons_radiance(const PhotonMapping *pm, Intersection &it)
 {
@@ -282,39 +269,29 @@ Vector3 global_photons_radiance(const PhotonMapping *pm, Intersection &it)
 	Real _area = M_PI * max_distance * max_distance;
 	for (auto &&photon : nodes_g)
 	{
-		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
+		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction * -1;
 		Real alpha = it.intersected()->material()->get_specular(it);
 		Vector3 brdf;
 		Vector3 wr = get_reflection(it.get_normal(), wi);
-		if (!it.intersected()->material()->is_delta())
+		//Phong o Lambertiano
+		if (alpha == 0. || alpha == INFINITY)
 		{
-			//Phong o Lambertiano
-			if (alpha == 0. || alpha == INFINITY)
-			{
-				//Lambertiano
-				brdf = albedo / M_PI;
-			}
-			else
-			{
-				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
-			}
+			//Lambertiano
+			brdf = albedo / M_PI;
 		}
 		else
 		{
-			//Refractive or reflexive
-			Ray r;
-			Real pdf;
-			it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
-			brdf = equals(r.get_direction(), wi) ? albedo / wi.dot_abs(it.get_normal()) : 0;
+			Real p_dot = std::max(dot(wo, wr), 0.f);
+			brdf = albedo * (alpha + 2) * powf(p_dot, alpha) / (2 * M_PI);
 		}
-
 		L_d = L_d + photon->data().flux * brdf;
 	}
 	return L_d / _area;
 }
 
 /**
- * Caustics
+ * Caustics. The material of the intersection 'it' is not
+ * a delta material (reflexive / refracor)
  */
 Vector3 caustic_photons_radiance(const PhotonMapping *pm, Intersection &it)
 {
@@ -333,32 +310,22 @@ Vector3 caustic_photons_radiance(const PhotonMapping *pm, Intersection &it)
 
 	for (auto &&photon : nodes_c)
 	{
-		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction;
+		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction * -1;
 		Real alpha = it.intersected()->material()->get_specular(it);
 		Vector3 brdf;
 		Vector3 wr = get_reflection(it.get_normal(), wi);
-		if (!it.intersected()->material()->is_delta())
+
+		//Phong o Lambertiano
+		if (alpha == 0. || alpha == INFINITY)
 		{
-			//Phong o Lambertiano
-			if (alpha == 0. || alpha == INFINITY)
-			{
-				//Lambertiano
-				brdf = albedo / M_PI;
-			}
-			else
-			{
-				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
-			}
+			//Lambertiano
+			brdf = albedo / M_PI;
 		}
 		else
 		{
-			//Refractive or reflexive
-			Ray r;
-			Real pdf;
-			it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
-			brdf = equals(r.get_direction(), wi) ? albedo / wi.dot_abs(it.get_normal()) : 0;
+			Real p_dot = std::max(dot(wo, wr), 0.f);
+			brdf = albedo * (alpha + 2) * powf(p_dot, alpha) / (2 * M_PI);
 		}
-
 		L_c = L_c + photon->data().flux * brdf;
 	}
 	return L_c / _area;
@@ -377,16 +344,12 @@ Vector3 caustic_photons_radiance(const PhotonMapping *pm, Intersection &it)
 //---------------------------------------------------------------------
 Vector3 PhotonMapping::shade(Intersection &it0) const
 {
-	Vector3 L(0), L_l(0);
 	Vector3 W(1);
 
-	Vector3 L_s(0);
-	Vector3 L_c(0);
-	Vector3 L_d(0);
-	Ray r;
+	Vector3 L_l, L_s, L_c, L_d;
 
 	Intersection it(it0);
-	Vector3 albedo = it.intersected()->material()->get_albedo(it);
+	Vector3 albedo;
 
 	/**
 	 * Compute direct illumination on point 'it.get_position()'
@@ -415,120 +378,27 @@ Vector3 PhotonMapping::shade(Intersection &it0) const
 	// MAX_NB_BOUNCES defined in ./SmallRT/include/globals.h
 	while (it.intersected()->material()->is_delta() && ++nb_bounces < MAX_NB_BOUNCES)
 	{
-		L_s = L_s + direct_light_contribution(world, it);
 		Ray r;
 		float pdf;
 		it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
+		W = W * it.intersected()->material()->get_albedo(it) / pdf;
 		r.shift();
 		world->first_intersection(r, it);
 	}
 	if (nb_bounces > 0)
 	{
-		Vector3 wo = it.get_ray().get_direction();
-
-		Real alpha = it.intersected()->material()->get_specular(it);
-		albedo = it.intersected()->material()->get_albedo(it);
-		Vector3 brdf;
-		//Phong o Lambertiano
-		if (alpha == 0. || alpha == INFINITY)
-		{
-			//Lambertiano
-			brdf = albedo / M_PI;
-		}
-		else
-		{
-			Ray r;
-			Real pdf;
-			it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
-			Vector3 wr = get_reflection(it.get_normal(), r.get_direction());
-			brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
-			brdf = brdf / pdf;
-		}
-		Vector3 L_it = direct_light_contribution(world, it);
+		// Radiance estimation with global photon map at intersection 'it'
 		Vector3 L_d_it = global_photons_radiance(this, it);
+		// Radiance estimation with caustic photon map at intersection 'it'
 		Vector3 L_c_it = caustic_photons_radiance(this, it);
-		L_s = (L_it + L_d_it + L_c_it) * brdf;
+		// Direct light contribution at intersection 'it'
+		Vector3 L_it = direct_light_contribution(world, it);
+
+		L_s = L_it + L_d_it + L_c_it;
 	}
 
-	//**********************************************************************
-	// The following piece of code is included here for two reasons: first
-	// it works as a 'hello world' code to check that everthing compiles
-	// just fine, and second, to illustrate some of the functions that you
-	// will need when doing the work. Goes without saying: remove the
-	// pieces of code that you won't be using.
-	//
-	unsigned int debug_mode = 0;
+	// W is the total albedo of the specular materials
+	L_s = L_s * W;
 
-	switch (debug_mode)
-	{
-	case 1:
-		// ----------------------------------------------------------------
-		// Display Albedo Only
-		L = it.intersected()->material()->get_albedo(it);
-		break;
-	case 2:
-		// ----------------------------------------------------------------
-		// Display Normal Buffer
-		L = it.get_normal();
-		break;
-	case 3:
-		// ----------------------------------------------------------------
-		// Display whether the material is specular (or refractive)
-		L = Vector3(it.intersected()->material()->is_delta());
-		break;
-
-	case 4:
-		// ----------------------------------------------------------------
-		// Display incoming illumination from light(0)
-		L = world->light(0).get_incoming_light(it.get_position());
-		break;
-
-	case 5:
-		// ----------------------------------------------------------------
-		// Display incoming Vector3 from light(0)
-		L = world->light(0).get_incoming_direction(it.get_position());
-		break;
-
-	case 6:
-		// ----------------------------------------------------------------
-		// Check Visibility from light(0)
-		if (world->light(0).is_visible(it.get_position()))
-			L = Vector3(1.);
-		break;
-	case 7:
-		// ----------------------------------------------------------------
-		// Reflect and refract until a diffuse surface is found, then show its albedo...
-		int nb_bounces = 0;
-		// MAX_NB_BOUNCES defined in ./SmallRT/include/globals.h
-		while (it.intersected()->material()->is_delta() && ++nb_bounces < MAX_NB_BOUNCES)
-		{
-			Ray r;
-			float pdf;
-			it.intersected()->material()->get_outgoing_sample_ray(it, r, pdf);
-			W = W * it.intersected()->material()->get_albedo(it) / pdf;
-
-			r.shift();
-			world->first_intersection(r, it);
-		}
-		std::vector<const KDTree<PhotonMapping::Photon, 3>::Node *> nodes;
-		Real max_distance;
-		std::vector<Real> pos(3);
-		pos[0] = it.get_position().data[0];
-		pos[1] = it.get_position().data[1];
-		pos[2] = it.get_position().data[2];
-
-		//Find 'm_nb_photons' global nearest to intersection it
-		m_global_map.find(pos, m_nb_photons, nodes, max_distance);
-
-		Real _area = M_PI * max_distance * max_distance;
-		for (auto &&photon : nodes)
-		{
-			L = L + (it.intersected()->material()->get_albedo(it) * photon->data().flux);
-		}
-		L = L / _area;
-		break;
-	}
-	// End of exampled code
-	//**********************************************************************
 	return L_l + L_s + L_c + L_d;
 }

@@ -453,8 +453,8 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
 */
     // Esfera
     geometry.push_back(new Sphere(
-        Point(W / 2, 50, c.f.mod() + 375), Direction(0, 100, 0),
-        Point(W / 2 - 50, 50, c.f.mod() + 375),
+        Point(W / 2, 100, c.f.mod() + 375), Direction(0, 100, 0),
+        Point(W / 2 - 50, 100, c.f.mod() + 375),
         mirror));
     /*
     // Cono

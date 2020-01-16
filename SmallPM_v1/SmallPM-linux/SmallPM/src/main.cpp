@@ -26,9 +26,9 @@ In no event shall copyright holders be liable for any damage.
 #include "Mesh.h"
 #include "BSDF.h"
 #include "Phong.h"
-#include "Lambertian.h"
 #include "Specular.h"
 #include "Transmissive.h"
+#include "Texture.h"
 
 using namespace std;
 
@@ -132,9 +132,10 @@ int main(int argc, char *argv[])
 	BSDF *white = new Lambertian(w, Vector3(.85, .85, .85));
 	BSDF *red = new Lambertian(w, Vector3(.85, .085, .085));
 	BSDF *blue = new Lambertian(w, Vector3(.085, .085, .85));
-	BSDF *red_phong = new Phong(w);
+	BSDF *orange_phong = new Phong(w, Vector3(.425, .3, .0), 8.f);
 	BSDF *green = new Lambertian(w, Vector3(.085, .85, .085));
 	BSDF *orange = new Lambertian(w, Vector3(.85, .6, .0));
+	BSDF *earth = new Texture(w, Vector3(.85, .6, .0), "data/textures/earthmap1k.ppm");
 
 	Triangle *floor1 = new Triangle(Vector3(-1.5, 0, 1.5), Vector3(1.5, 0., 1.5),
 									Vector3(-1.5, 0., -1.5), white);
@@ -165,21 +166,24 @@ int main(int argc, char *argv[])
 	w->add_object(left2);
 
 	Object3D *right1 = new Triangle(Vector3(1, 2.5, 1.5), Vector3(1, 2.5, -1.5),
-									Vector3(1, -.5, -1.5), blue);
+									Vector3(1, -.5, -1.5), green);
 	w->add_object(right1);
 	Object3D *right2 = new Triangle(Vector3(1, 2.5, 1.5), Vector3(1, -.5, -1.5),
-									Vector3(1, -.5, 1.5), blue);
+									Vector3(1, -.5, 1.5), green);
 	w->add_object(right2);
 
 	switch (scene)
 	{
 	case 1:
 	{
-		Object3D *sphere1 = new Sphere(Vector3(0., 0.7, .4), 0.3, glass);
+		Object3D *sphere1 = new Sphere(Vector3(-0.15, 1.2, .4), 0.3, glass);
 		w->add_object(sphere1);
 
 		Object3D *sphere2 = new Sphere(Vector3(-0.31, 0.3, .0), 0.3, mirror);
 		w->add_object(sphere2);
+
+		Object3D *sphere3 = new Sphere(Vector3(0.6, 0.3, 0.9), 0.3, blue);
+		w->add_object(sphere3);
 	}
 	break;
 	case 2:
@@ -196,7 +200,7 @@ int main(int argc, char *argv[])
 	break;
 	case 3:
 	{
-		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, mirror);
+		Object3D *sphere1 = new Sphere(Vector3(0.5, 1.2, -.5), 0.3, mirror);
 		w->add_object(sphere1);
 
 		Mesh *bunny = new Mesh("data/bunny.obj", glass);
@@ -211,20 +215,39 @@ int main(int argc, char *argv[])
 		w->add_object(sphere2);
 	}
 	break;
-	default:
+	case 5:
 	{
-		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, red_phong);
+		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.6, -0.5), 0.2, orange);
 		w->add_object(sphere1);
 
-		Object3D *sphere2 = new Sphere(Vector3(-0.5, 0.5, 1.5), 0.3, red_phong);
+		Object3D *sphere2 = new Sphere(Vector3(0.5, 0.2, 0.3), 0.1, orange_phong);
+		w->add_object(sphere2);
+
+		Object3D *sphere3 = new Sphere(Vector3(-0.6, 0.4, 0.8), 0.15, blue);
+		w->add_object(sphere3);
+
+		Object3D *sphere4 = new Sphere(Vector3(0, 0.9, 0), 0.4, glass);
+		w->add_object(sphere4);
+	}
+	break;
+	default:
+	{
+		Object3D *sphere1 = new Sphere(Vector3(0.5, 0.3, .5), 0.3, orange_phong);
+		w->add_object(sphere1);
+
+		Object3D *sphere2 = new Sphere(Vector3(-0.5, 0.5, 1.5), 0.3, orange_phong);
 		w->add_object(sphere2);
 	}
 	}
 
-	LightSource *ls = new PointLightSource(w, Vector3(0.5, 1.7, 0), Vector3(2.5, 2.5, 2.5));
-	LightSource *ls2 = new PointLightSource(w, Vector3(-0.5, 1.7, 0), Vector3(2.5, 2.5, 2.5));
+	LightSource *ls = new PointLightSource(w, Vector3(0., 1.9, 0), Vector3(5, 5, 5));
+	LightSource *ls2 = new PointLightSource(w, Vector3(-0.5, 1.2, 0), Vector3(1, 1, 1));
+	LightSource *ls3 = new PointLightSource(w, Vector3(0.5, 1.2, 0), Vector3(1, 1, 1));
+	LightSource *ls4 = new PointLightSource(w, Vector3(0, 1, 2.7), Vector3(3, 3, 3));
 	w->add_light(ls);
-	w->add_light(ls2);
+	//w->add_light(ls2);
+	//w->add_light(ls3);
+	//w->add_light(ls4);
 
 	w->fix();
 	// ----------------------------------------------------------------------
