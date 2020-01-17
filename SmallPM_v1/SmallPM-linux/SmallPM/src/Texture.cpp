@@ -66,7 +66,6 @@ Vector3 Texture::get_albedo(const Intersection &it) const
         j = texture[0].size() - 1;
     if (i > texture.size() - 1)
         i = texture.size() - 1;
-
     return texture[i][j];
 }
 

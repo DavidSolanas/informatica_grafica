@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 	BSDF *orange_phong = new Phong(w, Vector3(.425, .3, .0), 8.f);
 	BSDF *green = new Lambertian(w, Vector3(.085, .85, .085));
 	BSDF *orange = new Lambertian(w, Vector3(.85, .6, .0));
-	BSDF *earth = new Texture(w, Vector3(.85, .6, .0), "data/textures/earthmap1k.ppm");
+	BSDF *shrek = new Texture(w, Vector3(.085, .85, .085), "data/textures/Shrek.ppm");
 
 	Triangle *floor1 = new Triangle(Vector3(-1.5, 0, 1.5), Vector3(1.5, 0., 1.5),
 									Vector3(-1.5, 0., -1.5), white);
@@ -166,10 +166,10 @@ int main(int argc, char *argv[])
 	w->add_object(left2);
 
 	Object3D *right1 = new Triangle(Vector3(1, 2.5, 1.5), Vector3(1, 2.5, -1.5),
-									Vector3(1, -.5, -1.5), green);
+									Vector3(1, -.5, -1.5), blue);
 	w->add_object(right1);
 	Object3D *right2 = new Triangle(Vector3(1, 2.5, 1.5), Vector3(1, -.5, -1.5),
-									Vector3(1, -.5, 1.5), green);
+									Vector3(1, -.5, 1.5), blue);
 	w->add_object(right2);
 
 	switch (scene)
@@ -228,6 +228,12 @@ int main(int argc, char *argv[])
 
 		Object3D *sphere4 = new Sphere(Vector3(0, 0.9, 0), 0.4, glass);
 		w->add_object(sphere4);
+	}
+	break;
+	case 6:
+	{
+		Mesh *monkey = new Mesh("data/shrek.obj", shrek);
+		w->add_object(monkey);
 	}
 	break;
 	default:
