@@ -19,6 +19,7 @@ In no event shall copyright holders be liable for any damage.
 #include "../smallrt/include/globals.h"
 #include <random>
 #include "Transmissive.h"
+#include "PlaneLightSource.h"
 
 std::ostream &operator<<(std::ostream &os, const Vector3 &c)
 {
@@ -164,19 +165,40 @@ void PhotonMapping::preprocess()
 	bool direct = false, direct_only = false;
 	int idx = 0, cont = 0;
 	int N_light = m_max_nb_shots / world->nb_lights(); //Numero de fotones por fuente de luz
-	Real pdf_photon = 1 / (4 * M_PI);
 	while (go_on)
 	{
+		bool is_point_light = world->light(idx).get_no_samples() == 1;
 		Real x, y, z;
-		do
+		Vector3 p;
+		if (is_point_light)
 		{
-			//Random unit vector <x,y,z>
-			x = get_random_value(-1.f, 1.f);
-			y = get_random_value(-1.f, 1.f);
-			z = get_random_value(-1.f, 1.f);
-		} while (x * x + y * y + z * z > 1);
+			do
+			{
+				//Random unit vector <x,y,z>
+				x = get_random_value(-1.f, 1.f);
+				y = get_random_value(-1.f, 1.f);
+				z = get_random_value(-1.f, 1.f);
+			} while (x * x + y * y + z * z > 1);
+			p = world->light(idx).get_position();
+		}
+		else
+		{
+			//PlaneLightSource
+			PlaneLightSource *plane_light = (PlaneLightSource *)world->light_source_list.at(idx);
+			Vector3 normal = plane_light->get_plane_normal();
+			do
+			{
+				//Random unit vector <x,y,z>
+				x = get_random_value(-1.f, 1.f);
+				y = get_random_value(-1.f, 1.f);
+				z = get_random_value(-1.f, 1.f);
+			} while (x * x + y * y + z * z > 1 && dot(Vector3(x, y, z), normal) <= 0);
+			p = plane_light->get_light_point();
+		}
+
+		Real pdf_photon = is_point_light ? 1 / (4 * M_PI) : 1 / (2 * M_PI);
 		Vector3 d(x, y, z);
-		Ray r(world->light(idx).get_position(), d);
+		Ray r(p, d);
 		Vector3 power = world->light(idx).get_intensities() / (N_light * pdf_photon); //intensidad por fuente de luz
 		go_on = trace_ray(r, power, global_photons, caustic_photons, direct, direct_only);
 		cont++;
@@ -206,11 +228,6 @@ void PhotonMapping::preprocess()
 		m_caustics_map.balance();
 }
 
-Vector3 get_reflection(const Vector3 &n, const Vector3 &wi)
-{
-	return (wi - (n * dot(wi, n) * 2)).normalize();
-}
-
 /**
  * This function computes the direct light contribution from source lights to
  * point at intersection 'it'. The material of the intersection 'it' is not
@@ -222,27 +239,69 @@ Vector3 direct_light_contribution(World *world, Intersection &it)
 	Vector3 L_l(0);
 	for (auto &&light : world->light_source_list)
 	{
-		if (light->is_visible(it.get_position()))
+		if (light->get_no_samples() == 1)
 		{
-			Vector3 wi = light->get_incoming_direction(it.get_position()).normalize() * -1;
-			Vector3 wo = it.get_ray().get_direction();
-			Vector3 wr = get_reflection(it.get_normal(), wi);
-			Vector3 brdf(0);
-			Real alpha = it.intersected()->material()->get_specular(it);
-			//Phong or lambertian
-			if (alpha == 0. || alpha == INFINITY)
+			// Point Light
+			if (light->is_visible(it.get_position()))
 			{
-				//Lambertian
-				brdf = albedo / M_PI;
+				Vector3 wi = light->get_incoming_direction(it.get_position()).normalize() * -1;
+				Vector3 wo = it.get_ray().get_direction();
+				Vector3 wr = wi.reflect(it.get_normal());
+				Vector3 brdf(0);
+				Real alpha = it.intersected()->material()->get_specular(it);
+				//Phong or lambertian
+				if (alpha == 0. || alpha == INFINITY)
+				{
+					//Lambertian
+					brdf = albedo / M_PI;
+				}
+				else
+				{
+					//Phong
+					brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+				}
+				L_l = L_l +
+					  (light->get_incoming_light(it.get_position()) * brdf *
+					   it.get_normal().dot_abs(wi));
+			}
+		}
+		else
+		{
+			// Area Light
+			PlaneLightSource *area_light = (PlaneLightSource *)light;
+			if (area_light->is_point_on_surface(it.get_position()))
+			{
+				//Intersect plane light
+				L_l = area_light->get_intensities();
 			}
 			else
 			{
-				//Phong
-				brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+				Vector3 brdf;
+				for (int i = 0; i < area_light->get_no_samples(); i++)
+				{
+					Vector3 light_point = area_light->get_light_point();
+					if (area_light->is_visible(it.get_position(), light_point))
+					{
+						L_l = L_l + area_light->get_incoming_light(it.get_position(), light_point);
+					}
+				}
+				Vector3 wi = area_light->get_incoming_direction(it.get_position(), area_light->get_position()) * -1;
+				Vector3 wo = it.get_ray().get_direction();
+				Vector3 wr = wi.reflect(it.get_normal());
+				Real alpha = it.intersected()->material()->get_specular(it);
+				//Phong or lambertian
+				if (alpha == 0. || alpha == INFINITY)
+				{
+					//Lambertian
+					brdf = albedo / M_PI;
+				}
+				else
+				{
+					//Phong
+					brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+				}
+				L_l = L_l * brdf * it.get_normal().dot_abs(wi) / area_light->get_no_samples();
 			}
-			L_l = L_l +
-				  (light->get_incoming_light(it.get_position()) * brdf *
-				   it.get_normal().dot_abs(wi));
 		}
 	}
 	return L_l;
@@ -272,7 +331,7 @@ Vector3 global_photons_radiance(const PhotonMapping *pm, Intersection &it)
 		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction * -1;
 		Real alpha = it.intersected()->material()->get_specular(it);
 		Vector3 brdf;
-		Vector3 wr = get_reflection(it.get_normal(), wi);
+		Vector3 wr = wi.reflect(it.get_normal());
 		//Phong o Lambertiano
 		if (alpha == 0. || alpha == INFINITY)
 		{
@@ -313,7 +372,7 @@ Vector3 caustic_photons_radiance(const PhotonMapping *pm, Intersection &it)
 		Vector3 wo = it.get_ray().get_direction(), wi = photon->data().direction * -1;
 		Real alpha = it.intersected()->material()->get_specular(it);
 		Vector3 brdf;
-		Vector3 wr = get_reflection(it.get_normal(), wi);
+		Vector3 wr = wi.reflect(it.get_normal());
 
 		//Phong o Lambertiano
 		if (alpha == 0. || alpha == INFINITY)
