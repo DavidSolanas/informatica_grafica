@@ -39,6 +39,7 @@ public:
 	bool intersect(Ray &r, Intersection &it, float time = 0.) const override;
 	Vector3 generate_random_point_on_plane() const;
 	Vector3 get_center() const override;
+	Real get_area() const;
 };
 
 /** PlaneLightSource class. */
@@ -54,6 +55,7 @@ public:
 	Vector3 get_position() const;
 	Vector3 get_light_point() const;
 	Vector3 get_plane_normal() const;
+	Real get_area() const;
 	//-----------------------------------------------------------------
 	Vector3 get_incoming_direction(const Vector3 &point_lighted) const;
 	Vector3 get_incoming_direction(const Vector3 &point_lighted, const Vector3 &light_point) const;

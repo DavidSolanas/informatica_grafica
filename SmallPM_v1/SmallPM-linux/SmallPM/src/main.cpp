@@ -138,9 +138,10 @@ int main(int argc, char *argv[])
 	BSDF *red = new Lambertian(w, Vector3(.85, .085, .085));
 	BSDF *blue = new Lambertian(w, Vector3(.085, .085, .85));
 	BSDF *orange_phong = new Phong(w, Vector3(.425, .3, .0), 8.f);
+	BSDF *grey_phong = new Phong(w);
 	BSDF *green = new Lambertian(w, Vector3(.085, .85, .085));
 	BSDF *orange = new Lambertian(w, Vector3(.85, .6, .0));
-	BSDF *shrek = new Texture(w, Vector3(.085, .85, .085), "data/textures/wall.ppm");
+	BSDF *death = new Texture(w, Vector3(.085, .85, .085), "data/textures/death.ppm");
 
 	Triangle *floor1 = new Triangle(Vector3(-1.5, 0, 1.5), Vector3(1.5, 0., 1.5),
 									Vector3(-1.5, 0., -1.5), white);
@@ -208,7 +209,7 @@ int main(int argc, char *argv[])
 		Object3D *sphere1 = new Sphere(Vector3(0.65, 1.2, -.65), 0.3, mirror);
 		w->add_object(sphere1);
 
-		Mesh *bunny = new Mesh("data/bunny.obj", glass);
+		Mesh *bunny = new Mesh("data/glass_win.obj", glass);
 		w->add_object(bunny);
 	}
 	break;
@@ -237,7 +238,7 @@ int main(int argc, char *argv[])
 	break;
 	case 6:
 	{
-		Mesh *monkey = new Mesh("data/teapot2.obj", orange_phong);
+		Mesh *monkey = new Mesh("data/death.obj", grey_phong);
 		w->add_object(monkey);
 	}
 	break;
@@ -254,9 +255,9 @@ int main(int argc, char *argv[])
 	}
 	}
 
-	BoundedPlane bp(Vector3(-.3, 2., -.3), Vector3(.3, 2., -.3), Vector3(.3, 2., .3), white);
+	BoundedPlane bp(Vector3(-.4, 2., -.3), Vector3(.4, 2., -.3), Vector3(.4, 2., .3), white);
 	PlaneLightSource *pls = new PlaneLightSource(w, bp, Vector3(6, 6, 6));
-	LightSource *ls = new PointLightSource(w, Vector3(0., 1.9, 0), Vector3(8, 8, 8));
+	//LightSource *ls = new PointLightSource(w, Vector3(0., 1.9, 0), Vector3(5, 5, 5));
 	w->add_light(pls);
 	//LightSource *ls2 = new PointLightSource(w, Vector3(-0.5, 1.5, 0), Vector3(1.5, 1.5, 1.5));
 	//LightSource *ls3 = new PointLightSource(w, Vector3(0.5, 1.5, 0), Vector3(1.5, 1.5, 1.5));

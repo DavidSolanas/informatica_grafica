@@ -168,7 +168,7 @@ void PhotonMapping::preprocess()
 	while (go_on)
 	{
 		bool is_point_light = world->light(idx).get_no_samples() == 1;
-		Real x, y, z;
+		Real x, y, z, pS = 1.f;
 		Vector3 p;
 		if (is_point_light)
 		{
@@ -194,12 +194,13 @@ void PhotonMapping::preprocess()
 				z = get_random_value(-1.f, 1.f);
 			} while (x * x + y * y + z * z > 1 && dot(Vector3(x, y, z), normal) <= 0);
 			p = plane_light->get_light_point();
+			pS = 1 / plane_light->get_area();
 		}
 
 		Real pdf_photon = is_point_light ? 1 / (4 * M_PI) : 1 / (2 * M_PI);
 		Vector3 d(x, y, z);
 		Ray r(p, d);
-		Vector3 power = world->light(idx).get_intensities() / (N_light * pdf_photon); //intensidad por fuente de luz
+		Vector3 power = world->light(idx).get_intensities() / (N_light * pdf_photon * pS); //intensidad por fuente de luz
 		go_on = trace_ray(r, power, global_photons, caustic_photons, direct, direct_only);
 		cont++;
 		idx = cont % (N_light + 1) == 0 ? idx + 1 : idx;
@@ -236,7 +237,7 @@ void PhotonMapping::preprocess()
 Vector3 direct_light_contribution(World *world, Intersection &it)
 {
 	Vector3 albedo = it.intersected()->material()->get_albedo(it);
-	Vector3 L_l(0);
+	Vector3 L_l;
 	for (auto &&light : world->light_source_list)
 	{
 		if (light->get_no_samples() == 1)
@@ -282,25 +283,25 @@ Vector3 direct_light_contribution(World *world, Intersection &it)
 					Vector3 light_point = area_light->get_light_point();
 					if (area_light->is_visible(it.get_position(), light_point))
 					{
-						L_l = L_l + area_light->get_incoming_light(it.get_position(), light_point);
+						Vector3 wi = area_light->get_incoming_direction(it.get_position(), light_point) * -1;
+						Vector3 wo = it.get_ray().get_direction();
+						Vector3 wr = wi.reflect(it.get_normal());
+						Real alpha = it.intersected()->material()->get_specular(it);
+						//Phong or lambertian
+						if (alpha == 0. || alpha == INFINITY)
+						{
+							//Lambertian
+							brdf = albedo / M_PI;
+						}
+						else
+						{
+							//Phong
+							brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
+						}
+						L_l += area_light->get_incoming_light(it.get_position(), light_point) * brdf * it.get_normal().dot_abs(wi);
 					}
 				}
-				Vector3 wi = area_light->get_incoming_direction(it.get_position(), area_light->get_position()) * -1;
-				Vector3 wo = it.get_ray().get_direction();
-				Vector3 wr = wi.reflect(it.get_normal());
-				Real alpha = it.intersected()->material()->get_specular(it);
-				//Phong or lambertian
-				if (alpha == 0. || alpha == INFINITY)
-				{
-					//Lambertian
-					brdf = albedo / M_PI;
-				}
-				else
-				{
-					//Phong
-					brdf = albedo * (alpha + 2) * powf(wo.dot_abs(wr), alpha) / (2 * M_PI);
-				}
-				L_l = L_l * brdf * it.get_normal().dot_abs(wi) / area_light->get_no_samples();
+				L_l = L_l / area_light->get_no_samples();
 			}
 		}
 	}

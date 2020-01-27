@@ -71,6 +71,11 @@ Vector3 BoundedPlane::get_center() const
     return A + ab + ad;
 }
 
+Real BoundedPlane::get_area() const
+{
+    return (B - A).length() * (D - A).length();
+}
+
 Vector3 PlaneLightSource::get_position() const
 {
     return plane.get_center();
@@ -84,6 +89,11 @@ Vector3 PlaneLightSource::get_light_point() const
 Vector3 PlaneLightSource::get_plane_normal() const
 {
     return plane.get_normal(plane.get_center()).normalize();
+}
+
+Real PlaneLightSource::get_area() const
+{
+    return plane.get_area();
 }
 
 //-----------------------------------------------------------------
@@ -138,7 +148,7 @@ bool PlaneLightSource::is_point_source() const
 /** Number of samples to cast from a given Vector3 towards the light source. */
 int PlaneLightSource::get_no_samples() const
 {
-    return 350;
+    return 1000;
 }
 
 bool PlaneLightSource::is_point_on_surface(const Vector3 &point) const
