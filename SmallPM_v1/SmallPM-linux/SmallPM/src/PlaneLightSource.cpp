@@ -114,8 +114,8 @@ Vector3 PlaneLightSource::get_incoming_light(const Vector3 &point_lighted) const
 
 Vector3 PlaneLightSource::get_incoming_light(const Vector3 &point_lighted, const Vector3 &light_point) const
 {
-    Vector3 d = point_lighted - light_point;
-    Real dist_2 = d.length2();
+    Vector3 wi = light_point - point_lighted;
+    Real dist_2 = wi.length2();
     return intensities / dist_2;
 }
 
