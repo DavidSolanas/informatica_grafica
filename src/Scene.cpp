@@ -23,6 +23,8 @@ BRDF *red = new Lambertian(RGB(.85, .085, .085));
 BRDF *green = new Lambertian(RGB(.085, .85, .085));
 BRDF *orange = new Lambertian(RGB(.85, .6, .0));
 BRDF *orange_phong = new Phong(RGB(.425, .3, .0), RGB(0.35, 0.20, .0), 8.0f);
+BRDF *blue = new Lambertian(RGB(.085, .085, .85));
+BRDF *blue_phong = new Phong(RGB(.085, .085, .425), RGB(0.085, 0.085, .35), 5.0f);
 BRDF *mirror = new Specular(RGB(.85, .85, .85));
 BRDF *glass = new Transmissive(RGB(.85, .85, .85), GLASS_REFRACTION_INDEX);
 BRDF *water = new Transmissive(RGB(.85, .85, .85), WATER_REFRACTION_INDEX);
@@ -556,21 +558,14 @@ std::vector<Object *> cornell_box(Camera c, const int W, const int H)
 
     // Esfera
     objects.push_back(new Sphere(
-        Point(W / 2 - 200, 75, c.f.mod() + 1250), Direction(0, 150, 0),
-        Point(W / 2 - 125, 75, c.f.mod() + 1250),
-        mirror));
+        Point(W / 2 - 125, 115, c.f.mod() + 1300), Direction(0, 230, 0),
+        Point(W / 2 - 10, 115, c.f.mod() + 1300), blue_phong));
 
     // Esfera
     objects.push_back(new Sphere(
-        Point(W / 2, 75, c.f.mod() + 500), Direction(0, 150, 0),
-        Point(W / 2 + 75, 75, c.f.mod() + 500),
-        glass));
-
-    // Esfera
-    objects.push_back(new Sphere(
-        Point(W / 2 + 200, 150, c.f.mod() + 130), Direction(0, 150, 0),
-        Point(W / 2 + 125, 150, c.f.mod() + 130),
-        orange));
+        Point(W / 2 + 150, 150, c.f.mod() + 400), Direction(0, 230, 0),
+        Point(W / 2 + 35, 150, c.f.mod() + 400),
+        dielectric));
 
     return objects;
 }

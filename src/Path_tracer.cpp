@@ -160,21 +160,21 @@ int main(int argc, char const *argv[])
         Direction f(0, 0, u.mod() / tan(M_PI / 24));
         Point c0((int)W / 2, (int)H / 2, 0);
         Camera c(f, u, l, c0);
-        std::vector<Object *> objs = scene5(c, W, H);
+        std::vector<Object *> objs = cornell_box(c, W, H);
         PlaneLight light(
             BoundedPlane(
-                Point(W / 2 - 150, H, c.f.mod() + 500),
-                Point(W / 2 - 150, H, c.f.mod() + 300),
-                Point(W / 2 + 150, H, c.f.mod() + 300),
-                Point(W / 2 + 150, H, c.f.mod() + 500),
+                Point(W / 2 - 175, H, c.f.mod() + 1050),
+                Point(W / 2 - 175, H, c.f.mod() + 400),
+                Point(W / 2 + 175, H, c.f.mod() + 400),
+                Point(W / 2 + 175, H, c.f.mod() + 1050),
                 white),
             36000, RGB(1., 1., 1.));
 
         PointLight light2(Point(W / 2 - 150, H - 50, c.f.mod() + 375), 36000000., RGB(1., 1., 1.));
         PointLight light3(Point(W / 2 + 150, H - 50, c.f.mod() + 375), 36000000., RGB(1., 1., 1.));
         World w;
-        w.add_light(&light3);
-        w.add_light(&light2);
+        //w.add_light(&light3);
+        w.add_light(&light);
         w.add_objects(objs);
         w.set_background(RGB(0, 0, 0));
         std::thread P[NUM_THREADS];
