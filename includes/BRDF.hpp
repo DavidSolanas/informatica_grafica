@@ -1,4 +1,7 @@
-
+/****************************************+
+ * Fichero: BRDF.hpp
+ * Autor: David Solanas Sanz    738630
+ *****************************************/
 
 #ifndef BRDF_HPP
 #define BRDF_HPP

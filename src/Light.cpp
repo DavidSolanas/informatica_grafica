@@ -1,7 +1,7 @@
 
 /****************************************+
  * Fichero: Light.cpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #include "Scene.hpp"

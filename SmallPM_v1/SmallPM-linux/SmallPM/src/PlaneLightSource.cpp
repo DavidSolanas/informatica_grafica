@@ -1,3 +1,8 @@
+/****************************************+
+ * Fichero: PlaneLightSource.cpp
+ * Autor: David Solanas Sanz    738630
+ *****************************************/
+
 #include "../smallrt/include/PlaneLightSource.h"
 #include <random>
 #include "../smallrt/include/World.h"

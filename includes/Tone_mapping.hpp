@@ -1,7 +1,7 @@
 
 /****************************************+
  * Fichero: Tone_mapper.hpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #ifndef TONE_MAPPING_HPP

@@ -1,16 +1,7 @@
-/*********************************************************************************
-Copyright (C) 2014 Adrian Jarabo (ajarabo@unizar.es)
-Copyright (C) 2014 Diego Gutierrez (diegog@unizar.es)
-All rights reserved.
-
-This is an educational Ray Tracer developed for the course 'Informatica Grafica'
-(Computer Graphics) tought at Universidad de Zaragoza (Spain). As such, it does not 
-intend to be fast or general, but just to provide an educational tool for undergraduate
-students. 
-
-This software is provided as is, and any express or implied warranties are disclaimed.
-In no event shall copyright holders be liable for any damage.
-**********************************************************************************/
+/****************************************+
+ * Fichero: PlaneLightSource.h
+ * Autor: David Solanas Sanz    738630
+ *****************************************/
 
 #ifndef __PLANELIGHTSOURCE_H
 #define __PLANELIGHTSOURCE_H

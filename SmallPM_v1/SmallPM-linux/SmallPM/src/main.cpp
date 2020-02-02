@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 		Object3D *sphere1 = new Sphere(Vector3(0.65, 1.2, -.65), 0.3, mirror);
 		w->add_object(sphere1);
 
-		Mesh *bunny = new Mesh("data/glass_win.obj", glass);
+		Mesh *bunny = new Mesh("data/teapot.obj", red);
 		w->add_object(bunny);
 	}
 	break;

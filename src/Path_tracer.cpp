@@ -1,6 +1,6 @@
 /****************************************+
  * Fichero: Path_tracer.cpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #include <iostream>
@@ -10,6 +10,7 @@
 #include <fstream>
 #include <thread>
 #include <ctime>
+#include <cstring>
 #include <random>
 #include "Lambertian.hpp"
 #include "Textures.hpp"
@@ -154,27 +155,57 @@ int main(int argc, char const *argv[])
         }
         const int H = 480, W = 640;
         BRDF *white = new Lambertian(RGB(.85, .85, .85));
-
+        std::cout << "Loading scene..." << std::endl;
         Direction l((int)W / 2, 0, 0);
         Direction u(0, (int)H / 2, 0);
         Direction f(0, 0, u.mod() / tan(M_PI / 24));
         Point c0((int)W / 2, (int)H / 2, 0);
         Camera c(f, u, l, c0);
-        std::vector<Object *> objs = cornell_box(c, W, H);
-        PlaneLight light(
+        std::vector<Object *> objs = scene5(c, W, H);
+        PlaneLight lightA(
             BoundedPlane(
-                Point(W / 2 - 175, H, c.f.mod() + 1050),
-                Point(W / 2 - 175, H, c.f.mod() + 400),
-                Point(W / 2 + 175, H, c.f.mod() + 400),
-                Point(W / 2 + 175, H, c.f.mod() + 1050),
+                Point(W / 2 - 150, H, c.f.mod() + 900),
+                Point(W / 2 - 150, H, c.f.mod() + 800),
+                Point(W / 2 - 50, H, c.f.mod() + 800),
+                Point(W / 2 - 50, H, c.f.mod() + 900),
                 white),
             36000, RGB(1., 1., 1.));
 
-        PointLight light2(Point(W / 2 - 150, H - 50, c.f.mod() + 375), 36000000., RGB(1., 1., 1.));
+        PlaneLight lightB(
+            BoundedPlane(
+                Point(W / 2 + 50, H, c.f.mod() + 900),
+                Point(W / 2 + 50, H, c.f.mod() + 800),
+                Point(W / 2 + 150, H, c.f.mod() + 800),
+                Point(W / 2 + 150, H, c.f.mod() + 900),
+                white),
+            36000, RGB(1., 1., 1.));
+
+        PlaneLight lightC(
+            BoundedPlane(
+                Point(W / 2 - 150, H, c.f.mod() + 600),
+                Point(W / 2 - 150, H, c.f.mod() + 500),
+                Point(W / 2 - 50, H, c.f.mod() + 500),
+                Point(W / 2 - 50, H, c.f.mod() + 600),
+                white),
+            36000, RGB(1., 1., 1.));
+
+        PlaneLight lightD(
+            BoundedPlane(
+                Point(W / 2 + 50, H, c.f.mod() + 600),
+                Point(W / 2 + 50, H, c.f.mod() + 500),
+                Point(W / 2 + 150, H, c.f.mod() + 500),
+                Point(W / 2 + 150, H, c.f.mod() + 600),
+                white),
+            36000, RGB(1., 1., 1.));
+
+        PointLight light2(Point(W / 2, H - 50, c.f.mod() + 750), 36000000., RGB(1., 1., 1.));
         PointLight light3(Point(W / 2 + 150, H - 50, c.f.mod() + 375), 36000000., RGB(1., 1., 1.));
         World w;
         //w.add_light(&light3);
-        w.add_light(&light);
+        w.add_light(&lightA);
+        w.add_light(&lightB);
+        w.add_light(&lightC);
+        w.add_light(&lightD);
         w.add_objects(objs);
         w.set_background(RGB(0, 0, 0));
         std::thread P[NUM_THREADS];

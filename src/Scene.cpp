@@ -1,6 +1,6 @@
 /****************************************+
  * Fichero: Scene.cpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #include "Scene.hpp"
@@ -19,6 +19,7 @@
 
 //Some lambertian colors
 BRDF *white = new Lambertian(RGB(.85, .85, .85));
+BRDF *brown = new Lambertian(RGB(.45, .23, .06));
 BRDF *red = new Lambertian(RGB(.85, .085, .085));
 BRDF *green = new Lambertian(RGB(.085, .85, .085));
 BRDF *orange = new Lambertian(RGB(.85, .6, .0));
@@ -28,8 +29,8 @@ BRDF *blue_phong = new Phong(RGB(.085, .085, .425), RGB(0.085, 0.085, .35), 5.0f
 BRDF *mirror = new Specular(RGB(.85, .85, .85));
 BRDF *glass = new Transmissive(RGB(.85, .85, .85), GLASS_REFRACTION_INDEX);
 BRDF *water = new Transmissive(RGB(.85, .85, .85), WATER_REFRACTION_INDEX);
-BRDF *dielectric = new Dielectric(RGB(.4, .4, .4), RGB(.4, .4, .4), DIAMOND_REFRACTION_INDEX);
-BRDF *test = new Material(RGB(.05, .15, .3), RGB(.1, .1, .25), RGB(.1, .1, .1), RGB(.15, .15, .15), 8, GLASS_REFRACTION_INDEX);
+BRDF *dielectric = new Dielectric(RGB(.45, .45, .45), RGB(.45, .45, .45), GLASS_REFRACTION_INDEX);
+BRDF *test = new Material(RGB(.085, .2, .4), RGB(.15, .15, .35), RGB(.15, .15, .15), RGB(.0, .0, .0), 4, AIR_REFRACTION_INDEX);
 
 Camera::Camera(const Direction &_f, const Direction &_u, const Direction &_l, const Point &_o)
 {
@@ -410,105 +411,203 @@ std::vector<Object *> scene5(Camera c, const int W, const int H)
     //Pared IZQ
     geometry.push_back(new BoundedPlane(
         Point(c.o.x - c.l.mod(), H, c.f.mod()),
-        Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
-        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
-        red, false, "/Users/david/Desktop/images_IG/wall.ppm"));
+        white));
 
     //Pared DCH
     geometry.push_back(new BoundedPlane(
-        Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
         Point(c.o.x + c.l.mod(), H, c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
-        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        green, false, "/Users/david/Desktop/images_IG/wall.ppm"));
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        white));
 
     //Pared Fondo
     geometry.push_back(new BoundedPlane(
-        Point(c.o.x - c.l.mod(), H, c.f.mod() + 750),
-        Point(c.o.x + c.l.mod(), H, c.f.mod() + 750),
-        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        white, false, "/Users/david/Desktop/images_IG/wall.ppm"));
+        Point(c.o.x - c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), H, c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        white));
 
     //Pared Superior
     geometry.push_back(new BoundedPlane(
-        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
         Point(c.o.x - c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
         Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod()),
-        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x + c.l.mod(), c.o.y + c.u.mod(), c.f.mod() + 1500),
         white));
 
     //Pared Inferior
     geometry.push_back(new BoundedPlane(
         Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
-        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
-        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 750),
+        Point(c.o.x - c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
+        Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod() + 1500),
         Point(c.o.x + c.l.mod(), c.o.y - c.u.mod(), c.f.mod()),
-        white));
-    /*
+        white, true, "../SmallPM_v1/SmallPM-linux/SmallPM/data/textures/wood_floor.ppm"));
+
     //Cilindro
     geometry.push_back(new Cylinder(
-        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 500), 50, white),
-        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 500), 50, white),
-        50, H / 2 - 50, white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
-*/
+        Disk(Direction(0, -1, 0), Point(W / 2, 0, c.f.mod() + 600), 50, white),
+        Disk(Direction(0, 1, 0), Point(W / 2, H / 2 - 50, c.f.mod() + 600), 50, white),
+        50, H / 2 - 50, white, true, "../SmallPM_v1/SmallPM-linux/SmallPM/data/textures/marmol_azul.ppm"));
+
     // Esfera
     geometry.push_back(new Sphere(
-        Point(W / 2, 100, c.f.mod() + 375), Direction(0, 100, 0),
-        Point(W / 2 - 50, 100, c.f.mod() + 375),
-        mirror));
-    /*
+        Point(W / 2 + 150, H / 2 + 60, c.f.mod() + 700), Direction(0, 150, 0),
+        Point(W / 2 + 225, H / 2 + 60, c.f.mod() + 700),
+        test));
+
+    // Esfera
+    geometry.push_back(new Sphere(
+        Point(W / 2 + 200, 75, c.f.mod() + 500), Direction(0, 110, 0),
+        Point(W / 2 + 255, 75, c.f.mod() + 500),
+        glass));
+
+    // Esfera
+    geometry.push_back(new Sphere(
+        Point(W / 2 - 150, H / 2 - 100, c.f.mod() + 1000), Direction(0, 150, 0),
+        Point(W / 2 - 225, H / 2 - 100, c.f.mod() + 1000),
+        white, true, "../SmallPM_v1/SmallPM-linux/SmallPM/data/textures/marmol.ppm"));
+
     // Cono
     geometry.push_back(new Cone(
-        Point(W / 2 - 200, H / 2, c.f.mod() + 400),
-        150, 75, white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
+        Point(W / 2, H / 2 + 100, c.f.mod() + 600),
+        150, 15, white, true, "../SmallPM_v1/SmallPM-linux/SmallPM/data/textures/chess.ppm"));
 
-    geometry.push_back(new Cube(
-        // CARA FRONTAL
-        BoundedPlane(
-            Point(100, H - 100, c.f.mod() + 400),
-            Point(260, H - 100, c.f.mod() + 400),
-            Point(260, H - 200, c.f.mod() + 400),
-            Point(100, H - 200, c.f.mod() + 400),
-            white),
-        //CARA TRASERA
-        BoundedPlane(
-            Point(290, H - 100, c.f.mod() + 600),
-            Point(130, H - 100, c.f.mod() + 600),
-            Point(130, H - 200, c.f.mod() + 600),
-            Point(290, H - 200, c.f.mod() + 600),
-            white),
-        //CARA IZQUIERDA
-        BoundedPlane(
-            Point(130, H - 100, c.f.mod() + 600),
-            Point(100, H - 100, c.f.mod() + 400),
-            Point(100, H - 200, c.f.mod() + 400),
-            Point(130, H - 200, c.f.mod() + 600),
-            white),
-        // CARA DERECHA
-        BoundedPlane(
-            Point(260, H - 100, c.f.mod() + 400),
-            Point(290, H - 100, c.f.mod() + 600),
-            Point(290, H - 200, c.f.mod() + 600),
-            Point(260, H - 200, c.f.mod() + 400),
-            white),
-        // CARA SUPERIOR
-        BoundedPlane(
-            Point(130, H - 100, c.f.mod() + 600),
-            Point(290, H - 100, c.f.mod() + 600),
-            Point(260, H - 100, c.f.mod() + 400),
-            Point(100, H - 100, c.f.mod() + 400),
-            white),
-        //CARA INFERIOR
-        BoundedPlane(
-            Point(100, H - 200, c.f.mod() + 400),
-            Point(260, H - 200, c.f.mod() + 400),
-            Point(290, H - 200, c.f.mod() + 600),
-            Point(130, H - 200, c.f.mod() + 600),
-            white),
-        white, true, "/Users/david/Desktop/images_IG/earthmap1k.ppm"));
-*/
+    // CARA FRONTAL
+    geometry.push_back(new BoundedPlane(
+        Point(0, H / 2, c.f.mod() + 200),
+        Point(5, H / 2 + 5, c.f.mod() + 200),
+        Point(45, 5, c.f.mod() + 200),
+        Point(40, 0, c.f.mod() + 200),
+        brown));
+    //CARA TRASERA
+    geometry.push_back(new BoundedPlane(
+        Point(0, H / 2, c.f.mod() + 900),
+        Point(5, H / 2 + 5, c.f.mod() + 900),
+        Point(45, 5, c.f.mod() + 900),
+        Point(40, 0, c.f.mod() + 900),
+        brown));
+    //CARA IZQUIERDA
+    geometry.push_back(new BoundedPlane(
+        Point(0, H / 2, c.f.mod() + 900),
+        Point(0, H / 2, c.f.mod() + 200),
+        Point(40, 0, c.f.mod() + 200),
+        Point(40, 0, c.f.mod() + 900),
+        brown));
+    // CARA DERECHA
+    geometry.push_back(new BoundedPlane(
+        Point(5, H / 2 + 5, c.f.mod() + 200),
+        Point(5, H / 2 + 5, c.f.mod() + 900),
+        Point(45, 5, c.f.mod() + 900),
+        Point(45, 5, c.f.mod() + 200),
+        mirror));
+    // CARA SUPERIOR
+    geometry.push_back(new BoundedPlane(
+        Point(0, H / 2, c.f.mod() + 900),
+        Point(5, H / 2 + 5, c.f.mod() + 900),
+        Point(5, H / 2 + 5, c.f.mod() + 200),
+        Point(0, H / 2, c.f.mod() + 200),
+        brown));
+    //CARA INFERIOR
+    geometry.push_back(new BoundedPlane(
+        Point(40, 0, c.f.mod() + 200),
+        Point(45, 5, c.f.mod() + 200),
+        Point(45, 5, c.f.mod() + 900),
+        Point(40, 0, c.f.mod() + 900),
+        brown));
+
+    //***************************************************
+    // CARA FRONTAL
+    geometry.push_back(new BoundedPlane(
+        Point(W - 5, H / 2 + 75, c.f.mod() + 300),
+        Point(W, H / 2 + 75, c.f.mod() + 300),
+        Point(W, H / 2 - 75, c.f.mod() + 300),
+        Point(W - 5, H / 2 - 75, c.f.mod() + 300),
+        brown));
+    //CARA TRASERA
+    geometry.push_back(new BoundedPlane(
+        Point(W - 5, H / 2 + 75, c.f.mod() + 700),
+        Point(W, H / 2 + 75, c.f.mod() + 700),
+        Point(W, H / 2 - 75, c.f.mod() + 700),
+        Point(W - 5, H / 2 - 75, c.f.mod() + 700),
+        brown));
+    //CARA IZQUIERDA
+    geometry.push_back(new BoundedPlane(
+        Point(W - 5, H / 2 + 75, c.f.mod() + 700),
+        Point(W - 5, H / 2 + 75, c.f.mod() + 300),
+        Point(W - 5, H / 2 - 75, c.f.mod() + 300),
+        Point(W - 5, H / 2 - 75, c.f.mod() + 700),
+        white, true, "../SmallPM_v1/SmallPM-linux/SmallPM/data/textures/noche-estrellada.ppm"));
+    // CARA DERECHA,
+    geometry.push_back(new BoundedPlane(
+        Point(W, H / 2 + 75, c.f.mod() + 300),
+        Point(W, H / 2 + 75, c.f.mod() + 700),
+        Point(W, H / 2 - 75, c.f.mod() + 700),
+        Point(W, H / 2 - 75, c.f.mod() + 300),
+        brown));
+    // CARA SUPERIOR
+    geometry.push_back(new BoundedPlane(
+        Point(W - 5, H / 2 + 75, c.f.mod() + 700),
+        Point(W, H / 2 + 75, c.f.mod() + 700),
+        Point(W, H / 2 + 75, c.f.mod() + 300),
+        Point(W - 5, H / 2 + 75, c.f.mod() + 300),
+        brown));
+    //CARA INFERIOR
+    geometry.push_back(new BoundedPlane(
+        Point(W - 5, H / 2 - 75, c.f.mod() + 300),
+        Point(W, H / 2 - 75, c.f.mod() + 300),
+        Point(W, H / 2 - 75, c.f.mod() + 700),
+        Point(W - 5, H / 2 - 75, c.f.mod() + 700),
+        brown));
+
+    //***************************************************
+    // CARA FRONTAL
+    geometry.push_back(new BoundedPlane(
+        Point(50, H - 75, c.f.mod() + 1495),
+        Point(590, H - 75, c.f.mod() + 1495),
+        Point(590, 75, c.f.mod() + 1495),
+        Point(50, 75, c.f.mod() + 1495),
+        white, true, "../SmallPM_v1/SmallPM-linux/SmallPM/data/textures/guernica.ppm"));
+    //CARA TRASERA
+    geometry.push_back(new BoundedPlane(
+        Point(50, H - 75, c.f.mod() + 1500),
+        Point(590, H - 75, c.f.mod() + 1500),
+        Point(590, 75, c.f.mod() + 1500),
+        Point(50, 75, c.f.mod() + 1500),
+        brown));
+    //CARA IZQUIERDA
+    geometry.push_back(new BoundedPlane(
+        Point(50, H - 75, c.f.mod() + 1500),
+        Point(50, H - 75, c.f.mod() + 1495),
+        Point(50, 75, c.f.mod() + 1495),
+        Point(50, 75, c.f.mod() + 1500),
+        brown));
+    // CARA DERECHA
+    geometry.push_back(new BoundedPlane(
+        Point(590, H - 75, c.f.mod() + 1495),
+        Point(590, H - 75, c.f.mod() + 1500),
+        Point(590, 75, c.f.mod() + 1500),
+        Point(590, 75, c.f.mod() + 1495),
+        brown));
+    // CARA SUPERIOR
+    geometry.push_back(new BoundedPlane(
+        Point(50, H - 75, c.f.mod() + 1500),
+        Point(590, H - 75, c.f.mod() + 1500),
+        Point(590, H - 75, c.f.mod() + 1495),
+        Point(50, H - 75, c.f.mod() + 1495),
+        brown));
+    //CARA INFERIOR
+    geometry.push_back(new BoundedPlane(
+        Point(50, 75, c.f.mod() + 1495),
+        Point(590, 75, c.f.mod() + 1495),
+        Point(590, 75, c.f.mod() + 1500),
+        Point(50, 75, c.f.mod() + 1500),
+        brown));
+
     return geometry;
 }
 
@@ -558,14 +657,14 @@ std::vector<Object *> cornell_box(Camera c, const int W, const int H)
 
     // Esfera
     objects.push_back(new Sphere(
-        Point(W / 2 - 125, 115, c.f.mod() + 1300), Direction(0, 230, 0),
-        Point(W / 2 - 10, 115, c.f.mod() + 1300), blue_phong));
+        Point(W / 2 - 125, 115, c.f.mod() + 1150), Direction(0, 230, 0),
+        Point(W / 2 - 10, 115, c.f.mod() + 1150), mirror));
 
     // Esfera
     objects.push_back(new Sphere(
         Point(W / 2 + 150, 150, c.f.mod() + 400), Direction(0, 230, 0),
         Point(W / 2 + 35, 150, c.f.mod() + 400),
-        dielectric));
+        glass));
 
     return objects;
 }

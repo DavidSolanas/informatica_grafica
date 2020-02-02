@@ -1,6 +1,6 @@
 /****************************************+
  * Fichero: Specular.hpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #ifndef SPECULAR_HPP

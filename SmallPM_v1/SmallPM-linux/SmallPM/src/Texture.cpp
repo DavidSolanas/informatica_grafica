@@ -1,3 +1,7 @@
+/****************************************+
+ * Fichero: Texture.cpp
+ * Autor: David Solanas Sanz    738630
+ *****************************************/
 
 #include "../smallrt/include/Texture.h"
 

@@ -1,6 +1,6 @@
 /****************************************+
  * Fichero: Transformation.hpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #ifndef TRANSFORM_HPP

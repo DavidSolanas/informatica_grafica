@@ -28,6 +28,8 @@ media/**
 *.lo
 *.o
 *.obj
+*.mtl
+*.ppm
 
 # Precompiled Headers
 *.gch

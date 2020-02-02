@@ -1,6 +1,6 @@
 /****************************************+
  * Fichero: Cone.hpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #ifndef CONE_HPP

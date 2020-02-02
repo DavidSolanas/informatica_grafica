@@ -1,7 +1,7 @@
 
 /****************************************+
  * Fichero: Tone_mapper.cpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #include "Tone_mapping.hpp"

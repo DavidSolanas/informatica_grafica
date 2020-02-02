@@ -1,7 +1,7 @@
 
 /****************************************+
  * Fichero: Plane.hpp
- * Autor: David Solanas, Santiago Buey
+ * Autor: David Solanas Sanz    738630
  *****************************************/
 
 #include "Geometry.hpp"
