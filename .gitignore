@@ -7,9 +7,6 @@
 # Ignore build files
 build/**
 
-# Ignore media files
-media/**
-
 # Unignore all dirs
 !*/
 
@@ -29,7 +26,6 @@ media/**
 *.o
 *.obj
 *.mtl
-*.ppm
 
 # Precompiled Headers
 *.gch
